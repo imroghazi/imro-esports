@@ -243,6 +243,83 @@ async function loadAll(){
   loadPrizeSettings();
   renderPlayerStats();
 }
+  async function loadPrizeSettings(){
+  const {data,error}=await db
+    .from("prize_settings")
+    .select("*")
+    .eq("id",1)
+    .single();
+
+  if(error){
+    $("prizeMessage").textContent=error.message;
+    return;
+  }
+
+  $("prizeTier1").value=data.tier1_prize;
+  $("prizeTier2").value=data.tier2_prize;
+  $("prizeTier3").value=data.tier3_prize;
+  $("prizeStatus").value=data.prize_status;
+
+  updatePrizeTotal();
+}
+
+function updatePrizeTotal(){
+  const a=Number($("prizeTier1").value)||0;
+  const b=Number($("prizeTier2").value)||0;
+  const c=Number($("prizeTier3").value)||0;
+
+  $("totalPrize").textContent=
+    "₹"+(a+b+c).toLocaleString("en-IN");
+}
+
+async function savePrizeSettings(){
+  const tier1=Number($("prizeTier1").value);
+  const tier2=Number($("prizeTier2").value);
+  const tier3=Number($("prizeTier3").value);
+
+  if([tier1,tier2,tier3].some(n=>!Number.isFinite(n)||n<0)){
+    $("prizeMessage").textContent="Enter valid prize amounts.";
+    return;
+  }
+
+  const {error}=await db.from("prize_settings").upsert({
+    id:1,
+    tier1_prize:tier1,
+    tier2_prize:tier2,
+    tier3_prize:tier3,
+    prize_status:$("prizeStatus").value,
+    updated_at:new Date().toISOString()
+  });
+
+  if(error){
+    $("prizeMessage").textContent=error.message;
+    return;
+  }
+
+  updatePrizeTotal();
+  $("prizeMessage").textContent="Prize pool saved successfully!";
+}
+
+function renderPlayerStats(){
+  const approved=players.filter(p=>p.status==="approved");
+  const pending=players.filter(p=>p.status==="pending");
+  const reserve=players.filter(p=>p.status==="reserve");
+  const eliminated=players.filter(p=>p.status==="eliminated");
+
+  $("playerStats").innerHTML=`
+    <div class="item"><strong>${registrations.length}</strong><div class="small">Total registrations</div></div>
+    <div class="item"><strong>${approved.length}</strong><div class="small">Approved players</div></div>
+    <div class="item"><strong>${pending.length}</strong><div class="small">Pending approval</div></div>
+    <div class="item"><strong>${reserve.length}</strong><div class="small">Reserve players</div></div>
+    <div class="item"><strong>${eliminated.length}</strong><div class="small">Eliminated players</div></div>
+    ${[1,2,3].map(tier=>`
+      <div class="item">
+        <strong>${players.filter(p=>Number(p.tier)===tier).length}</strong>
+        <div class="small">Tier ${tier} players</div>
+      </div>
+    `).join("")}
+  `;
+}
 
 function updateRegistrationStatus(){
   const t=selectedTournament();
