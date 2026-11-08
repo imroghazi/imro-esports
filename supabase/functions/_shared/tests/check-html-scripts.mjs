@@ -32,7 +32,7 @@ try {
   assert.match(dashboard, /admin_confirm_match_winner/, "admin should confirm results through the RPC");
   assert.match(dashboard, /admin_start_tournament/, "admin should explicitly start the tournament");
   const migration = readFileSync(join(root, "supabase/migrations/202611090001_tournament_upgrade_foundation.sql"), "utf8");
-  const avatarIds = [...migration.matchAll(/^\((\d+),'(?:Cyber Warriors|Legends & Fantasy|Elite Gamers|Shadow Squad|Robots & Neon|Mythical)'/gm)].map(match => Number(match[1]));
+  const avatarIds = [...migration.matchAll(/\((\d+),'(?:Cyber Warriors|Legends & Fantasy|Elite Gamers|Shadow Squad|Robots & Neon|Mythical)'/g)].map(match => Number(match[1]));
   assert.equal(new Set(avatarIds).size, 64, "migration should seed 64 unique avatars");
   assert.equal(Math.min(...avatarIds), 1);
   assert.equal(Math.max(...avatarIds), 64);
