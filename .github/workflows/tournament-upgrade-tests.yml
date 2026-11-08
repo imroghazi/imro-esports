@@ -21,3 +21,5 @@ jobs:
           node-version: 22
       - name: Run bracket engine tests
         run: node --test supabase/functions/_shared/tests/*.test.js
+      - name: Validate HTML scripts and feature wiring
+        run: node supabase/functions/_shared/tests/check-html-scripts.mjs
