@@ -45,6 +45,8 @@ button:disabled{opacity:.5}
 <select id="tournament"></select>
 <p id="regStatus" class="small"></p>
 <button id="toggleRegistration">Close registration</button>
+<button id="startTournament">Start tournament & leaderboard</button>
+<p id="tournamentStartStatus" class="small">Leaderboard remains hidden until the admin starts the tournament.</p>
 <button class="secondary" id="refresh">Refresh data</button>
 <button class="secondary" id="logout">Logout</button>
 </section>
@@ -83,6 +85,19 @@ button:disabled{opacity:.5}
 <button id="addMatch">Add match</button>
 <button class="secondary" id="publishDraw">Publish this draw</button>
 <div id="matches"></div>
+</section>
+
+<section>
+<h2>⚙️ Tier Scoring Rules</h2>
+<p class="small">Only admin-confirmed match results award points. Defaults are editable.</p>
+<div id="scoringRules"></div>
+<button id="saveScoringRules">Save scoring rules</button>
+<p id="scoringMessage" class="small"></p>
+</section>
+
+<section>
+<h2>📈 Live Tournament Leaderboard</h2>
+<div id="adminLeaderboard"><p class="small">No leaderboard entries yet. Start the tournament to enable public visibility.</p></div>
 </section>
 
 <section>
@@ -146,6 +161,7 @@ let players = [];
 let registrations = [];
 let matches = [];
 let currentDrawId = null;
+let leaderboardChannel = null;
 
 function safe(value){
   return String(value ?? "").replace(/[&<>"']/g,c=>({
@@ -241,7 +257,13 @@ async function loadAll(){
   renderReceipts();
   updateRegistrationStatus();
   loadPrizeSettings();
+  loadScoringRules();
+  loadLeaderboard();
   renderPlayerStats();
+  const selected = selectedTournament();
+  $("tournamentStartStatus").textContent = selected?.started_at
+    ? "Tournament started. Public leaderboard is enabled."
+    : "Leaderboard remains hidden until the admin starts the tournament.";
 }
   async function loadPrizeSettings(){
   const {data,error}=await db
@@ -346,9 +368,12 @@ function renderPlayers(){
     const registration=registrations.find(r=>r.id===p.registration_id);
     const token=registration?.registration_token||"Not available";
     const next=p.tier<3?p.tier+1:null;
+    const avatar=Number(p.avatar_id);
+    const avatarLabel=avatar>=1&&avatar<=64?"Avatar #"+avatar:"No avatar";
 
     return `<div class="item">
       <strong>${safe(p.player_name)}</strong>
+      <div class="small">${safe(avatarLabel)}</div>
       <div class="small">UID: ${safe(p.game_uid)}</div>
       <div class="small">Tier ${p.tier} · Status: ${safe(p.status)}</div>
       <div class="small">Token: ${safe(token)}</div>
@@ -499,8 +524,15 @@ function renderMatches(){
       <strong>Tier ${m.tier} · Round ${m.round_number}</strong>
       <p>${safe(playerName(m.player_one))} vs ${safe(playerName(m.player_two))}</p>
       <div class="small">Status: ${safe(m.status)} · ${m.published?"Published":"Unpublished"}</div>
-      ${m.status==="pending"?
-        `<label>Mark absent player</label>
+      ${m.status==="pending" || m.status==="rescheduled"?
+        `<label>Confirm match winner</label>
+        <select id="winner-${m.id}">
+          <option value="">Choose winner</option>
+          <option value="${m.player_one}">${safe(playerName(m.player_one))}</option>
+          <option value="${m.player_two}">${safe(playerName(m.player_two))}</option>
+        </select>
+        <button onclick="confirmMatchWinner('${m.id}')">Confirm winner & advance</button>
+        <label>Mark absent player</label>
         <select id="absent-${m.id}">
           <option value="">Choose player</option>
           <option value="${m.player_one}">${safe(playerName(m.player_one))}</option>
@@ -596,6 +628,78 @@ async function publishDraw(){
   await loadAll();
 }
 
+async function loadScoringRules(){
+  const {data,error}=await db.from("tier_scoring_rules").select("*").order("tier");
+  if(error){$("scoringMessage").textContent=error.message;return;}
+  $("scoringRules").innerHTML=(data||[]).map(rule=>`
+    <div class="item">
+      <strong>Tier ${rule.tier}</strong>
+      <div class="grid">
+        <label>Match win<input type="number" min="0" id="score-win-${rule.tier}" value="${rule.match_win_points}"></label>
+        <label>Runner-up<input type="number" min="0" id="score-runner-${rule.tier}" value="${rule.runner_up_points}"></label>
+        <label>Champion bonus<input type="number" min="0" id="score-champion-${rule.tier}" value="${rule.champion_bonus}"></label>
+        <label>Promotion bonus<input type="number" min="0" id="score-promotion-${rule.tier}" value="${rule.promotion_bonus}"></label>
+      </div>
+    </div>`).join("") || "<p>No scoring rules found. Apply the tournament upgrade migration first.</p>";
+}
+
+async function saveScoringRules(){
+  const rows=[1,2,3].map(tier=>({
+    tier,
+    match_win_points:Number($("score-win-"+tier)?.value),
+    runner_up_points:Number($("score-runner-"+tier)?.value),
+    champion_bonus:Number($("score-champion-"+tier)?.value),
+    promotion_bonus:Number($("score-promotion-"+tier)?.value),
+    updated_at:new Date().toISOString()
+  }));
+  if(rows.some(r=>["match_win_points","runner_up_points","champion_bonus","promotion_bonus"].some(k=>!Number.isInteger(r[k])||r[k]<0))){
+    $("scoringMessage").textContent="Enter whole numbers of zero or more for every tier.";
+    return;
+  }
+  const {error}=await db.from("tier_scoring_rules").upsert(rows,{onConflict:"tier"});
+  $("scoringMessage").textContent=error?error.message:"Scoring rules saved.";
+  if(!error) await loadScoringRules();
+}
+
+async function startTournament(){
+  const id=tournamentId();
+  if(!id)return;
+  if(!confirm("Start this tournament now? This enables public leaderboard visibility."))return;
+  const {data,error}=await db.rpc("admin_start_tournament",{p_tournament_id:id});
+  if(error){message("Could not start tournament: "+error.message);return;}
+  $("tournamentStartStatus").textContent="Tournament started at "+new Date(data).toLocaleString();
+  message("Tournament started. Public leaderboard is now enabled.");
+  await loadLeaderboard();
+}
+
+async function confirmMatchWinner(id){
+  const winner=$("winner-"+id)?.value;
+  if(!winner)return message("Choose the winning player first.");
+  if(!confirm("Confirm this result? The winner advances and points are awarded."))return;
+  const {data,error}=await db.rpc("admin_confirm_match_winner",{p_match_id:id,p_winner_id:winner});
+  if(error){message("Result not saved: "+error.message);return;}
+  message("Winner confirmed. "+Number(data.winner_points||0)+" points awarded; winner advanced where the bracket link exists.");
+  await loadAll();
+}
+
+async function loadLeaderboard(){
+  const id=tournamentId();
+  if(!id)return;
+  const {data,error}=await db.from("leaderboard_totals")
+    .select("tournament_id,player_id,tier,points,wins,losses,players(player_name,game_uid)")
+    .eq("tournament_id",id)
+    .order("points",{ascending:false});
+  if(error){
+    $("adminLeaderboard").innerHTML='<p class="small">Leaderboard not available yet. Apply the upgrade migration first.</p>';
+    return;
+  }
+  $("adminLeaderboard").innerHTML=(data||[]).map((row,index)=>`
+    <div class="item">
+      <strong>#${index+1} ${safe(row.players?.player_name||"Player")}</strong>
+      <div class="small">Tier ${row.tier} · ${row.points} points · ${row.wins} wins · ${row.losses} losses</div>
+    </div>`).join("") || '<p class="small">No confirmed results yet.</p>';
+}
+
 async function createReceipt(){
   const registrationId=$("receiptPlayer").value;
   const transactionId=$("transactionId").value.trim();
@@ -643,6 +747,8 @@ $("addMatch").onclick=addMatch;
 $("publishDraw").onclick=publishDraw;
 $("createReceipt").onclick=createReceipt;
 $("savePrizes").onclick=savePrizeSettings;
+$("saveScoringRules").onclick=saveScoringRules;
+$("startTournament").onclick=startTournament;
 $("logout").onclick=async()=>{
   await db.auth.signOut();
   location.href="/admin.html";
