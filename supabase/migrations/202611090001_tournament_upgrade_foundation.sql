@@ -223,6 +223,14 @@ begin
     raise exception 'Tournament not found';
   end if;
 
+  -- Seed every approved player so the leaderboard starts with zero-point rows.
+  insert into public.leaderboard_totals(tournament_id, player_id, tier, points, wins, losses)
+  select p_tournament_id, p.id, p.tier, 0, 0, 0
+  from public.players p
+  where p.tournament_id = p_tournament_id
+    and p.status = 'approved'
+  on conflict (tournament_id, player_id) do nothing;
+
   return v_started_at;
 end;
 $function$;
@@ -406,6 +414,71 @@ begin
   returning points into v_total;
 
   return v_total;
+end;
+$function$;
+
+-- Make promotion bonuses auditable and idempotent.
+create unique index if not exists points_ledger_one_promotion_note
+  on public.points_ledger(tournament_id, player_id, event_type, note)
+  where event_type = 'promotion';
+
+create or replace function public.admin_award_promotion_bonus(
+  p_tournament_id uuid,
+  p_player_id uuid,
+  p_from_tier smallint,
+  p_to_tier smallint
+)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $function$
+declare
+  v_bonus integer;
+  v_entry_id uuid;
+  v_note text;
+  v_total integer;
+begin
+  if auth.uid() is null or not public.is_imro_admin() then
+    raise exception 'Admin access required' using errcode = '42501';
+  end if;
+  if p_to_tier <> p_from_tier + 1 or p_from_tier not between 1 and 2 then
+    raise exception 'Invalid promotion tier transition';
+  end if;
+  if not exists (
+    select 1 from public.players
+    where id = p_player_id and tournament_id = p_tournament_id and tier = p_to_tier
+  ) then raise exception 'Player tier has not been updated to the promoted tier'; end if;
+  if not exists (
+    select 1 from public.promotion_history
+    where player_id = p_player_id and tournament_id = p_tournament_id
+      and from_tier = p_from_tier and to_tier = p_to_tier
+  ) then raise exception 'Promotion history record is required'; end if;
+
+  select promotion_bonus into v_bonus
+  from public.tier_scoring_rules where tier = p_from_tier;
+  v_bonus := coalesce(v_bonus, 0);
+  v_note := 'Promotion Tier ' || p_from_tier || ' to Tier ' || p_to_tier;
+
+  if v_bonus > 0 then
+    insert into public.points_ledger(tournament_id, player_id, event_type, points, note, created_by)
+    values (p_tournament_id, p_player_id, 'promotion', v_bonus, v_note, auth.uid())
+    on conflict do nothing
+    returning id into v_entry_id;
+
+    if v_entry_id is not null then
+      insert into public.leaderboard_totals(tournament_id, player_id, tier, points)
+      values (p_tournament_id, p_player_id, p_to_tier, v_bonus)
+      on conflict (tournament_id, player_id) do update
+      set tier = excluded.tier,
+          points = public.leaderboard_totals.points + excluded.points,
+          updated_at = now();
+    end if;
+  end if;
+
+  select points into v_total from public.leaderboard_totals
+  where tournament_id = p_tournament_id and player_id = p_player_id;
+  return coalesce(v_total, 0);
 end;
 $function$;
 
