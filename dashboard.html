@@ -642,6 +642,7 @@ $("createDraw").onclick=createDraw;
 $("addMatch").onclick=addMatch;
 $("publishDraw").onclick=publishDraw;
 $("createReceipt").onclick=createReceipt;
+$("savePrizes").onclick=savePrizeSettings;
 $("logout").onclick=async()=>{
   await db.auth.signOut();
   location.href="/admin.html";
