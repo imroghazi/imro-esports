@@ -25,14 +25,15 @@ export function buildSingleEliminationBracket(input, random = Math.random) {
   }
 
   const bracketSize = 2 ** Math.ceil(Math.log2(active.length));
-  const firstRoundSlots = [];
-  for (let i = 0; i < active.length; i += 2) {
-    firstRoundSlots.push({ playerOne: active[i], playerTwo: active[i + 1] });
-  }
-
-  // Byes are explicit bracket slots. They advance only the single present player.
+  // Give the minimum number of players a first-round bye so the field becomes a power of two.
   const byeCount = bracketSize - active.length;
   const byes = active.slice(0, byeCount).map(player => ({ player, advances: true }));
+  const playing = active.slice(byeCount);
+  const firstRoundSlots = [];
+  for (let i = 0; i < playing.length; i += 2) {
+    firstRoundSlots.push({ playerOne: playing[i], playerTwo: playing[i + 1] });
+  }
+
   const rounds = [{ number: 1, matches: firstRoundSlots, byes }];
   let matchCount = firstRoundSlots.length;
   let width = Math.ceil(bracketSize / 2);
