@@ -200,4 +200,196 @@ begin
 end;
 $function$;
 
+-- Start the public tournament leaderboard only when the admin explicitly starts the event.
+create or replace function public.admin_start_tournament(p_tournament_id uuid)
+returns timestamptz
+language plpgsql
+security definer
+set search_path = public
+as $function$
+declare
+  v_started_at timestamptz;
+begin
+  if auth.uid() is null or not public.is_imro_admin() then
+    raise exception 'Admin access required' using errcode = '42501';
+  end if;
+
+  update public.tournaments
+  set started_at = coalesce(started_at, now())
+  where id = p_tournament_id
+  returning started_at into v_started_at;
+
+  if v_started_at is null then
+    raise exception 'Tournament not found';
+  end if;
+
+  return v_started_at;
+end;
+$function$;
+
+-- Confirm a result exactly once, award tier points, and move the winner into the linked next-round slot.
+create or replace function public.admin_confirm_match_winner(
+  p_match_id uuid,
+  p_winner_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $function$
+declare
+  v_match public.matches%rowtype;
+  v_loser_id uuid;
+  v_points integer;
+  v_champion_bonus integer;
+  v_runner_up_points integer;
+  v_total integer;
+begin
+  if auth.uid() is null or not public.is_imro_admin() then
+    raise exception 'Admin access required' using errcode = '42501';
+  end if;
+
+  select * into v_match
+  from public.matches
+  where id = p_match_id
+  for update;
+
+  if not found then raise exception 'Match not found'; end if;
+  if v_match.status = 'completed' or v_match.winner_id is not null then
+    raise exception 'This match result has already been confirmed';
+  end if;
+  if p_winner_id is null or p_winner_id not in (v_match.player_one, v_match.player_two) then
+    raise exception 'Winner must be one of the two players in this match';
+  end if;
+  if v_match.player_one is null or v_match.player_two is null then
+    raise exception 'Both match slots must be filled before confirming a winner';
+  end if;
+
+  v_loser_id := case when p_winner_id = v_match.player_one then v_match.player_two else v_match.player_one end;
+
+  select match_win_points, champion_bonus, runner_up_points
+  into v_points, v_champion_bonus, v_runner_up_points
+  from public.tier_scoring_rules
+  where tier = v_match.tier;
+
+  v_points := coalesce(v_points, 0);
+  v_champion_bonus := coalesce(v_champion_bonus, 0);
+  v_runner_up_points := coalesce(v_runner_up_points, 0);
+
+  -- Validate the destination before recording any result.
+  if v_match.next_match_id is not null then
+    if v_match.next_match_slot = 1 and exists (
+      select 1 from public.matches
+      where id = v_match.next_match_id and player_one is not null and player_one <> p_winner_id
+    ) then raise exception 'Next-round player-one slot is already occupied'; end if;
+    if v_match.next_match_slot = 2 and exists (
+      select 1 from public.matches
+      where id = v_match.next_match_id and player_two is not null and player_two <> p_winner_id
+    ) then raise exception 'Next-round player-two slot is already occupied'; end if;
+    if v_match.next_match_slot not in (1,2) then raise exception 'Next-round slot is not configured'; end if;
+  end if;
+
+  update public.matches
+  set winner_id = p_winner_id,
+      status = 'completed',
+      winner_confirmed_at = now()
+  where id = p_match_id;
+
+  insert into public.points_ledger(tournament_id, player_id, match_id, event_type, points, note, created_by)
+  values (v_match.tournament_id, p_winner_id, p_match_id, 'match_win', v_points, 'Admin-confirmed match win', auth.uid());
+
+  insert into public.leaderboard_totals(tournament_id, player_id, tier, points, wins, losses)
+  values (v_match.tournament_id, p_winner_id, v_match.tier, v_points, 1, 0)
+  on conflict (tournament_id, player_id) do update
+  set points = public.leaderboard_totals.points + excluded.points,
+      wins = public.leaderboard_totals.wins + 1,
+      updated_at = now();
+
+  insert into public.leaderboard_totals(tournament_id, player_id, tier, points, wins, losses)
+  values (v_match.tournament_id, v_loser_id, v_match.tier, 0, 0, 1)
+  on conflict (tournament_id, player_id) do update
+  set losses = public.leaderboard_totals.losses + 1,
+      updated_at = now();
+
+  if v_match.next_match_id is not null then
+    if v_match.next_match_slot = 1 then
+      update public.matches set player_one = p_winner_id where id = v_match.next_match_id;
+    else
+      update public.matches set player_two = p_winner_id where id = v_match.next_match_id;
+    end if;
+  else
+    -- A match with no next node is the final: award champion and runner-up bonuses.
+    if v_champion_bonus > 0 then
+      insert into public.points_ledger(tournament_id, player_id, match_id, event_type, points, note, created_by)
+      values (v_match.tournament_id, p_winner_id, p_match_id, 'champion', v_champion_bonus, 'Tournament champion bonus', auth.uid());
+      update public.leaderboard_totals
+      set points = points + v_champion_bonus, updated_at = now()
+      where tournament_id = v_match.tournament_id and player_id = p_winner_id;
+    end if;
+    if v_runner_up_points > 0 then
+      insert into public.points_ledger(tournament_id, player_id, match_id, event_type, points, note, created_by)
+      values (v_match.tournament_id, v_loser_id, p_match_id, 'runner_up', v_runner_up_points, 'Tournament runner-up bonus', auth.uid());
+      update public.leaderboard_totals
+      set points = points + v_runner_up_points, updated_at = now()
+      where tournament_id = v_match.tournament_id and player_id = v_loser_id;
+    end if;
+    update public.tournaments set completed_at = coalesce(completed_at, now())
+    where id = v_match.tournament_id;
+  end if;
+
+  select points into v_total from public.leaderboard_totals
+  where tournament_id = v_match.tournament_id and player_id = p_winner_id;
+
+  return jsonb_build_object(
+    'success', true,
+    'winner_id', p_winner_id,
+    'loser_id', v_loser_id,
+    'winner_points', v_points,
+    'winner_total', coalesce(v_total, 0),
+    'advanced_to_match_id', v_match.next_match_id
+  );
+end;
+$function$;
+
+-- Audited manual point changes; no direct client-side writes are needed.
+create or replace function public.admin_adjust_player_points(
+  p_tournament_id uuid,
+  p_player_id uuid,
+  p_points integer,
+  p_note text
+)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $function$
+declare
+  v_tier integer;
+  v_total integer;
+begin
+  if auth.uid() is null or not public.is_imro_admin() then
+    raise exception 'Admin access required' using errcode = '42501';
+  end if;
+  if p_points = 0 or length(trim(coalesce(p_note,''))) < 3 then
+    raise exception 'Provide a non-zero adjustment and a reason';
+  end if;
+
+  select tier into v_tier from public.players
+  where id = p_player_id and tournament_id = p_tournament_id;
+  if not found then raise exception 'Player not found in this tournament'; end if;
+
+  insert into public.points_ledger(tournament_id, player_id, event_type, points, note, created_by)
+  values (p_tournament_id, p_player_id, 'admin_adjustment', p_points, trim(p_note), auth.uid());
+
+  insert into public.leaderboard_totals(tournament_id, player_id, tier, points)
+  values (p_tournament_id, p_player_id, v_tier, p_points)
+  on conflict (tournament_id, player_id) do update
+  set points = public.leaderboard_totals.points + excluded.points,
+      updated_at = now()
+  returning points into v_total;
+
+  return v_total;
+end;
+$function$;
+
 commit;
