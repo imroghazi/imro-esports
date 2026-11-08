@@ -31,6 +31,16 @@ try {
   const dashboard = readFileSync(join(root, "dashboard.html"), "utf8");
   assert.match(dashboard, /admin_confirm_match_winner/, "admin should confirm results through the RPC");
   assert.match(dashboard, /admin_start_tournament/, "admin should explicitly start the tournament");
+  const migration = readFileSync(join(root, "supabase/migrations/202611090001_tournament_upgrade_foundation.sql"), "utf8");
+  const avatarIds = [...migration.matchAll(/^\\((\\d+),'(?:Cyber Warriors|Legends & Fantasy|Elite Gamers|Shadow Squad|Robots & Neon|Mythical)'/gm)].map(match => Number(match[1]));
+  assert.equal(new Set(avatarIds).size, 64, "migration should seed 64 unique avatars");
+  assert.equal(Math.min(...avatarIds), 1);
+  assert.equal(Math.max(...avatarIds), 64);
+  assert.match(migration, /admin_confirm_match_winner/);
+  assert.match(migration, /admin_start_tournament/);
+  assert.match(migration, /admin_award_promotion_bonus/);
+  assert.match(migration, /get_public_leaderboard/);
+  assert.doesNotMatch(migration, /\\b(drop table|truncate table|delete from public\\.)\\b/i, "migration must not delete existing production data");
   console.log("HTML inline JavaScript and feature wiring checks passed.");
 } finally {
   rmSync(temp, { recursive: true, force: true });
