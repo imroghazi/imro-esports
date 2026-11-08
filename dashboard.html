@@ -162,6 +162,7 @@ let registrations = [];
 let matches = [];
 let currentDrawId = null;
 let leaderboardChannel = null;
+let leaderboardChannelId = null;
 
 function safe(value){
   return String(value ?? "").replace(/[&<>"']/g,c=>({
@@ -203,7 +204,7 @@ async function start(){
 async function loadTournaments(){
   const {data,error} = await db
     .from("tournaments")
-    .select("id,title,registration_open")
+    .select("id,title,registration_open,started_at")
     .order("created_at",{ascending:false});
 
   if(error){message(error.message);return;}
@@ -233,6 +234,7 @@ function selectedTournament(){
 async function loadAll(){
   const id = tournamentId();
   if(!id)return;
+  subscribeLeaderboard();
 
   const [p,r,m,rc] = await Promise.all([
     db.from("players").select("*").eq("tournament_id",id).order("created_at"),
@@ -667,6 +669,8 @@ async function startTournament(){
   if(!confirm("Start this tournament now? This enables public leaderboard visibility."))return;
   const {data,error}=await db.rpc("admin_start_tournament",{p_tournament_id:id});
   if(error){message("Could not start tournament: "+error.message);return;}
+  const selected=selectedTournament();
+  if(selected) selected.started_at=data;
   $("tournamentStartStatus").textContent="Tournament started at "+new Date(data).toLocaleString();
   message("Tournament started. Public leaderboard is now enabled.");
   await loadLeaderboard();
@@ -680,6 +684,21 @@ async function confirmMatchWinner(id){
   if(error){message("Result not saved: "+error.message);return;}
   message("Winner confirmed. "+Number(data.winner_points||0)+" points awarded; winner advanced where the bracket link exists.");
   await loadAll();
+}
+
+function subscribeLeaderboard(){
+  const id=tournamentId();
+  if(!id || leaderboardChannelId===id)return;
+  if(leaderboardChannel) db.removeChannel(leaderboardChannel);
+  leaderboardChannelId=id;
+  leaderboardChannel=db.channel("leaderboard-"+id)
+    .on("postgres_changes",{
+      event:"*",
+      schema:"public",
+      table:"leaderboard_totals",
+      filter:"tournament_id=eq."+id
+    },()=>loadLeaderboard())
+    .subscribe();
 }
 
 async function loadLeaderboard(){
