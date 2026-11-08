@@ -22,6 +22,18 @@ form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}
 </style>
 </head>
 <body>
+  <section id="prizePool" style="margin:18px auto;padding:22px 16px;text-align:center;background:linear-gradient(135deg,#190909,#321010,#090909);border:1px solid #ed6b55;border-radius:16px;box-shadow:0 0 20px #ed233c33;">
+  <div style="color:#ed6b55;font-weight:900;letter-spacing:4px;">🏆 IMRO ESPORTS</div>
+  <h2 style="font-size:26px;margin:10px 0;color:#fff;">PRIZE POOL</h2>
+  <div id="publicTotalPrize" style="font-size:38px;font-weight:900;color:#edb655;">₹0</div>
+  <p id="publicPrizeStatus" style="color:#aaa;">Prize pool to be confirmed</p>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;">
+    <div class="card"><strong>🥇 TIER 1</strong><h3 id="publicTier1">₹0</h3></div>
+    <div class="card"><strong>🥈 TIER 2</strong><h3 id="publicTier2">₹0</h3></div>
+    <div class="card"><strong>🥉 TIER 3</strong><h3 id="publicTier3">₹0</h3></div>
+  </div>
+  <p style="color:#edb655;font-style:italic;margin-top:18px;">"Your rank is temporary. Your legacy is forever."</p>
+  </section>
 <header><div><div class="brand">IMRO <span>ESPORTS</span></div><div class="tag">COMMUNITY TOURNAMENT</div></div><a class="btn" href="#register">REGISTER</a></header>
 <main>
 <div class="hero"><div class="eyebrow">LOCAL COMMUNITY • PURE GAMEPLAY</div><h1>ENTER THE<br><span style="color:var(--red)">ARENA.</span></h1><p>Compete, prove your skills, and represent your tier. Register for the IMRO ESPORTS community tournament.</p><a class="btn" href="#register">Register now ↓</a></div>
@@ -121,7 +133,50 @@ form.addEventListener("submit", async (e) => {
 <div style="text-align:center; padding:25px; margin-top:30px; border-top:1px solid #333;">
   <a href="/admin.html" style="color:#aaa; text-decoration:none; font-size:14px;">
     IMRO ESPORTS • Admin Login
-  </a>
+  </a><script>
+async function loadPublicPrizePool() {
+  const url = "https://gjjhuultiezaybvoykra.supabase.co/rest/v1/prize_settings?id=eq.1&select=*";
+  const key = "sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        apikey: key,
+        Authorization: "Bearer " + key
+      }
+    });
+
+    if (!response.ok) throw new Error("Could not load prizes");
+
+    const rows = await response.json();
+    if (!rows.length) return;
+
+    const prize = rows[0];
+    const format = amount =>
+      "₹" + Number(amount || 0).toLocaleString("en-IN");
+
+    document.getElementById("publicTier1").textContent = format(prize.tier1_prize);
+    document.getElementById("publicTier2").textContent = format(prize.tier2_prize);
+    document.getElementById("publicTier3").textContent = format(prize.tier3_prize);
+
+    const total =
+      Number(prize.tier1_prize) +
+      Number(prize.tier2_prize) +
+      Number(prize.tier3_prize);
+
+    document.getElementById("publicTotalPrize").textContent = format(total);
+
+    document.getElementById("publicPrizeStatus").textContent =
+      prize.prize_status === "announced"
+        ? "🏆 Officially announced"
+        : "Prize pool to be confirmed";
+  } catch (error) {
+    console.error("Prize pool:", error);
+  }
+}
+
+loadPublicPrizePool();
+  </script>
 </div>
 
 </body>
