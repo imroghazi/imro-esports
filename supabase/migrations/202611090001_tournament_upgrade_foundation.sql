@@ -162,4 +162,42 @@ begin
   end if;
 end $$;
 
+-- Preserve the selected registration avatar when the existing trigger creates a player row.
+create or replace function public.create_player_from_registration()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $function$
+begin
+  insert into public.players (
+    registration_id,
+    tournament_id,
+    player_name,
+    game_uid,
+    whatsapp,
+    tier,
+    status,
+    avatar_id
+  )
+  values (
+    new.id,
+    new.tournament_id,
+    new.ign,
+    new.player_uid,
+    new.contact_number,
+    case new.tier
+      when 'Tier 1' then 1
+      when 'Tier 2' then 2
+      when 'Tier 3' then 3
+    end,
+    'pending',
+    new.avatar_id
+  )
+  on conflict (registration_id) do nothing;
+
+  return new;
+end;
+$function$;
+
 commit;
