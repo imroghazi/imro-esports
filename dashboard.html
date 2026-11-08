@@ -443,7 +443,20 @@ async function promotePlayer(id){
     return;
   }
 
-  message("Player promoted to Tier "+next+".");
+  const {data:total,error:bonusError}=await db.rpc("admin_award_promotion_bonus",{
+    p_tournament_id:p.tournament_id,
+    p_player_id:p.id,
+    p_from_tier:p.tier,
+    p_to_tier:next
+  });
+
+  if(bonusError){
+    message("Player promoted, but the promotion bonus could not be recorded: "+bonusError.message);
+    await loadAll();
+    return;
+  }
+
+  message("Player promoted to Tier "+next+". Current points: "+total+".");
   await loadAll();
 }
 
