@@ -1,1 +1,547 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IMRO ESPORTS | Control Room</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080d15;color:#fff;font-family:Arial,sans-serif}
+header{background:#111b29;padding:20px;border-bottom:1px solid #344052}
+h1{color:#55e6a5;margin:0 0 8px}
+main{max-width:1000px;margin:auto;padding:16px}
+section{background:#141e2c;border:1px solid #344052;border-radius:12px;padding:16px;margin:16px 0}
+h2{color:#55e6a5;font-size:19px}
+label{display:block;margin:12px 0 6px;color:#bdc9d8}
+input,select{width:100%;padding:12px;background:#09111d;color:white;border:1px solid #46536a;border-radius:7px}
+button{padding:11px 14px;border:0;border-radius:7px;background:#55e6a5;color:#06130c;font-weight:bold;margin:6px 4px 6px 0}
+button.secondary{background:#34445b;color:white}
+button.danger{background:#a83d49;color:white}
+button:disabled{opacity:.5}
+.item{border:1px solid #35445a;border-radius:8px;padding:12px;margin:10px 0;overflow-wrap:anywhere}
+.small{color:#aab8c9;font-size:13px}
+#message{padding:12px;overflow-wrap:anywhere}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+<h1>IMRO ESPORTS</h1>
+<div>ADMIN CONTROL ROOM</div>
+<p class="small">Private tournament management</p>
+</header>
+
+<main>
+<div id="message">Checking admin access...</div>
+
+<div id="dashboard" class="hidden">
+
+<section>
+<h2>Tournament</h2>
+<label>Select tournament</label>
+<select id="tournament"></select>
+<p id="regStatus" class="small"></p>
+<button id="toggleRegistration">Close registration</button>
+<button class="secondary" id="refresh">Refresh data</button>
+<button class="secondary" id="logout">Logout</button>
+</section>
+
+<section>
+<h2>Player management</h2>
+<div id="players"></div>
+</section>
+
+<section>
+<h2>Manual 1v1 matchmaking</h2>
+<label>Tier</label>
+<select id="matchTier">
+<option value="1">Tier 1</option>
+<option value="2">Tier 2</option>
+<option value="3">Tier 3</option>
+</select>
+
+<label>Round number</label>
+<input id="roundNumber" type="number" min="1" value="1">
+
+<button id="createDraw">Create draft draw</button>
+<p id="drawStatus" class="small">No draft draw selected.</p>
+
+<div class="grid">
+<div>
+<label>Player one</label>
+<select id="playerOne"></select>
+</div>
+<div>
+<label>Player two</label>
+<select id="playerTwo"></select>
+</div>
+</div>
+
+<button id="addMatch">Add match</button>
+<button class="secondary" id="publishDraw">Publish this draw</button>
+<div id="matches"></div>
+</section>
+
+<section>
+<h2>Payment receipts</h2>
+<p class="small">Record payments manually. This does not collect money.</p>
+<label>Registered player</label>
+<select id="receiptPlayer"></select>
+
+<label>Transaction ID</label>
+<input id="transactionId" maxlength="120" placeholder="Enter transaction ID">
+
+<label>Amount (₹)</label>
+<input id="amount" type="number" min="0" step="0.01" placeholder="Enter amount">
+
+<label>Receipt note</label>
+<input id="receiptNote" maxlength="250" placeholder="Optional note">
+
+<button id="createReceipt">Create receipt</button>
+<div id="receipts"></div>
+</section>
+
+</div>
+</main>
+
+<script>
+const SUPABASE_URL = "https://gjjhuultiezaybvoykra.supabase.co";
+const SUPABASE_KEY = "sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+let currentUser = null;
+let tournaments = [];
+let players = [];
+let registrations = [];
+let matches = [];
+let currentDrawId = null;
+
+function safe(value){
+  return String(value ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+function message(text){
+  $("message").textContent = text;
+}
+
+async function start(){
+  const {data:{session}} = await db.auth.getSession();
+
+  if(!session){
+    message("Please sign in through the Admin Login page.");
+    return;
+  }
+
+  currentUser = session.user;
+
+  const {data:admin,error} = await db
+    .from("admins")
+    .select("user_id")
+    .eq("user_id",currentUser.id)
+    .maybeSingle();
+
+  if(error || !admin){
+    await db.auth.signOut();
+    message("Access denied. Admin account required.");
+    return;
+  }
+
+  $("dashboard").classList.remove("hidden");
+  message("Admin verified.");
+  await loadTournaments();
+}
+
+async function loadTournaments(){
+  const {data,error} = await db
+    .from("tournaments")
+    .select("id,title,registration_open")
+    .order("created_at",{ascending:false});
+
+  if(error){message(error.message);return;}
+
+  tournaments = data || [];
+  $("tournament").innerHTML = tournaments.map(t=>
+    `<option value="${safe(t.id)}">${safe(t.title)}</option>`
+  ).join("");
+
+  if(!tournaments.length){
+    message("No tournament found.");
+    return;
+  }
+
+  currentDrawId = null;
+  await loadAll();
+}
+
+function tournamentId(){
+  return $("tournament").value;
+}
+
+function selectedTournament(){
+  return tournaments.find(t=>t.id===tournamentId());
+}
+
+async function loadAll(){
+  const id = tournamentId();
+  if(!id)return;
+
+  const [p,r,m,rc] = await Promise.all([
+    db.from("players").select("*").eq("tournament_id",id).order("created_at"),
+    db.from("registrations").select("*").eq("tournament_id",id).order("created_at"),
+    db.from("matches").select("*").eq("tournament_id",id).order("created_at"),
+    db.from("payment_receipts").select("*").eq("tournament_id",id).order("created_at",{ascending:false})
+  ]);
+
+  if(p.error || r.error || m.error || rc.error){
+    message("Could not load dashboard data. " +
+      (p.error?.message || r.error?.message || m.error?.message || rc.error?.message));
+    return;
+  }
+
+  players=p.data||[];
+  registrations=r.data||[];
+  matches=m.data||[];
+
+  renderPlayers();
+  renderPlayerSelects();
+  renderMatches();
+  renderReceipts();
+  updateRegistrationStatus();
+}
+
+function updateRegistrationStatus(){
+  const t=selectedTournament();
+  if(!t)return;
+  $("regStatus").textContent =
+    "Registration is "+(t.registration_open?"OPEN":"CLOSED");
+  $("toggleRegistration").textContent =
+    t.registration_open?"Close registration":"Open registration";
+}
+
+async function toggleRegistration(){
+  const t=selectedTournament();
+  if(!t)return;
+  const {error}=await db.from("tournaments")
+    .update({registration_open:!t.registration_open})
+    .eq("id",t.id);
+  if(error){message(error.message);return;}
+  message("Registration setting updated.");
+  await loadTournaments();
+}
+
+function renderPlayers(){
+  $("players").innerHTML=players.map(p=>{
+    const registration=registrations.find(r=>r.id===p.registration_id);
+    const token=registration?.registration_token||"Not available";
+    const next=p.tier<3?p.tier+1:null;
+
+    return `<div class="item">
+      <strong>${safe(p.player_name)}</strong>
+      <div class="small">UID: ${safe(p.game_uid)}</div>
+      <div class="small">Tier ${p.tier} · Status: ${safe(p.status)}</div>
+      <div class="small">Token: ${safe(token)}</div>
+      ${p.status==="pending"?
+        `<button onclick="approvePlayer('${p.id}')">Approve</button>`:""}
+      ${p.status==="approved" && next?
+        `<button onclick="promotePlayer('${p.id}')">Promote to Tier ${next}</button>`:""}
+      ${p.status==="approved"?
+        `<button class="danger" onclick="eliminatePlayer('${p.id}')">Eliminate</button>`:""}
+      ${p.status==="reserve"?
+        `<span class="small">Reserve player</span>`:""}
+      ${p.status==="eliminated"?
+        `<span class="small">Eliminated</span>`:""}
+    </div>`;
+  }).join("") || "<p>No players registered yet.</p>";
+}
+
+function renderPlayerSelects(){
+  const tier=Number($("matchTier").value);
+  const eligible=players.filter(p=>p.status==="approved" && p.tier===tier);
+
+  const options=eligible.map(p=>
+    `<option value="${p.id}">${safe(p.player_name)} (${safe(p.game_uid)})</option>`
+  ).join("");
+
+  $("playerOne").innerHTML=options;
+  $("playerTwo").innerHTML=options;
+  $("receiptPlayer").innerHTML=registrations.map(r=>
+    `<option value="${r.id}">${safe(r.ign)} — ${safe(r.player_uid)}</option>`
+  ).join("");
+}
+
+async function approvePlayer(id){
+  const {error}=await db.from("players")
+    .update({status:"approved"}).eq("id",id);
+  if(error){message(error.message);return;}
+  message("Player approved.");
+  await loadAll();
+}
+
+async function promotePlayer(id){
+  const p=players.find(x=>x.id===id);
+  if(!p || p.tier>=3)return;
+
+  const next=p.tier+1;
+  if(!confirm("Promote "+p.player_name+" to Tier "+next+"?"))return;
+
+  const {error:historyError}=await db.from("promotion_history").insert({
+    tournament_id:p.tournament_id,
+    player_id:p.id,
+    from_tier:p.tier,
+    to_tier:next,
+    note:"Admin promotion",
+    promoted_by:currentUser.id
+  });
+
+  if(historyError){message(historyError.message);return;}
+
+  const {error}=await db.from("players")
+    .update({tier:next}).eq("id",id);
+
+  if(error){
+    message("Promotion record saved, but player update failed: "+error.message);
+    return;
+  }
+
+  message("Player promoted to Tier "+next+".");
+  await loadAll();
+}
+
+async function eliminatePlayer(id){
+  const p=players.find(x=>x.id===id);
+  if(!p)return;
+  const reason=prompt("Reason for elimination:");
+  if(reason===null || !reason.trim())return;
+
+  const {error}=await db.from("players").update({
+    status:"eliminated",
+    eliminated_at:new Date().toISOString(),
+    elimination_reason:reason.trim()
+  }).eq("id",id);
+
+  if(error){message(error.message);return;}
+  message("Player eliminated.");
+  await loadAll();
+}
+
+async function createDraw(){
+  const {data,error}=await db.from("draws").insert({
+    tournament_id:tournamentId(),
+    status:"draft"
+  }).select("id").single();
+
+  if(error){message(error.message);return;}
+
+  currentDrawId=data.id;
+  $("drawStatus").textContent="Draft draw created. ID: "+data.id;
+  message("Draft draw created.");
+}
+
+async function addMatch(){
+  if(!currentDrawId){
+    message("Create a draft draw first.");
+    return;
+  }
+
+  const one=$("playerOne").value;
+  const two=$("playerTwo").value;
+  const tier=Number($("matchTier").value);
+  const round=Number($("roundNumber").value);
+
+  if(!one || !two || one===two){
+    message("Select two different players.");
+    return;
+  }
+
+  const p1=players.find(p=>p.id===one);
+  const p2=players.find(p=>p.id===two);
+
+  if(!p1 || !p2 || p1.tier!==tier || p2.tier!==tier){
+    message("Both players must be approved and in the selected tier.");
+    return;
+  }
+
+  const {error}=await db.from("matches").insert({
+    tournament_id:tournamentId(),
+    draw_id:currentDrawId,
+    tier,
+    round_number:round,
+    player_one:one,
+    player_two:two,
+    status:"pending",
+    published:false
+  });
+
+  if(error){message(error.message);return;}
+  message("Match added to draft.");
+  await loadAll();
+}
+
+function playerName(id){
+  return players.find(p=>p.id===id)?.player_name || "Unknown player";
+}
+
+function renderMatches(){
+  $("matches").innerHTML=matches.map(m=>`
+    <div class="item">
+      <strong>Tier ${m.tier} · Round ${m.round_number}</strong>
+      <p>${safe(playerName(m.player_one))} vs ${safe(playerName(m.player_two))}</p>
+      <div class="small">Status: ${safe(m.status)} · ${m.published?"Published":"Unpublished"}</div>
+      ${m.status==="pending"?
+        `<label>Mark absent player</label>
+        <select id="absent-${m.id}">
+          <option value="">Choose player</option>
+          <option value="${m.player_one}">${safe(playerName(m.player_one))}</option>
+          <option value="${m.player_two}">${safe(playerName(m.player_two))}</option>
+        </select>
+        <button class="secondary" onclick="markAbsent('${m.id}')">Mark absent</button>`:""}
+      ${m.status==="no_show_pending"?
+        `<button onclick="advanceOpponent('${m.id}')">Advance opponent</button>
+        <button class="secondary" onclick="rescheduleMatch('${m.id}')">Reschedule</button>`:""}
+      ${m.status==="rescheduled"?
+        `<span class="small">Awaiting new match time and confirmation</span>`:""}
+    </div>
+  `).join("") || "<p>No matches created yet.</p>";
+}
+
+async function markAbsent(id){
+  const m=matches.find(x=>x.id===id);
+  const absent=$("absent-"+id)?.value;
+  if(!m || !absent)return message("Select the absent player.");
+
+  const reason=prompt("Reason for absence:");
+  if(reason===null)return;
+
+  const {error}=await db.from("matches").update({
+    no_show_player_id:absent,
+    no_show_reason:reason||"Failed to join",
+    status:"no_show_pending"
+  }).eq("id",id);
+
+  if(error){message(error.message);return;}
+  message("Absent player recorded. Choose the admin decision.");
+  await loadAll();
+}
+
+async function advanceOpponent(id){
+  const m=matches.find(x=>x.id===id);
+  if(!m || !m.no_show_player_id)return;
+
+  const opponent=m.player_one===m.no_show_player_id?m.player_two:m.player_one;
+
+  if(!confirm("Eliminate absent player and advance opponent?"))return;
+
+  const {error:playerError}=await db.from("players").update({
+    status:"eliminated",
+    eliminated_at:new Date().toISOString(),
+    elimination_reason:"No-show"
+  }).eq("id",m.no_show_player_id);
+
+  if(playerError){message(playerError.message);return;}
+
+  const {error}=await db.from("matches").update({
+    winner_id:opponent,
+    status:"completed",
+    admin_decision:"advance_opponent",
+    decision_at:new Date().toISOString()
+  }).eq("id",id);
+
+  if(error){message("Player eliminated but match update failed: "+error.message);return;}
+  message("Opponent advanced.");
+  await loadAll();
+}
+
+async function rescheduleMatch(id){
+  if(!confirm("Keep both players in the tournament and mark this match for rescheduling?"))return;
+
+  const {error}=await db.from("matches").update({
+    status:"rescheduled",
+    admin_decision:"reschedule",
+    decision_at:new Date().toISOString()
+  }).eq("id",id);
+
+  if(error){message(error.message);return;}
+  message("Match marked for rescheduling.");
+  await loadAll();
+}
+
+async function publishDraw(){
+  if(!currentDrawId)return message("Create a draft draw first.");
+
+  const {error:matchError}=await db.from("matches")
+    .update({published:true})
+    .eq("draw_id",currentDrawId);
+
+  if(matchError){message(matchError.message);return;}
+
+  const {error}=await db.from("draws")
+    .update({status:"published",published_at:new Date().toISOString()})
+    .eq("id",currentDrawId);
+
+  if(error){message(error.message);return;}
+
+  message("Draw and matches published.");
+  await loadAll();
+}
+
+async function createReceipt(){
+  const registrationId=$("receiptPlayer").value;
+  const transactionId=$("transactionId").value.trim();
+  const amount=Number($("amount").value);
+  const note=$("receiptNote").value.trim();
+
+  if(!registrationId || !transactionId || !Number.isFinite(amount) || amount<0){
+    message("Enter a player, transaction ID and valid amount.");
+    return;
+  }
+
+  const {error}=await db.from("payment_receipts").insert({
+    tournament_id:tournamentId(),
+    registration_id:registrationId,
+    transaction_id:transactionId,
+    amount,
+    note:note||null,
+    created_by:currentUser.id
+  });
+
+  if(error){message(error.message);return;}
+
+  $("transactionId").value="";
+  $("amount").value="";
+  $("receiptNote").value="";
+  message("Receipt record created.");
+  await loadAll();
+}
+
+function renderReceipts(){
+  $("receipts").innerHTML=registrations.length ?
+    "<p class='small'>Receipt records are stored privately in the database.</p>" :
+    "<p>No registrations available for receipts.</p>";
+}
+
+$("tournament").addEventListener("change",async()=>{
+  currentDrawId=null;
+  await loadAll();
+});
+$("matchTier").addEventListener("change",renderPlayerSelects);
+$("toggleRegistration").onclick=toggleRegistration;
+$("refresh").onclick=loadAll;
+$("createDraw").onclick=createDraw;
+$("addMatch").onclick=addMatch;
+$("publishDraw").onclick=publishDraw;
+$("createReceipt").onclick=createReceipt;
+$("logout").onclick=async()=>{
+  await db.auth.signOut();
+  location.href="/admin.html";
+};
+
+start();
+</script>
+</body>
+</html>
