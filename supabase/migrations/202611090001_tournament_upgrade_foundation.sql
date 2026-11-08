@@ -417,6 +417,8 @@ returns table (
   tier smallint,
   player_name text,
   avatar_id smallint,
+  avatar_symbol text,
+  avatar_label text,
   points integer,
   wins integer,
   losses integer,
@@ -439,6 +441,8 @@ as $function$
     lt.tier,
     p.player_name,
     p.avatar_id,
+    coalesce(a.symbol, '🎮'),
+    coalesce(a.label, 'Gamer'),
     lt.points,
     lt.wins,
     lt.losses,
@@ -446,6 +450,7 @@ as $function$
   from active_tournament at
   join public.leaderboard_totals lt on lt.tournament_id = at.id
   join public.players p on p.id = lt.player_id
+  left join public.avatar_catalog a on a.id = p.avatar_id
   order by lt.tier, lt.points desc, lt.wins desc, p.player_name asc;
 $function$;
 
