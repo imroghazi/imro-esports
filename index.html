@@ -45,6 +45,75 @@ form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}
 <section><h2 class="section-title">Tournament rules</h2><div class="card"><ul><li>Pure gameplay.</li><li>No gun attributes.</li><li>No character skills.</li><li>No player substitution.</li><li>Draws are generated manually by the organizer after registration closes.</li><li>Pairings are separated by tier and are shown publicly only after the organizer publishes them.</li></ul></div></section>
 </main><footer>IMRO ESPORTS • Community tournament • Not affiliated with Garena</footer>
 <script>
-document.getElementById('regForm').addEventListener('submit',e=>{e.preventDefault();document.getElementById('result').style.display='block';});
+const SUPABASE_URL = "https://gjjhuultiezaybvoykra.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+
+const form = document.getElementById("regForm");
+const result = document.getElementById("result");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const button = form.querySelector('button[type="submit"]');
+  const consent = form.querySelector('input[type="checkbox"]').checked;
+
+  if (!consent) {
+    result.style.display = "block";
+    result.textContent = "Please accept the consent notice.";
+    return;
+  }
+
+  const body = {
+    ign: form.elements.ign.value.trim(),
+    uid: form.elements.uid.value.trim(),
+    phone: form.elements.phone.value.trim(),
+    tier: form.elements.tier.value,
+    note: form.elements.note.value.trim(),
+    consent: true
+  };
+
+  button.disabled = true;
+  button.textContent = "Registering...";
+  result.style.display = "block";
+  result.textContent = "Submitting your registration...";
+
+  try {
+    const response = await fetch(
+      SUPABASE_URL + "/functions/v1/register-player",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify(body)
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Registration failed. Please try again.");
+    }
+
+    result.textContent =
+      "REGISTRATION SUCCESSFUL! Your player token: " +
+      data.token +
+      " | Payment: NOT COLLECTED. Save your token.";
+
+    result.style.display = "block";
+    result.style.border = "1px solid #368b50";
+
+    form.reset();
+    button.textContent = "Registered successfully";
+
+  } catch (error) {
+    result.textContent = error.message;
+    result.style.display = "block";
+    button.textContent = "Try again";
+    button.disabled = false;
+  }
+});
+
 </script>
 </body></html>
