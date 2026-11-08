@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IMRO ESPORTS — Community Tournament</title>
+<meta name="theme-color" content="#090909">
+<style>
+:root{--bg:#090909;--panel:#151515;--line:#292929;--red:#ef233c;--gold:#e6bd55;--muted:#aaa}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#321015 0,transparent 34%),var(--bg);color:#f7f7f7;font:16px/1.5 system-ui,Arial,sans-serif}
+header{padding:22px max(20px,calc((100% - 1050px)/2));border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:950;letter-spacing:1.5px;font-size:22px}.brand span{color:var(--red)}.tag{color:var(--gold);font-size:11px;letter-spacing:2px}
+main{max-width:1050px;margin:auto;padding:30px 18px 70px}.hero{padding:45px 0 30px}.eyebrow{color:var(--gold);letter-spacing:3px;font-size:12px;font-weight:800}
+h1{font-size:clamp(38px,8vw,72px);line-height:.98;margin:12px 0 18px;font-weight:950;letter-spacing:-2px}.hero p{color:#c6c6c6;max-width:620px}
+.btn{display:inline-block;background:var(--red);color:white;border:0;border-radius:9px;padding:13px 19px;font-weight:800;text-decoration:none;cursor:pointer}
+section{margin-top:28px}.section-title{font-size:23px;margin:0 0 15px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{background:linear-gradient(145deg,#191919,#101010);border:1px solid var(--line);border-radius:14px;padding:19px}.tier{color:var(--gold);font-size:12px;font-weight:900;letter-spacing:2px}.card h3{margin:7px 0;font-size:22px}.muted{color:var(--muted);font-size:14px}
+form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}input,select,textarea{width:100%;padding:13px;border:1px solid #383838;background:#0d0d0d;color:white;border-radius:8px;font:inherit}
+.notice{padding:14px;border:1px solid #6a5120;background:#211b0e;color:#f4d98e;border-radius:10px;font-size:13px}
+.status{color:#8de0a2;font-weight:800}footer{border-top:1px solid var(--line);padding:24px;text-align:center;color:#888;font-size:12px}
+#result{display:none;margin-top:12px;padding:14px;border-radius:9px;background:#102318;color:#a8efbd}
+</style>
+</head>
+<body>
+<header><div><div class="brand">IMRO <span>ESPORTS</span></div><div class="tag">COMMUNITY TOURNAMENT</div></div><a class="btn" href="#register">REGISTER</a></header>
+<main>
+<div class="hero"><div class="eyebrow">LOCAL COMMUNITY • PURE GAMEPLAY</div><h1>ENTER THE<br><span style="color:var(--red)">ARENA.</span></h1><p>Compete, prove your skills, and represent your tier. Register for the IMRO ESPORTS community tournament.</p><a class="btn" href="#register">Register now ↓</a></div>
+<div class="notice">Registration is currently a preview setup. No payment is collected on this website. Tournament dates, prize details and registration availability must be confirmed by the organizer.</div>
+<section><h2 class="section-title">Choose your tier</h2><div class="grid">
+<div class="card"><div class="tier">TIER 01</div><h3>Rising Challengers</h3><div class="muted">4 winners • Organizer-announced prize reference subject to confirmation.</div></div>
+<div class="card"><div class="tier">TIER 02</div><h3>Elite Contenders</h3><div class="muted">2 winners • Organizer-announced prize reference subject to confirmation.</div></div>
+<div class="card"><div class="tier">TIER 03</div><h3>Champions</h3><div class="muted">1 winner • Organizer-announced prize reference subject to confirmation.</div></div>
+</div></section>
+<section id="register"><h2 class="section-title">Player registration</h2><div class="card">
+<p class="muted">This starter page is not connected to a shared database yet. Do not submit real player details until the database and privacy controls are configured.</p>
+<form id="regForm">
+<label>In-game name<input name="ign" maxlength="40" required placeholder="Your player name"></label>
+<label>Free Fire UID<input name="uid" maxlength="24" required inputmode="numeric" placeholder="Your UID"></label>
+<label>WhatsApp / contact number<input name="phone" maxlength="20" required placeholder="+91..."></label>
+<label>Select tier<select name="tier" required><option value="">Choose a tier</option><option>Tier 1</option><option>Tier 2</option><option>Tier 3</option></select></label>
+<label>Optional note<textarea name="note" maxlength="250" rows="3" placeholder="Anything the organizer should know"></textarea></label>
+<label style="display:flex;align-items:flex-start;gap:9px"><input style="width:auto;margin-top:4px" type="checkbox" required> I agree to be contacted about this community tournament and have read the privacy notice.</label>
+<button class="btn" type="submit">Preview registration</button>
+</form><div id="result">Preview only: no information has been sent or saved. Database setup is still required.</div>
+</div></section>
+<section><h2 class="section-title">Tournament rules</h2><div class="card"><ul><li>Pure gameplay.</li><li>No gun attributes.</li><li>No character skills.</li><li>No player substitution.</li><li>Draws are generated manually by the organizer after registration closes.</li><li>Pairings are separated by tier and are shown publicly only after the organizer publishes them.</li></ul></div></section>
+</main><footer>IMRO ESPORTS • Community tournament • Not affiliated with Garena</footer>
+<script>
+document.getElementById('regForm').addEventListener('submit',e=>{e.preventDefault();document.getElementById('result').style.display='block';});
+</script>
+</body></html>
