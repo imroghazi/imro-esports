@@ -9,11 +9,11 @@ const temp = mkdtempSync(join(tmpdir(), "imro-html-check-"));
 try {
   for (const file of ["index.html", "dashboard.html", "admin.html"]) {
     const html = readFileSync(join(root, file), "utf8");
-    const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
+    const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
     let inlineIndex = 0;
     for (const match of scripts) {
-      if (/\\bsrc\\s*=/.test(match[1])) continue;
-      const path = join(temp, file.replace(/\\W/g, "_") + "_" + (++inlineIndex) + ".js");
+      if (/\bsrc\s*=/.test(match[1])) continue;
+      const path = join(temp, file.replace(/\W/g, "_") + "_" + (++inlineIndex) + ".js");
       writeFileSync(path, match[2]);
       const result = spawnSync(process.execPath, ["--check", path], { encoding: "utf8" });
       if (result.status !== 0) {
