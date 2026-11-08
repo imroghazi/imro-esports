@@ -1,31 +1,41 @@
 # IMRO ESPORTS tournament upgrade
 
-This branch starts the tournament upgrade without changing the live `main` branch.
+This work is isolated on `feature/tournament-upgrade`. Production `main`, the live website, and live Supabase data have not been changed.
 
-## Included in this first foundation commit
+## Implemented on the development branch
 
-- Additive database migration for player avatar IDs (1–64).
-- A 64-choice avatar catalog across the agreed five themes.
-- Bracket progression references on matches (`next_match_id`, `next_match_slot`).
-- Tournament start/completion fields and a single-/double-elimination format setting.
-- Tier-specific scoring rules with editable defaults.
-- An auditable points ledger and per-player leaderboard totals.
-- Public leaderboard totals are readable only after an admin starts the tournament.
-- Realtime publication registration for leaderboard totals when Supabase Realtime is available.
+- Additive migration foundation for registration/player avatar IDs, tournament lifecycle, and linked match progression.
+- 64 unique avatar catalog entries across the requested themes.
+- Avatar-aware registration page and Edge Function source (not deployed).
+- Existing registration-to-player trigger is updated in the migration to copy avatar IDs.
+- Pure random single-elimination bracket planner with odd-player reserve handling and automatic bye placement.
+- Admin-triggered random per-tier draft bracket generation; results stay unpublished until admin publishes.
+- Admin controls for starting a tournament, configuring tier scoring, and confirming winners through an admin-only database RPC.
+- Winner progression links, points ledger, champion/runner-up/promotion bonus logic, and leaderboard totals.
+- Public leaderboard RPC and live refresh subscription; leaderboard rows are seeded at tournament start.
+- CI workflow for bracket tests, HTML inline-script syntax checks, feature wiring checks, and migration safety/catalog checks.
 
-## Important safety note
+## Automated test results
 
-The SQL migration is committed as a file only. It has **not** been run against the live Supabase database. Apply it only after reviewing it and confirming the current RLS helper and database backup.
+Latest GitHub Actions run: **passed**.
+- 8 bracket-engine tests passed, 0 failed.
+- Inline JavaScript syntax checks passed for `index.html`, `dashboard.html`, and `admin.html`.
+- Feature wiring and migration static checks passed.
+- Test cases include odd/even counts, reserve handling, duplicate/missing IDs, valid random source, linked next-round slots, and exactly-once initial player placement. Tested counts include 2 through 100 players, plus odd counts through 101.
 
-## Remaining implementation work
+## Not yet integration-tested
 
-1. Update the registration Edge Function to validate and store avatar IDs.
-2. Add avatar selection and random-avatar option to the registration page.
-3. Build a deterministic per-tier draw generator with odd players moved to reserves.
-4. Build connected bracket rounds and winner advancement.
-5. Add admin-confirmed match result RPC with duplicate protection and points-ledger writes.
-6. Add admin controls for scoring, promotion approval and manual point adjustments.
-7. Add public live leaderboard and bracket views.
-8. Test with seeded test data, including 1, 2, 3, 8, 16, 32, 64 and 100+ player scenarios before merging.
+- The SQL migration has **not** been applied to any Supabase database.
+- The updated registration Edge Function has **not** been deployed.
+- Database RPCs, RLS, Realtime delivery, and browser-to-database flows still need an isolated Supabase test database.
+- The new frontend has not been deployed to Vercel or tested against the live domain.
+- Payment collection remains disabled.
 
-Payment collection remains disabled. The existing live registration and player records are not modified by this branch.
+## Next steps before production approval
+
+1. Obtain an isolated Supabase test environment and apply the migration there.
+2. Exercise registration, token creation, avatar persistence, and trigger behavior with test records.
+3. Generate 1/2/3/8/16/32/64/100-player brackets for each tier and verify reserves, byes, and every next-match link.
+4. Test admin-only start/result/points RPCs, duplicate result rejection, promotion bonuses, and public leaderboard gating/realtime.
+5. Fix every failure and repeat the tests.
+6. Ask for separate approval before merging to `main`, applying the production migration, or deploying the live site.
