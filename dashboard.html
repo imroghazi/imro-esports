@@ -68,7 +68,8 @@ button:disabled{opacity:.5}
 <label>Round number</label>
 <input id="roundNumber" type="number" min="1" value="1">
 
-<button id="createDraw">Create draft draw</button>
+<button id="createDraw">Create empty draft draw</button>
+<button id="generateRandomDraw">🎲 Generate random tier brackets</button>
 <p id="drawStatus" class="small">No draft draw selected.</p>
 
 <div class="grid">
@@ -476,6 +477,113 @@ async function createDraw(){
   message("Draft draw created.");
 }
 
+async function generateRandomDraw(){
+  const tournament=selectedTournament();
+  if(!tournament)return;
+  if(tournament.registration_open){
+    message("Close registration before generating the random draw.");
+    return;
+  }
+  if(matches.length){
+    message("Matches already exist for this tournament. A second draw is blocked to prevent duplicate brackets.");
+    return;
+  }
+  const approved=players.filter(p=>p.status==="approved");
+  if(!approved.length){
+    message("Approve players before generating the draw.");
+    return;
+  }
+  if(!confirm("Generate random brackets for all three tiers? Odd player counts will place one player per tier in reserve."))return;
+
+  let planBuilder;
+  try{
+    ({buildSingleEliminationBracket:planBuilder}=await import("/supabase/functions/_shared/bracket-engine.js"));
+  }catch(error){
+    message("Bracket engine could not load. Refresh the dashboard and try again.");
+    return;
+  }
+
+  const {data:draw,error:drawError}=await db.from("draws").insert({
+    tournament_id:tournamentId(),
+    status:"draft"
+  }).select("id").single();
+  if(drawError){message(drawError.message);return;}
+
+  const drawId=draw.id;
+  const reservePlayerIds=[];
+  const reserveRowIds=[];
+  const insertedMatchIds=[];
+
+  try{
+    for(const tier of [1,2,3]){
+      const tierPlayers=approved.filter(p=>Number(p.tier)===tier).map(p=>({
+        id:p.id,
+        player_name:p.player_name
+      }));
+      if(!tierPlayers.length)continue;
+
+      const plan=planBuilder(tierPlayers);
+      if(plan.reserves.length){
+        const reserve=plan.reserves[0];
+        const {data:reserveRows,error:reserveError}=await db.from("reserve_players").insert({
+          tournament_id:tournamentId(),
+          ign:approved.find(p=>p.id===reserve.id).player_name,
+          player_uid:approved.find(p=>p.id===reserve.id).game_uid,
+          tier:"Tier "+tier
+        }).select("id");
+        if(reserveError)throw reserveError;
+        reserveRows.forEach(r=>reserveRowIds.push(r.id));
+        reservePlayerIds.push(reserve.id);
+      }
+
+      const nodeIds=new Map();
+      for(const round of plan.rounds){
+        for(const node of round.matches){
+          const {data:created,error}=await db.from("matches").insert({
+            tournament_id:tournamentId(),
+            draw_id:drawId,
+            tier,
+            round_number:round.number,
+            player_one:node.playerOne?.id||null,
+            player_two:node.playerTwo?.id||null,
+            status:"pending",
+            published:false
+          }).select("id").single();
+          if(error)throw error;
+          nodeIds.set(node,created.id);
+          insertedMatchIds.push(created.id);
+        }
+      }
+
+      for(const node of plan.matches){
+        if(!node.nextMatch)continue;
+        const {error}=await db.from("matches").update({
+          next_match_id:nodeIds.get(node.nextMatch),
+          next_match_slot:node.nextMatchSlot
+        }).eq("id",nodeIds.get(node));
+        if(error)throw error;
+      }
+    }
+
+    if(reservePlayerIds.length){
+      const {error}=await db.from("players").update({status:"reserve"}).in("id",reservePlayerIds);
+      if(error)throw error;
+    }
+
+    currentDrawId=drawId;
+    $("drawStatus").textContent="Random draft brackets created across all tiers. Matches remain hidden until you publish.";
+    message("Random tier brackets created. Review them before publishing.");
+    await loadAll();
+  }catch(error){
+    // Roll back only rows created by this attempt; do not touch existing tournament data.
+    if(insertedMatchIds.length)await db.from("matches").delete().in("id",insertedMatchIds);
+    if(reserveRowIds.length)await db.from("reserve_players").delete().in("id",reserveRowIds);
+    if(reservePlayerIds.length)await db.from("players").update({status:"approved"}).in("id",reservePlayerIds);
+    await db.from("draws").delete().eq("id",drawId);
+    message("Draw generation stopped and its new records were rolled back: "+error.message);
+  }
+}
+
 async function addMatch(){
   if(!currentDrawId){
     message("Create a draft draw first.");
@@ -762,6 +870,7 @@ $("matchTier").addEventListener("change",renderPlayerSelects);
 $("toggleRegistration").onclick=toggleRegistration;
 $("refresh").onclick=loadAll;
 $("createDraw").onclick=createDraw;
+$("generateRandomDraw").onclick=generateRandomDraw;
 $("addMatch").onclick=addMatch;
 $("publishDraw").onclick=publishDraw;
 $("createReceipt").onclick=createReceipt;
