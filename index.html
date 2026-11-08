@@ -5,6 +5,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>IMRO ESPORTS — Community Tournament</title>
 <meta name="theme-color" content="#090909">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#090909;--panel:#151515;--line:#292929;--red:#ef233c;--gold:#e6bd55;--muted:#aaa}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#321015 0,transparent 34%),var(--bg);color:#f7f7f7;font:16px/1.5 system-ui,Arial,sans-serif}
@@ -44,17 +45,25 @@ form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}
 <div class="card"><div class="tier">TIER 03</div><h3>Champions</h3><div class="muted">1 winner • Organizer-announced prize reference subject to confirmation.</div></div>
 </div></section>
 <section id="register"><h2 class="section-title">Player registration</h2><div class="card">
-<p class="muted">This starter page is not connected to a shared database yet. Do not submit real player details until the database and privacy controls are configured.</p>
+<p class="muted">Your registration is stored securely for tournament administration. No entry payment is collected on this website.</p>
 <form id="regForm">
 <label>In-game name<input name="ign" maxlength="40" required placeholder="Your player name"></label>
 <label>Free Fire UID<input name="uid" maxlength="24" required inputmode="numeric" placeholder="Your UID"></label>
 <label>WhatsApp / contact number<input name="phone" maxlength="20" required placeholder="+91..."></label>
 <label>Select tier<select name="tier" required><option value="">Choose a tier</option><option>Tier 1</option><option>Tier 2</option><option>Tier 3</option></select></label>
+<label>Choose your gamer avatar (64 choices)<select name="avatar_id" id="avatarSelect" required><option value="">Loading avatars...</option></select></label>
+<button class="btn" type="button" id="randomAvatar" style="margin-top:4px">🎲 Choose random avatar</button>
+<p id="avatarHint" style="font-size:13px;color:#aaa">Pick an avatar to represent you in the tournament bracket and leaderboard.</p>
 <label>Optional note<textarea name="note" maxlength="250" rows="3" placeholder="Anything the organizer should know"></textarea></label>
 <label style="display:flex;align-items:flex-start;gap:9px"><input style="width:auto;margin-top:4px" type="checkbox" required> I agree to be contacted about this community tournament and have read the privacy notice.</label>
 <button class="btn" type="submit">Preview registration</button>
 </form><div id="result">Preview only: no information has been sent or saved. Database setup is still required.</div>
 </div></section>
+<section id="leaderboard">
+<h2 class="section-title">🏆 Live tournament leaderboard</h2>
+<p class="muted" id="publicLeaderboardStatus">The leaderboard will appear when the organizer starts the tournament.</p>
+<div class="grid" id="publicLeaderboard"></div>
+</section>
 <section><h2 class="section-title">Tournament rules</h2><div class="card"><ul><li>Pure gameplay.</li><li>No gun attributes.</li><li>No character skills.</li><li>No player substitution.</li><li>Draws are generated manually by the organizer after registration closes.</li><li>Pairings are separated by tier and are shown publicly only after the organizer publishes them.</li></ul></div></section>
 </main><footer>IMRO ESPORTS • Community tournament • Not affiliated with Garena</footer>
 <script>
@@ -63,6 +72,43 @@ const SUPABASE_ANON_KEY = "sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
 
 const form = document.getElementById("regForm");
 const result = document.getElementById("result");
+const avatarSelect = document.getElementById("avatarSelect");
+const avatarHint = document.getElementById("avatarHint");
+let avatarChoices = [];
+
+async function loadAvatarChoices() {
+  try {
+    const response = await fetch(
+      SUPABASE_URL + "/rest/v1/avatar_catalog?select=id,category,label,symbol&active=eq.true&order=id.asc",
+      { headers: { apikey: SUPABASE_ANON_KEY } }
+    );
+    if (!response.ok) throw new Error("Avatar list is not available yet.");
+    avatarChoices = await response.json();
+    if (avatarChoices.length !== 64) throw new Error("Avatar catalog is incomplete. Please try again later.");
+
+    avatarSelect.innerHTML =
+      '<option value="">Choose your avatar</option>' +
+      avatarChoices.map(a =>
+        '<option value="' + a.id + '">' + a.symbol + ' ' + a.label + ' — ' + a.category + '</option>'
+      ).join("");
+    avatarHint.textContent = "64 avatars available across Cyber Warriors, Legends, Elite Gamers, Shadow Squad, Robots & Neon, and Mythical.";
+  } catch (error) {
+    avatarSelect.innerHTML = '<option value="">Avatar choices unavailable</option>';
+    avatarHint.textContent = error.message;
+  }
+}
+
+document.getElementById("randomAvatar").addEventListener("click", () => {
+  if (!avatarChoices.length) {
+    avatarHint.textContent = "Avatar choices are still loading. Please wait.";
+    return;
+  }
+  const choice = avatarChoices[Math.floor(Math.random() * avatarChoices.length)];
+  avatarSelect.value = String(choice.id);
+  avatarHint.textContent = "Random pick: " + choice.symbol + " " + choice.label;
+});
+
+loadAvatarChoices();
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -82,8 +128,15 @@ form.addEventListener("submit", async (e) => {
     phone: form.elements.phone.value.trim(),
     tier: form.elements.tier.value,
     note: form.elements.note.value.trim(),
+    avatar_id: Number(form.elements.avatar_id.value),
     consent: true
   };
+
+  if (!Number.isInteger(body.avatar_id) || body.avatar_id < 1 || body.avatar_id > 64) {
+    result.style.display = "block";
+    result.textContent = "Please choose an avatar before registering.";
+    return;
+  }
 
   button.disabled = true;
   button.textContent = "Registering...";
@@ -112,6 +165,7 @@ form.addEventListener("submit", async (e) => {
     result.textContent =
       "REGISTRATION SUCCESSFUL! Your player token: " +
       data.token +
+      " | Avatar: " + (avatarChoices.find(a => a.id === data.avatar_id)?.label || "Selected") +
       " | Payment: NOT COLLECTED. Save your token.";
 
     result.style.display = "block";
@@ -179,5 +233,49 @@ loadPublicPrizePool();
   </script>
 </div>
 
+<script>
+const publicSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function loadPublicLeaderboard() {
+  const status = document.getElementById("publicLeaderboardStatus");
+  const target = document.getElementById("publicLeaderboard");
+  try {
+    const { data, error } = await publicSupabase.rpc("get_public_leaderboard");
+    if (error) throw error;
+    if (!data || !data.length) {
+      status.textContent = "The leaderboard will appear when the organizer starts the tournament and confirms match results.";
+      target.innerHTML = "";
+      return;
+    }
+    status.textContent = "Live standings • " + data[0].tournament_title;
+    target.innerHTML = data.map(row => `
+      <article class="card">
+        <div class="tier">TIER ${row.tier} · RANK #${row.tier_rank}</div>
+        <h3>${row.avatar_symbol || "🎮"} ${escapePublicText(row.player_name)}</h3>
+        <div class="muted">${escapePublicText(row.avatar_label || "Gamer")}</div>
+        <p><strong>${Number(row.points)||0}</strong> points</p>
+        <div class="muted">${Number(row.wins)||0} wins · ${Number(row.losses)||0} losses</div>
+      </article>`).join("");
+  } catch (error) {
+    status.textContent = "Live leaderboard is being prepared. Please check again later.";
+    console.error("Public leaderboard:", error);
+  }
+}
+
+function escapePublicText(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+loadPublicLeaderboard();
+publicSupabase.channel("public-live-leaderboard")
+  .on("postgres_changes", {
+    event: "*",
+    schema: "public",
+    table: "leaderboard_totals"
+  }, loadPublicLeaderboard)
+  .subscribe();
+</script>
 </body>
 </html>
