@@ -286,7 +286,24 @@ begin
       select 1 from public.matches
       where id = v_match.next_match_id and player_two is not null and player_two <> p_winner_id
     ) then raise exception 'Next-round player-two slot is already occupied'; end if;
-    if v_match.next_match_slot not in (1,2) then raise exception 'Next-round slot is not configured'; end if;
+    if v_match.next_match_slot is null or v_match.next_match_slot not in (1,2) then
+      raise exception 'Next-round slot is not configured';
+    end if;
+    if not exists (
+      select 1 from public.matches destination
+      where destination.id = v_match.next_match_id
+        and destination.tournament_id = v_match.tournament_id
+        and destination.tier = v_match.tier
+        and destination.round_number = v_match.round_number + 1
+    ) then
+      raise exception 'Next-round match is invalid or belongs to another tier';
+    end if;
+  elsif v_match.draw_id is not null and exists (
+    select 1 from public.matches later
+    where later.draw_id = v_match.draw_id
+      and later.round_number > v_match.round_number
+  ) then
+    raise exception 'Bracket progression link is missing; refusing to treat this as the final';
   end if;
 
   update public.matches
