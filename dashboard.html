@@ -103,7 +103,34 @@ button:disabled{opacity:.5}
 <button id="createReceipt">Create receipt</button>
 <div id="receipts"></div>
 </section>
+<section>
+  <h2>🏆 Prize Pool Management</h2>
 
+  <h3>Total Prize Pool: <span id="totalPrize">₹0</span></h3>
+
+  <label>Tier 1 Prize (₹)</label>
+  <input id="prizeTier1" type="number" min="0" value="0">
+
+  <label>Tier 2 Prize (₹)</label>
+  <input id="prizeTier2" type="number" min="0" value="0">
+
+  <label>Tier 3 Prize (₹)</label>
+  <input id="prizeTier3" type="number" min="0" value="0">
+
+  <label>Prize announcement status</label>
+  <select id="prizeStatus">
+    <option value="to_be_confirmed">To be confirmed</option>
+    <option value="announced">Officially announced</option>
+  </select>
+
+  <button id="savePrizes">Save Prize Pool</button>
+  <p id="prizeMessage" class="small"></p>
+</section>
+
+<section>
+  <h2>📊 Player Statistics</h2>
+  <div id="playerStats"></div>
+</section>
 </div>
 </main>
 
