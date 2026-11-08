@@ -1,1 +1,106 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IMRO ESPORTS | Admin Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid;
+      place-items: center; padding: 20px;
+      background: #090d14; color: white;
+      font-family: Arial, sans-serif;
+    }
+    .panel {
+      width: 100%; max-width: 390px; padding: 28px;
+      background: #151c29; border: 1px solid #344052;
+      border-radius: 16px;
+    }
+    h1 { color: #55e6a5; text-align: center; }
+    p { color: #aeb9c9; text-align: center; }
+    label { display: block; margin: 18px 0 7px; }
+    input {
+      width: 100%; padding: 13px; border-radius: 8px;
+      border: 1px solid #46536a; background: #0b111c;
+      color: white; font-size: 16px;
+    }
+    button {
+      width: 100%; margin-top: 22px; padding: 14px;
+      border: 0; border-radius: 8px;
+      background: #55e6a5; color: #07130d;
+      font-weight: bold; font-size: 16px;
+    }
+    #message { margin-top: 15px; overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <h1>IMRO ESPORTS</h1>
+    <p>Private Administrator Login</p>
+
+    <form id="loginForm">
+      <label for="email">Admin email</label>
+      <input id="email" type="email" autocomplete="username"
+        placeholder="Your admin email" required>
+
+      <label for="password">Password</label>
+      <input id="password" type="password"
+        autocomplete="current-password" placeholder="Password" required>
+
+      <button id="loginButton" type="submit">Secure Login</button>
+    </form>
+    <p id="message" role="status"></p>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://gjjhuultiezaybvoykra.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+    const client = window.supabase.createClient(
+      SUPABASE_URL, SUPABASE_KEY
+    );
+
+    const form = document.getElementById("loginForm");
+    const message = document.getElementById("message");
+    const button = document.getElementById("loginButton");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      button.disabled = true;
+      button.textContent = "Checking...";
+      message.textContent = "";
+
+      const { data, error } = await client.auth.signInWithPassword({
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value
+      });
+
+      if (error) {
+        message.textContent = "Login failed: " + error.message;
+        button.disabled = false;
+        button.textContent = "Secure Login";
+        return;
+      }
+
+      const { data: admin, error: adminError } = await client
+        .from("admins")
+        .select("user_id")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+
+      if (adminError || !admin) {
+        await client.auth.signOut();
+        message.textContent = "This account is not authorised as an admin.";
+        button.disabled = false;
+        button.textContent = "Secure Login";
+        return;
+      }
+
+      message.textContent = "Admin verified. Dashboard is the next step.";
+      button.textContent = "Verified";
+    });
+  </script>
+</body>
+</html>
