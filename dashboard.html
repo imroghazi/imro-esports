@@ -116,6 +116,7 @@ dialog select{margin:8px 0 14px}
 </div>
 
 <button id="addMatch">Add match</button>
+<p id="matchActionStatus" class="small" aria-live="polite">Choose two players, then add the match.</p>
 <button class="secondary" id="publishDraw">Publish this draw</button>
 <div id="matches"></div>
 </section>
@@ -624,44 +625,57 @@ async function createDraw(){
 }
 
 async function addMatch(){
-  if(!currentDrawId){
-    message("Create a draft draw first.");
-    return;
+  const button=$("addMatch");
+  const status=$("matchActionStatus");
+  const show=(text,isError=false)=>{
+    if(status){status.textContent=text;status.style.color=isError?"#ff9b9b":"#aab8c9";}
+    message(text);
+  };
+  if(button.disabled)return;
+  button.disabled=true;
+  button.textContent="Adding match…";
+  try{
+    const drawId=currentDrawId;
+    const tournament=tournamentId();
+    const one=$("playerOne").value;
+    const two=$("playerTwo").value;
+    const tier=Number($("matchTier").value);
+    const round=Number($("roundNumber").value);
+    if(!drawId){show("Create a draft draw first.",true);return;}
+    if(!tournament){show("Select a tournament first.",true);return;}
+    if(!one||!two){show("Select both Player one and Player two.",true);return;}
+    if(one===two){show("Choose two different players.",true);return;}
+    if(!Number.isInteger(round)||round<1){show("Enter a valid round number (1 or higher).",true);return;}
+    const p1=players.find(p=>p.id===one);
+    const p2=players.find(p=>p.id===two);
+    if(!p1||!p2){show("Could not find both players in the loaded player list. Tap Refresh data and try again.",true);return;}
+    if(p1.status!=="approved"||p2.status!=="approved"){show("Both players must be approved before a match can be created.",true);return;}
+    if(Number(p1.tier)!==tier||Number(p2.tier)!==tier){show("Both players must belong to Tier "+tier+".",true);return;}
+    show("Saving match…");
+    const {data,error}=await db.from("matches").insert({
+      tournament_id:tournament,
+      draw_id:drawId,
+      tier,
+      round_number:round,
+      player_one:one,
+      player_two:two,
+      status:"pending",
+      published:false
+    }).select("id,tournament_id,draw_id,tier,round_number,player_one,player_two,status,published").single();
+    if(error)throw error;
+    if(!data?.id)throw new Error("The database did not return a saved match ID.");
+    matches=[...matches,data];
+    renderMatches();
+    show("Match created successfully. Select the winner below, then publish the result.");
+    openWinnerDialog(data.id);
+    await loadAll();
+  }catch(error){
+    console.error("IMRO add match failed:",error);
+    show("Match was not added: "+(error?.message||String(error)),true);
+  }finally{
+    button.disabled=false;
+    button.textContent="Add match";
   }
-
-  const one=$("playerOne").value;
-  const two=$("playerTwo").value;
-  const tier=Number($("matchTier").value);
-  const round=Number($("roundNumber").value);
-
-  if(!one || !two || one===two){
-    message("Select two different players.");
-    return;
-  }
-
-  const p1=players.find(p=>p.id===one);
-  const p2=players.find(p=>p.id===two);
-
-  if(!p1 || !p2 || p1.tier!==tier || p2.tier!==tier){
-    message("Both players must be approved and in the selected tier.");
-    return;
-  }
-
-  const {data,error}=await db.from("matches").insert({
-    tournament_id:tournamentId(),
-    draw_id:currentDrawId,
-    tier,
-    round_number:round,
-    player_one:one,
-    player_two:two,
-    status:"pending",
-    published:false
-  }).select().single();
-
-  if(error){message(error.message);return;}
-  message("Match added. Choose the winner in the confirmation window, then publish the result.");
-  await loadAll();
-  openWinnerDialog(data.id);
 }
 
 function playerName(id){
