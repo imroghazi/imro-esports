@@ -210,10 +210,28 @@ form.addEventListener("submit", async (e) => {
     result.textContent =
       "REGISTRATION SUCCESSFUL! Your player token: " +
       data.token +
-      " | Payment: NOT COLLECTED. Save your token.";
+      " | Your registration is saved. Continue to WhatsApp to contact the organizer about payment.";
 
     result.style.display = "block";
     result.style.border = "1px solid #368b50";
+
+    const whatsappMessage =
+      "Hello IMRO ESPORTS! I have completed my tournament registration.\n\n" +
+      "Player: " + body.ign + "\n" +
+      "Tier: " + body.tier + "\n" +
+      "Registration Token: " + data.token + "\n\n" +
+      "Please share the payment details so I can complete my entry.";
+
+    const whatsappButton = document.createElement("a");
+    whatsappButton.href =
+      "https://wa.me/917676811098?text=" + encodeURIComponent(whatsappMessage);
+    whatsappButton.target = "_blank";
+    whatsappButton.rel = "noopener noreferrer";
+    whatsappButton.textContent = "Continue to WhatsApp for Payment";
+    whatsappButton.style.cssText =
+      "display:inline-block;margin-top:12px;padding:13px 18px;background:#25D366;color:#082b17;border-radius:9px;font-weight:800;text-decoration:none;";
+    result.appendChild(document.createElement("br"));
+    result.appendChild(whatsappButton);
 
     form.reset();
     document.getElementById("avatarChosen").textContent = "No avatar selected";
