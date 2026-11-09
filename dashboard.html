@@ -60,6 +60,9 @@ button:disabled{opacity:.5}
 
 <section>
 <h2>Player management</h2>
+<label for="playerSearch">Search players</label>
+<input id="playerSearch" type="search" placeholder="Search name, Free Fire UID or contact number">
+<p id="playerSearchCount" class="small" aria-live="polite">Showing all players.</p>
 <div id="players"></div>
 </section>
 
@@ -452,7 +455,18 @@ function contactPhone(registration){
 }
 
 function renderPlayers(){
-  $("players").innerHTML=players.map(p=>{
+  const query=($("playerSearch")?.value||"").trim().toLowerCase();
+  const filtered=players.filter(p=>{
+    const registration=registrations.find(r=>r.id===p.registration_id);
+    const contact=String(registration?.contact_number||"");
+    return [p.player_name,p.game_uid,contact,registration?.registration_token]
+      .some(value=>String(value||"").toLowerCase().includes(query));
+  });
+  $("playerSearchCount").textContent=query
+    ? "Showing "+filtered.length+" of "+players.length+" player(s)."
+    : "Showing all "+players.length+" player(s).";
+
+  $("players").innerHTML=filtered.map(p=>{
     const registration=registrations.find(r=>r.id===p.registration_id);
     const token=registration?.registration_token||"Not available";
     const contact=contactPhone(registration);
@@ -481,8 +495,33 @@ function renderPlayers(){
         `<span class="small">Reserve player</span>`:""}
       ${p.status==="eliminated"?
         `<span class="small">Eliminated</span>`:""}
+      <button class="danger" onclick="deletePlayer('${p.id}')">🗑 Delete player</button>
     </div>`;
-  }).join("") || "<p>No players registered yet.</p>";
+  }).join("") || (query?"<p>No players match your search.</p>":"<p>No players registered yet.</p>");
+}
+
+async function deletePlayer(id){
+  const p=players.find(item=>item.id===id);
+  if(!p)return;
+  if(!confirm("Delete "+p.player_name+" from Player management? This cannot be undone. The registration/contact record will be retained. Players already used in matches or promotion history cannot be deleted."))return;
+
+  const [matchRefs,historyRefs]=await Promise.all([
+    db.from("matches").select("id").or("player_one.eq."+id+",player_two.eq."+id+",winner_id.eq."+id+",no_show_player_id.eq."+id).limit(1),
+    db.from("promotion_history").select("id").eq("player_id",id).limit(1)
+  ]);
+  if(matchRefs.error || historyRefs.error){
+    message("Could not check player history. Nothing was deleted: "+(matchRefs.error?.message||historyRefs.error?.message));
+    return;
+  }
+  if((matchRefs.data||[]).length || (historyRefs.data||[]).length){
+    message("This player is linked to match or promotion history, so deletion is blocked to protect tournament records. You can keep the player marked eliminated/rejected.");
+    return;
+  }
+
+  const {error}=await db.from("players").delete().eq("id",id);
+  if(error){message("Delete failed: "+error.message);return;}
+  message("Player removed from Player management. Registration and contact record retained for admin history.");
+  await loadAll();
 }
 
 function renderPlayerSelects(){
@@ -864,6 +903,7 @@ $("tournament").addEventListener("change",async()=>{
   await loadAll();
 });
 $("matchTier").addEventListener("change",renderPlayerSelects);
+$("playerSearch").addEventListener("input",renderPlayers);
 $("toggleRegistration").onclick=toggleRegistration;
 $("refresh").onclick=loadAll;
 $("createDraw").onclick=createDraw;
