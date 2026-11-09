@@ -511,6 +511,10 @@ function renderMatches(){
       <strong>Tier ${m.tier} · Round ${m.round_number}</strong>
       <p>${safe(playerName(m.player_one))} vs ${safe(playerName(m.player_two))}</p>
       <div class="small">Status: ${safe(m.status)} · ${m.published?"Published":"Unpublished"}</div>
+      ${m.status==="pending" && m.published && m.player_one && m.player_two? `
+        <div class="small">Record the confirmed winner:</div>
+        <button onclick="recordMatchWinner('${m.id}','${m.player_one}')">${safe(playerName(m.player_one))} won</button>
+        <button onclick="recordMatchWinner('${m.id}','${m.player_two}')">${safe(playerName(m.player_two))} won</button>`: ""}
       ${m.status==="pending"?
         `<label>Mark absent player</label>
         <select id="absent-${m.id}">
@@ -526,6 +530,22 @@ function renderMatches(){
         `<span class="small">Awaiting new match time and confirmation</span>`:""}
     </div>
   `).join("") || "<p>No matches created yet.</p>";
+}
+
+async function recordMatchWinner(matchId,winnerId){
+  const match=matches.find(item=>item.id===matchId);
+  if(!match || !match.published || match.status!=="pending")return;
+  const winner=playerName(winnerId);
+  const loserId=match.player_one===winnerId?match.player_two:match.player_one;
+  const loser=playerName(loserId);
+  if(!confirm("Confirm result? Winner: "+winner+". Eliminated: "+loser+". The winner will advance automatically."))return;
+  const {data,error}=await db.rpc("record_match_winner",{
+    p_match_id:matchId,
+    p_winner_id:winnerId
+  });
+  if(error){message(error.message);return;}
+  message("Result saved. Winner advanced to the next match.");
+  await loadAll();
 }
 
 async function markAbsent(id){
