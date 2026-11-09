@@ -59,7 +59,8 @@ form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}
 <label>WhatsApp / contact number<input name="phone" maxlength="20" required placeholder="+91..."></label>
 <label id="tierField">Select tier<select name="tier" required><option value="">Choose a tier</option></select></label><p id="tierAvailabilityMessage" class="muted" aria-live="polite"></p>
 <label>Optional note<textarea name="note" maxlength="250" rows="3" placeholder="Anything the organizer should know"></textarea></label>
-<label style="display:flex;align-items:flex-start;gap:9px"><input style="width:auto;margin-top:4px" type="checkbox" required> I agree to be contacted about this community tournament and have read the privacy notice.</label>
+<label style="display:flex;align-items:flex-start;gap:9px"><input style="width:auto;margin-top:4px" type="checkbox" name="terms_accept" required> I have read and agree to the <a href="/terms.html" target="_blank" rel="noopener">Terms &amp; Tournament Conditions</a>, including the applicable payment and refund policy.</label>
+<label style="display:flex;align-items:flex-start;gap:9px"><input style="width:auto;margin-top:4px" type="checkbox" name="privacy_consent" required> I agree to be contacted about this community tournament and have read the <a href="/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</label>
 <button class="btn" type="submit">Submit registration</button>
 </form><div id="result"></div>
 </div></section>
@@ -152,16 +153,23 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const button = form.querySelector('button[type="submit"]');
-  const consent = form.querySelector('input[type="checkbox"]').checked;
+  const termsAccepted = form.elements.terms_accept.checked;
+  const consent = form.elements.privacy_consent.checked;
   if (!form.elements.avatar_id.value) {
     result.style.display = "block";
     result.textContent = "Please choose an avatar before registering.";
     return;
   }
 
+  if (!termsAccepted) {
+    result.style.display = "block";
+    result.textContent = "Please read and accept the Terms & Tournament Conditions before registering.";
+    return;
+  }
+
   if (!consent) {
     result.style.display = "block";
-    result.textContent = "Please accept the consent notice.";
+    result.textContent = "Please accept the privacy and contact consent notice.";
     return;
   }
 
