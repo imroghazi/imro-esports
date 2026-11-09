@@ -34,6 +34,10 @@ button:disabled{opacity:.5}
 #message{padding:12px;overflow-wrap:anywhere}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .hidden{display:none}
+dialog{width:min(92vw,460px);border:1px solid #46536a;border-radius:14px;background:#141e2c;color:#fff;padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.72)}
+dialog h2{margin-top:0}
+dialog select{margin:8px 0 14px}
 </style>
 </head>
 <body>
@@ -116,6 +120,7 @@ button:disabled{opacity:.5}
 <div id="matches"></div>
 </section>
 
+<dialog id="winnerDialog"><h2>Confirm match winner</h2><p id="winnerMatchLabel" class="small"></p><label for="winnerPlayer">Winning player</label><select id="winnerPlayer"></select><p class="small">The result appears on the public website only after you publish it. The other player will be marked eliminated.</p><button type="button" id="publishWinner">Publish result</button><button type="button" class="secondary" id="cancelWinner">Cancel</button><p id="winnerDialogMessage" class="small" aria-live="polite"></p></dialog>
 <section>
 <h2>Payment receipts</h2>
 <p class="small">Record payments manually. This does not collect money.</p>
@@ -180,6 +185,7 @@ let registrations = [];
 let receipts = [];
 let matches = [];
 let currentDrawId = null;
+let pendingWinnerMatchId = null;
 
 function safe(value){
   return String(value ?? "").replace(/[&<>"']/g,c=>({
@@ -641,7 +647,7 @@ async function addMatch(){
     return;
   }
 
-  const {error}=await db.from("matches").insert({
+  const {data,error}=await db.from("matches").insert({
     tournament_id:tournamentId(),
     draw_id:currentDrawId,
     tier,
@@ -650,11 +656,12 @@ async function addMatch(){
     player_two:two,
     status:"pending",
     published:false
-  });
+  }).select().single();
 
   if(error){message(error.message);return;}
-  message("Match added to draft.");
+  message("Match added. Select its winner when ready to publish.");
   await loadAll();
+  openWinnerDialog(data.id);
 }
 
 function playerName(id){
@@ -674,6 +681,7 @@ function renderMatches(){
         <div class="small">Confirm the winner:</div>
         <button onclick="recordMatchWinner('${m.id}','${m.player_one}')">${safe(playerName(m.player_one))} won</button>
         <button onclick="recordMatchWinner('${m.id}','${m.player_two}')">${safe(playerName(m.player_two))} won</button>`: ""}
+      ${m.status==="pending" && !m.published? `<button onclick="openWinnerDialog(&quot;${m.id}&quot;)">Choose winner & publish result</button>`:""}
       ${m.status==="pending"?
         `<label>Mark absent player</label>
         <select id="absent-${m.id}">
@@ -1016,6 +1024,27 @@ async function shareReceiptPDF(receiptId){
     if(error.name!=="AbortError")message("Could not share receipt: "+error.message);
   }
 }
+
+function openWinnerDialog(matchId){
+ const match=matches.find(item=>item.id===matchId);
+ if(!match||!match.player_one||!match.player_two){message('This match does not have two assigned players.');return;}
+ if(match.status==='completed'){message('This match already has a published result.');return;}
+ pendingWinnerMatchId=matchId;
+ $('winnerMatchLabel').textContent='Tier '+match.tier+' · Round '+match.round_number+' — '+playerName(match.player_one)+' vs '+playerName(match.player_two);
+ $('winnerPlayer').innerHTML='<option value="">Choose the winner</option><option value="'+safe(match.player_one)+'">'+safe(playerName(match.player_one))+'</option><option value="'+safe(match.player_two)+'">'+safe(playerName(match.player_two))+'</option>';
+ $('winnerDialogMessage').textContent='';$('publishWinner').disabled=false;$('publishWinner').textContent='Publish result';
+ $('winnerDialog').showModal();
+}
+async function publishSelectedWinner(){
+ const matchId=pendingWinnerMatchId,winnerId=$('winnerPlayer').value,button=$('publishWinner');
+ if(!matchId||!winnerId){$('winnerDialogMessage').textContent='Please select the winning player.';return;}
+ button.disabled=true;button.textContent='Publishing…';
+ const {error}=await db.rpc('publish_match_result',{p_match_id:matchId,p_winner_id:winnerId});
+ if(error){$('winnerDialogMessage').textContent='Could not publish: '+error.message;button.disabled=false;button.textContent='Publish result';return;}
+ $('winnerDialog').close();pendingWinnerMatchId=null;message('Match result published on the website.');await loadAll();
+}
+$('publishWinner').addEventListener('click',publishSelectedWinner);
+$('cancelWinner').addEventListener('click',()=>{$('winnerDialog').close();pendingWinnerMatchId=null;});
 
 async function deleteReceipt(id){
   const receipt=receipts.find(item=>item.id===id);
