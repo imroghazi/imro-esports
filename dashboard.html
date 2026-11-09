@@ -55,6 +55,18 @@ button:disabled{opacity:.5}
 </section>
 
 <section>
+<h2>Random draft generator — demo mode</h2>
+<p class="small">Creates three separate tier drafts using fictional names only. It does not read real registrations, save matches, or publish a draw.</p>
+<div class="grid">
+  <div><label>Tier 1 demo players</label><input id="draftTier1Count" type="number" min="0" max="64" value="8"></div>
+  <div><label>Tier 2 demo players</label><input id="draftTier2Count" type="number" min="0" max="64" value="6"></div>
+  <div><label>Tier 3 demo players</label><input id="draftTier3Count" type="number" min="0" max="64" value="5"></div>
+</div>
+<button type="button" id="generateTierDrafts">Generate all tier drafts</button>
+<div id="tierDraftResults" aria-live="polite" class="small">No draft generated yet.</div>
+</section>
+
+<section>
 <h2>Manual 1v1 matchmaking</h2>
 <label>Tier</label>
 <select id="matchTier">
@@ -649,6 +661,68 @@ $("logout").onclick=async()=>{
 };
 
 start();
+</script>
+<script type="module">
+import { buildSingleEliminationBracket } from "/supabase/functions/_shared/bracket-engine.js";
+
+const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+  "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+})[char]);
+
+function renderTierDraft(tier, count) {
+  const target = document.getElementById("tierDraftResults");
+  const demoPlayers = Array.from({length: count}, (_, index) => ({
+    id: "demo-tier-" + tier + "-" + (index + 1),
+    name: "Tier " + tier + " Demo Player " + (index + 1)
+  }));
+  const bracket = buildSingleEliminationBracket(demoPlayers);
+  let html = "<div class='item'><h3>Tier " + tier + "</h3>";
+  html += "<p>Registered in demo: " + count + " · Active: " + bracket.players.length +
+    " · Reserve: " + bracket.reserves.length + " · Byes: " + bracket.byeCount +
+    " · Matches: " + bracket.matchCount + "</p>";
+  if (bracket.reserves.length) {
+    html += "<p><strong>Reserve:</strong> " +
+      escapeHtml(bracket.reserves.map(player => player.name).join(", ")) + "</p>";
+  }
+  if (count < 2) {
+    html += "<p class='small'>Not enough active players to create a match.</p>";
+  }
+  for (const round of bracket.rounds) {
+    html += "<div class='item'><strong>Round " + round.number + "</strong>";
+    if (round.byes.length) {
+      html += "<p class='small'>Automatic byes: " +
+        round.byes.map(entry => escapeHtml(entry.player.name)).join(", ") + "</p>";
+    }
+    round.matches.forEach((match, index) => {
+      const p1 = match.playerOne?.name || "Winner of earlier match";
+      const p2 = match.playerTwo?.name || "Winner of earlier match";
+      html += "<p>Match " + (index + 1) + ": " + escapeHtml(p1) +
+        " vs " + escapeHtml(p2) + "</p>";
+    });
+    html += "</div>";
+  }
+  html += "</div>";
+  return html;
+}
+
+document.getElementById("generateTierDrafts").addEventListener("click", () => {
+  const counts = [1, 2, 3].map(tier =>
+    Number(document.getElementById("draftTier" + tier + "Count").value)
+  );
+  if (counts.some(count => !Number.isInteger(count) || count < 0 || count > 64)) {
+    document.getElementById("tierDraftResults").textContent =
+      "Enter whole numbers from 0 to 64 for each tier.";
+    return;
+  }
+  try {
+    document.getElementById("tierDraftResults").innerHTML =
+      "<p><strong>DEMO DRAFT — NOT SAVED OR PUBLISHED</strong></p>" +
+      counts.map((count, index) => renderTierDraft(index + 1, count)).join("");
+  } catch (error) {
+    document.getElementById("tierDraftResults").textContent =
+      "Could not generate preview: " + error.message;
+  }
+});
 </script>
 </body>
 </html>
