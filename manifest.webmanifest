@@ -1,18 +1,33 @@
 {
-  "id": "/admin.html",
-  "name": "IMRO ESPORTS Admin",
-  "short_name": "IMRO Admin",
-  "description": "Private tournament management for IMRO ESPORTS",
-  "start_url": "/admin.html",
+  "id": "/",
+  "name": "IMRO ESPORTS Player",
+  "short_name": "IMRO Player",
+  "description": "Register and follow IMRO ESPORTS community tournaments.",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#080d15",
-  "theme_color": "#080d15",
+  "background_color": "#090909",
+  "theme_color": "#090909",
   "icons": [
-    {"src": "/icons/imro-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+    {
+      "src": "/icons/imro-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ],
   "shortcuts": [
-    {"name": "Admin Dashboard", "url": "/dashboard.html", "icons": [{"src": "/icons/imro-icon.svg", "sizes": "any", "type": "image/svg+xml"}]}
+    {
+      "name": "Register for tournament",
+      "url": "/#register",
+      "icons": [
+        {
+          "src": "/icons/imro-icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
   ]
 }
