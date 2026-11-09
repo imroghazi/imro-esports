@@ -360,6 +360,72 @@ async function toggleRegistration(){
   await loadTournaments();
 }
 
+const AVATAR_EMOJI={
+"warrior-01":"⚔️",
+"warrior-02":"🛡️",
+"warrior-03":"🥷",
+"warrior-04":"🏹",
+"warrior-05":"🪓",
+"warrior-06":"🗡️",
+"warrior-07":"👑",
+"warrior-08":"🦸",
+"warrior-09":"🤺",
+"warrior-10":"🥋",
+"warrior-11":"🧙",
+"warrior-12":"🧝",
+"warrior-13":"🦹",
+"mythic-01":"🐉",
+"mythic-02":"🦄",
+"mythic-03":"🧚",
+"mythic-04":"🧜",
+"mythic-05":"🧞",
+"mythic-06":"🧛",
+"mythic-07":"🧟",
+"mythic-08":"👻",
+"mythic-09":"☠️",
+"mythic-10":"🔥",
+"mythic-11":"🌙",
+"mythic-12":"⚡",
+"mythic-13":"❄️",
+"cyber-01":"🤖",
+"cyber-02":"👾",
+"cyber-03":"👽",
+"cyber-04":"🦾",
+"cyber-05":"💀",
+"cyber-06":"🕶️",
+"cyber-07":"🎭",
+"cyber-08":"🔮",
+"cyber-09":"💎",
+"cyber-10":"🚀",
+"cyber-11":"🛸",
+"cyber-12":"📡",
+"cyber-13":"🧬",
+"beast-01":"🐺",
+"beast-02":"🦁",
+"beast-03":"🐯",
+"beast-04":"🦊",
+"beast-05":"🐼",
+"beast-06":"🦅",
+"beast-07":"🦈",
+"beast-08":"🐍",
+"beast-09":"🦂",
+"beast-10":"🐻",
+"beast-11":"🦍",
+"beast-12":"🐲",
+"legend-01":"🏴‍☠️",
+"legend-02":"🤠",
+"legend-03":"🧑‍🚀",
+"legend-04":"🧑‍🎤",
+"legend-05":"🥽",
+"legend-06":"🧑‍🚒",
+"legend-07":"🧑‍✈️",
+"legend-08":"🧑‍🔬",
+"legend-09":"🧑‍🎨",
+"legend-10":"🧑‍🚀",
+"legend-11":"🧑‍⚖️",
+"legend-12":"🧑‍🌾"
+};
+function avatarBadge(id){return AVATAR_EMOJI[id]||"👤";}
 function renderPlayers(){
   $("players").innerHTML=players.map(p=>{
     const registration=registrations.find(r=>r.id===p.registration_id);
@@ -367,7 +433,7 @@ function renderPlayers(){
     const next=p.tier<3?p.tier+1:null;
 
     return `<div class="item">
-      <strong>${safe(p.player_name)}</strong>
+      <strong><span style="font-size:24px">${avatarBadge(p.avatar_id)}</span> ${safe(p.player_name)}</strong>
       <div class="small">UID: ${safe(p.game_uid)}</div>
       <div class="small">Tier ${p.tier} · Status: ${safe(p.status)}</div>
       <div class="small">Token: ${safe(token)}</div>
@@ -521,7 +587,7 @@ function renderMatches(){
   $("matches").innerHTML=matches.map(m=>`
     <div class="item">
       <strong>Tier ${m.tier} · Round ${m.round_number}</strong>
-      <p>${safe(playerName(m.player_one))} vs ${safe(playerName(m.player_two))}</p>
+      <p>${avatarBadge(players.find(p=>p.id===m.player_one)?.avatar_id)} ${safe(playerName(m.player_one))} vs ${avatarBadge(players.find(p=>p.id===m.player_two)?.avatar_id)} ${safe(playerName(m.player_two))}</p>
       <div class="small">Status: ${safe(m.status)} · ${m.published?"Published":"Unpublished"}</div>
       ${m.status==="pending" && m.published? `<button onclick="setMatchState('${m.id}','in_progress')">Start match</button>`: ""}
       ${m.status==="paused" && m.published? `<button onclick="setMatchState('${m.id}','in_progress')">Resume match</button>`: ""}
