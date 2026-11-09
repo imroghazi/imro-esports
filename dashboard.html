@@ -20,6 +20,9 @@ button{padding:11px 14px;border:0;border-radius:7px;background:#55e6a5;color:#06
 button.secondary{background:#34445b;color:white}
 button.danger{background:#a83d49;color:white}
 button:disabled{opacity:.5}
+.contact-action{display:inline-block;padding:10px 13px;border-radius:7px;font-weight:bold;text-decoration:none;margin:6px 6px 6px 0}
+.whatsapp-action{background:#25D366;color:#062b17}
+.call-action{background:#34445b;color:#fff}
 .item{border:1px solid #35445a;border-radius:8px;padding:12px;margin:10px 0;overflow-wrap:anywhere}
 .small{color:#aab8c9;font-size:13px}
 #message{padding:12px;overflow-wrap:anywhere}
@@ -439,16 +442,29 @@ const AVATAR_EMOJI={
 "legend-12":"🧑‍🌾","legend-13":"🧿"
 };
 function avatarBadge(id){return AVATAR_EMOJI[id]||"👤";}
+function contactPhone(registration){
+  const raw=String(registration?.phone||"").trim();
+  const digits=raw.replace(/\\D/g,"");
+  if(!digits)return null;
+  // Registration numbers are commonly entered as +91XXXXXXXXXX.
+  const international=digits.length===10?"91"+digits:digits;
+  return {display:raw,call:"+"+international,whatsapp:international};
+}
+
 function renderPlayers(){
   $("players").innerHTML=players.map(p=>{
     const registration=registrations.find(r=>r.id===p.registration_id);
     const token=registration?.registration_token||"Not available";
+    const contact=contactPhone(registration);
     const next=p.tier<3?p.tier+1:null;
 
     return `<div class="item">
       <strong><span style="font-size:24px">${avatarBadge(p.avatar_id)}</span> ${safe(p.player_name)}</strong>
       <div class="small">UID: ${safe(p.game_uid)}</div>
       <div class="small">Tier ${p.tier} · Status: ${safe(p.status)}</div>
+      <div class="small">Contact: ${contact?safe(contact.display):"Not provided"}</div>
+      ${contact?`<a href="https://wa.me/${safe(contact.whatsapp)}" target="_blank" rel="noopener noreferrer" class="contact-action whatsapp-action">WhatsApp</a>
+      <a href="tel:${safe(contact.call)}" class="contact-action call-action">Call</a>`:""}
       <div class="small">Token: ${safe(token)}</div>
       ${p.status==="pending"?
         `<button onclick="approvePlayer('${p.id}')">Approve</button>
