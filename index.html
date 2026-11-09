@@ -71,7 +71,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
 
 const form = document.getElementById("regForm");
 const result = document.getElementById("result");
-const AVATAR_GROUPS=[["warrior","WARRIORS",[["warrior-01","⚔️","Blade"],["warrior-02","🛡️","Guardian"],["warrior-03","🥷","Shadow"],["warrior-04","🏹","Archer"],["warrior-05","🪓","Raider"],["warrior-06","🗡️","Duelist"],["warrior-07","👑","King"],["warrior-08","🦸","Hero"],["warrior-09","🤺","Fencer"],["warrior-10","🥋","Fighter"],["warrior-11","🧙","Mage"],["warrior-12","🧝","Ranger"],["warrior-13","🦹","Rogue"]]],["mythic","MYTHICAL",[["mythic-01","🐉","Dragon"],["mythic-02","🦄","Unicorn"],["mythic-03","🧚","Fairy"],["mythic-04","🧜","Mermaid"],["mythic-05","🧞","Genie"],["mythic-06","🧛","Vampire"],["mythic-07","🧟","Undead"],["mythic-08","👻","Phantom"],["mythic-09","☠️","Skull"],["mythic-10","🔥","Phoenix"],["mythic-11","🌙","Moon"],["mythic-12","⚡","Thunder"],["mythic-13","❄️","Frost"]]],["cyber","CYBER",[["cyber-01","🤖","Android"],["cyber-02","👾","Invader"],["cyber-03","👽","Alien"],["cyber-04","🦾","Mech"],["cyber-05","💀","Glitch"],["cyber-06","🕶️","Hacker"],["cyber-07","🎭","Mask"],["cyber-08","🔮","Core"],["cyber-09","💎","Crystal"],["cyber-10","🚀","Pilot"],["cyber-11","🛸","UFO"],["cyber-12","📡","Signal"],["cyber-13","🧬","Mutant"]]],["beast","BEASTS",[["beast-01","🐺","Wolf"],["beast-02","🦁","Lion"],["beast-03","🐯","Tiger"],["beast-04","🦊","Fox"],["beast-05","🐼","Panda"],["beast-06","🦅","Eagle"],["beast-07","🦈","Shark"],["beast-08","🐍","Viper"],["beast-09","🦂","Scorpion"],["beast-10","🐻","Bear"],["beast-11","🦍","Gorilla"],["beast-12","🐲","Drake"]]],["legend","LEGENDS",[["legend-01","🏴‍☠️","Pirate"],["legend-02","🤠","Outlaw"],["legend-03","🧑‍🚀","Cosmonaut"],["legend-04","🧑‍🎤","Rockstar"],["legend-05","🥽","Explorer"],["legend-06","🧑‍🚒","Rescue"],["legend-07","🧑‍✈️","Ace"],["legend-08","🧑‍🔬","Scientist"],["legend-09","🧑‍🎨","Artist"],["legend-10","🧑‍🚀","Starborn"],["legend-11","🧑‍⚖️","Judge"],["legend-12","🧑‍🌾","Nomad"]]]];
+const AVATAR_GROUPS=[["warrior","WARRIORS",[["warrior-01","⚔️","Blade"],["warrior-02","🛡️","Guardian"],["warrior-03","🥷","Shadow"],["warrior-04","🏹","Archer"],["warrior-05","🪓","Raider"],["warrior-06","🗡️","Duelist"],["warrior-07","👑","King"],["warrior-08","🦸","Hero"],["warrior-09","🤺","Fencer"],["warrior-10","🥋","Fighter"],["warrior-11","🧙","Mage"],["warrior-12","🧝","Ranger"],["warrior-13","🦹","Rogue"]]],["mythic","MYTHICAL",[["mythic-01","🐉","Dragon"],["mythic-02","🦄","Unicorn"],["mythic-03","🧚","Fairy"],["mythic-04","🧜","Mermaid"],["mythic-05","🧞","Genie"],["mythic-06","🧛","Vampire"],["mythic-07","🧟","Undead"],["mythic-08","👻","Phantom"],["mythic-09","☠️","Skull"],["mythic-10","🔥","Phoenix"],["mythic-11","🌙","Moon"],["mythic-12","⚡","Thunder"],["mythic-13","❄️","Frost"]]],["cyber","CYBER",[["cyber-01","🤖","Android"],["cyber-02","👾","Invader"],["cyber-03","👽","Alien"],["cyber-04","🦾","Mech"],["cyber-05","💀","Glitch"],["cyber-06","🕶️","Hacker"],["cyber-07","🎭","Mask"],["cyber-08","🔮","Core"],["cyber-09","💎","Crystal"],["cyber-10","🚀","Pilot"],["cyber-11","🛸","UFO"],["cyber-12","📡","Signal"],["cyber-13","🧬","Mutant"]]],["beast","BEASTS",[["beast-01","🐺","Wolf"],["beast-02","🦁","Lion"],["beast-03","🐯","Tiger"],["beast-04","🦊","Fox"],["beast-05","🐼","Panda"],["beast-06","🦅","Eagle"],["beast-07","🦈","Shark"],["beast-08","🐍","Viper"],["beast-09","🦂","Scorpion"],["beast-10","🐻","Bear"],["beast-11","🦍","Gorilla"],["beast-12","🐲","Drake"]]],["legend","LEGENDS",[["legend-01","🏴‍☠️","Pirate"],["legend-02","🤠","Outlaw"],["legend-03","🧑‍🚀","Cosmonaut"],["legend-04","🧑‍🎤","Rockstar"],["legend-05","🥽","Explorer"],["legend-06","🧑‍🚒","Rescue"],["legend-07","🧑‍✈️","Ace"],["legend-08","🧑‍🔬","Scientist"],["legend-09","🧑‍🎨","Artist"],["legend-10","🧑‍🚀","Starborn"],["legend-11","🧑‍⚖️","Judge"],["legend-12","🧑‍🌾","Nomad"],["legend-13","🧿","Oracle"]]]];
 const allAvatars=AVATAR_GROUPS.flatMap(group=>group[2].map(([id,emoji,label])=>({id,emoji,label,theme:group[1]})));
 function chooseAvatar(id){
   const avatar=allAvatars.find(item=>item.id===id); if(!avatar)return;
@@ -150,6 +150,11 @@ form.addEventListener("submit", async (e) => {
 
   const button = form.querySelector('button[type="submit"]');
   const consent = form.querySelector('input[type="checkbox"]').checked;
+  if (!form.elements.avatar_id.value) {
+    result.style.display = "block";
+    result.textContent = "Please choose an avatar before registering.";
+    return;
+  }
 
   if (!consent) {
     result.style.display = "block";
@@ -200,6 +205,8 @@ form.addEventListener("submit", async (e) => {
     result.style.border = "1px solid #368b50";
 
     form.reset();
+    document.getElementById("avatarChosen").textContent = "No avatar selected";
+    document.querySelectorAll(".avatar-option").forEach(option=>option.classList.remove("selected"));
     button.textContent = "Registered successfully";
 
   } catch (error) {
