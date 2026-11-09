@@ -1,0 +1,24 @@
+name: Bracket engine tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/functions/_shared/**"
+      - ".github/workflows/bracket-engine-tests.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/functions/_shared/**"
+      - ".github/workflows/bracket-engine-tests.yml"
+
+jobs:
+  bracket-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run bracket engine tests
+        run: node --test supabase/functions/_shared/tests/*.test.js
