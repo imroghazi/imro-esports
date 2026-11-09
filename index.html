@@ -286,7 +286,8 @@ async function loadTierLeaderboards(){
   }catch(error){target.innerHTML="<div class='card muted'>Leaderboards will appear when a tier is finalized.</div>";}
 }
 function escapeLeaderboard(value){return String(value??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
-\nloadPublicPrizePool();
+
+loadPublicPrizePool();
 loadTierLeaderboards();
 loadTierAvailability();
 setInterval(loadPublicPrizePool,15000);
