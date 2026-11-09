@@ -37,14 +37,14 @@ form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}
 <header><div><div class="brand">IMRO <span>ESPORTS</span></div><div class="tag">COMMUNITY TOURNAMENT</div></div><a class="btn" href="#register">REGISTER</a></header>
 <main>
 <div class="hero"><div class="eyebrow">LOCAL COMMUNITY • PURE GAMEPLAY</div><h1>ENTER THE<br><span style="color:var(--red)">ARENA.</span></h1><p>Compete, prove your skills, and represent your tier. Register for the IMRO ESPORTS community tournament.</p><a class="btn" href="#register">Register now ↓</a></div>
-<div class="notice">Registration is currently a preview setup. No payment is collected on this website. Tournament dates, prize details and registration availability must be confirmed by the organizer.</div>
+<div class="notice">No payment is collected on this website. Choose only a tier marked OPEN below; registration availability is controlled live by the organizer.</div>
 <section><h2 class="section-title">Choose your tier</h2><div class="grid">
-<div class="card"><div class="tier">TIER 01</div><h3>Rising Challengers</h3><div class="muted">4 winners • Organizer-announced prize reference subject to confirmation.</div></div>
-<div class="card"><div class="tier">TIER 02</div><h3>Elite Contenders</h3><div class="muted">2 winners • Organizer-announced prize reference subject to confirmation.</div></div>
-<div class="card"><div class="tier">TIER 03</div><h3>Champions</h3><div class="muted">1 winner • Organizer-announced prize reference subject to confirmation.</div></div>
+<div class="card"><div class="tier">TIER 01</div><h3>Rising Challengers</h3><div id="tierAvailability1" class="status">Checking availability…</div><div class="muted">4 winners • Organizer-announced prize reference subject to confirmation.</div></div>
+<div class="card"><div class="tier">TIER 02</div><h3>Elite Contenders</h3><div id="tierAvailability2" class="status">Checking availability…</div><div class="muted">2 winners • Organizer-announced prize reference subject to confirmation.</div></div>
+<div class="card"><div class="tier">TIER 03</div><h3>Champions</h3><div id="tierAvailability3" class="status">Checking availability…</div><div class="muted">1 winner • Organizer-announced prize reference subject to confirmation.</div></div>
 </div></section>
 <section id="register"><h2 class="section-title">Player registration</h2><div class="card">
-<p class="muted">This starter page is not connected to a shared database yet. Do not submit real player details until the database and privacy controls are configured.</p>
+<p class="muted">Registration is saved to the tournament database. Your player token appears after successful registration. No payment is collected.</p>
 <form id="regForm">
 <label>In-game name<input name="ign" maxlength="40" required placeholder="Your player name"></label>
 <label>Free Fire UID<input name="uid" maxlength="24" required inputmode="numeric" placeholder="Your UID"></label>
@@ -52,8 +52,8 @@ form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}
 <label>Select tier<select name="tier" required><option value="">Choose a tier</option><option>Tier 1</option><option>Tier 2</option><option>Tier 3</option></select></label>
 <label>Optional note<textarea name="note" maxlength="250" rows="3" placeholder="Anything the organizer should know"></textarea></label>
 <label style="display:flex;align-items:flex-start;gap:9px"><input style="width:auto;margin-top:4px" type="checkbox" required> I agree to be contacted about this community tournament and have read the privacy notice.</label>
-<button class="btn" type="submit">Preview registration</button>
-</form><div id="result">Preview only: no information has been sent or saved. Database setup is still required.</div>
+<button class="btn" type="submit">Submit registration</button>
+</form><div id="result"></div>
 </div></section>
 <section id="leaderboards"><h2 class="section-title">Live tier leaderboards</h2><p class="muted">Final rankings appear here after the organizer ends the respective tier.</p><div id="publicLeaderboards" class="grid"><div class="card muted">Loading published leaderboards…</div></div></section>
 <section><h2 class="section-title">Tournament rules</h2><div class="card"><ul><li>Pure gameplay.</li><li>No gun attributes.</li><li>No character skills.</li><li>No player substitution.</li><li>Draws are generated manually by the organizer after registration closes.</li><li>Pairings are separated by tier and are shown publicly only after the organizer publishes them.</li></ul></div></section>
@@ -64,6 +64,25 @@ const SUPABASE_ANON_KEY = "sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
 
 const form = document.getElementById("regForm");
 const result = document.getElementById("result");
+async function loadTierAvailability(){
+  try{
+    const key=SUPABASE_ANON_KEY;
+    const tr=await fetch(SUPABASE_URL+"/rest/v1/tournaments?select=id&order=created_at.desc&limit=1",{headers:{apikey:key,Authorization:"Bearer "+key}});
+    if(!tr.ok)throw new Error("Tournament lookup failed");
+    const ts=await tr.json(); if(!ts.length)throw new Error("No tournament");
+    const response=await fetch(SUPABASE_URL+"/rest/v1/rpc/get_tier_registration_status",{method:"POST",headers:{"Content-Type":"application/json",apikey:key,Authorization:"Bearer "+key},body:JSON.stringify({p_tournament_id:ts[0].id})});
+    if(!response.ok)throw new Error("Availability lookup failed");
+    const rows=await response.json();
+    rows.forEach(row=>{
+      const open=!!row.available, node=document.getElementById("tierAvailability"+row.tier);
+      if(node){node.textContent=open?"● OPEN FOR REGISTRATION":"● REGISTRATION CLOSED";node.style.color=open?"#8de0a2":"#ff8b8b";}
+      const option=Array.from(form.elements.tier.options).find(o=>o.value==="Tier "+row.tier);
+      if(option){option.disabled=!open;option.textContent="Tier "+row.tier+(open?" — OPEN":" — CLOSED");}
+    });
+    if(form.elements.tier.selectedOptions[0]?.disabled)form.elements.tier.value="";
+  }catch(error){[1,2,3].forEach(t=>{const n=document.getElementById("tierAvailability"+t);if(n)n.textContent="Availability temporarily unavailable";});}
+}
+
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();

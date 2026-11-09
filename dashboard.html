@@ -372,7 +372,12 @@ function renderPlayers(){
       <div class="small">Tier ${p.tier} · Status: ${safe(p.status)}</div>
       <div class="small">Token: ${safe(token)}</div>
       ${p.status==="pending"?
-        `<button onclick="approvePlayer('${p.id}')">Approve</button>`:""}
+        `<button onclick="approvePlayer('${p.id}')">Approve</button>
+         <button class="danger" onclick="rejectPlayer('${p.id}')">Reject</button>
+         <div class="small">Redirect to another tier:</div>
+         <select id="redirect-${p.id}"><option value="">Choose tier</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option></select>
+         <button class="secondary" onclick="redirectPlayer('${p.id}')">Redirect player</button>`:""}
+      ${p.status==="rejected"?`<span class="small">Rejected by admin</span>`:""}
       ${p.status==="approved" && next?
         `<button onclick="promotePlayer('${p.id}')">Promote to Tier ${next}</button>`:""}
       ${p.status==="approved"?
@@ -556,7 +561,9 @@ async function renderTierControls(){
     const ended=c.state==="ended";
     return `<div class="item">
       <strong>Tier ${tier}</strong>
-      <div class="small">State: ${safe(c.state)} · Matches: ${counts.length} · Running: ${running} · Unresolved: ${unresolved}</div>
+      <div class="small">Registration: ${c.registration_open?"OPEN":"CLOSED"} · Matches: ${counts.length} · Running: ${running} · Unresolved: ${unresolved}</div>
+      <button class="${c.registration_open?"danger":"secondary"}" onclick="changeTierRegistration(${tier},${!c.registration_open})">${c.registration_open?"Close registration":"Open registration"}</button>
+      <div class="small">Match state: ${safe(c.state)}</div>
       <button ${ended?"disabled":""} onclick="changeTierState(${tier},'running')">Start / Resume tier</button>
       <button class="secondary" ${ended?"disabled":""} onclick="changeTierState(${tier},'stopped')">Stop tier</button>
       <button class="secondary" ${ended?"disabled":""} onclick="changeTierState(${tier},'paused')">Pause tier</button>
@@ -566,6 +573,27 @@ async function renderTierControls(){
   }).join("");
 }
 
+async function changeTierRegistration(tier,open){
+  if(!confirm((open?'Open':'Close')+' registration for Tier '+tier+' only? Other tiers will not change.'))return;
+  const {error}=await db.rpc('set_tier_registration',{p_tournament_id:tournamentId(),p_tier:tier,p_open:open});
+  if(error){message(error.message);return;} message('Tier '+tier+' registration '+(open?'opened':'closed')+'.'); await loadAll();
+}
+async function rejectPlayer(id){
+  const p=players.find(x=>x.id===id); if(!p || p.status!=='pending')return;
+  if(!confirm('Reject '+p.player_name+'? The record will be retained.'))return;
+  const {error}=await db.from('players').update({status:'rejected'}).eq('id',id).eq('status','pending');
+  if(error){message(error.message);return;} message('Player rejected.'); await loadAll();
+}
+async function redirectPlayer(id){
+  const p=players.find(x=>x.id===id), target=Number($('redirect-'+id)?.value);
+  if(!p || p.status!=='pending' || ![1,2,3].includes(target))return message('Choose a destination tier first.');
+  if(target===Number(p.tier))return message('Player is already in that tier.');
+  if(!confirm('Redirect '+p.player_name+' to Tier '+target+' and approve the player?'))return;
+  const {error:historyError}=await db.from('promotion_history').insert({tournament_id:p.tournament_id,player_id:p.id,from_tier:p.tier,to_tier:target,note:'Admin registration redirect',promoted_by:currentUser.id});
+  if(historyError){message(historyError.message);return;}
+  const {error}=await db.from('players').update({tier:target,status:'approved'}).eq('id',id).eq('status','pending');
+  if(error){message('Redirect history saved, but player update failed: '+error.message);return;} message('Player redirected to Tier '+target+' and approved.'); await loadAll();
+}
 async function changeTierState(tier,state){
   const labels={running:"start / resume",stopped:"stop",paused:"pause"};
   const warning=state==="stopped"
