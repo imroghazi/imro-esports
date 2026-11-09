@@ -289,6 +289,7 @@ function escapeLeaderboard(value){return String(value??"").replace(/[&<>"]/g,c=>
 \nloadPublicPrizePool();
 loadTierLeaderboards();
 loadTierAvailability();
+setInterval(loadPublicPrizePool,15000);
 setInterval(loadTierLeaderboards,20000);
 setInterval(loadTierAvailability,15000);
   </script>
