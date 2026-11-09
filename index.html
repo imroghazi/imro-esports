@@ -240,6 +240,37 @@ form.addEventListener("submit", async (e) => {
     result.style.display = "block";
     result.style.border = "1px solid #368b50";
 
+    const paymentBox = document.createElement("div");
+    paymentBox.style.cssText = "margin-top:18px;padding:16px;background:#101b29;border:1px solid #344052;border-radius:12px;text-align:center;";
+    const paymentTitle = document.createElement("h3");
+    paymentTitle.textContent = "Pay your entry fee using this UPI QR";
+    paymentTitle.style.color = "#55e6a5";
+    const paymentHint = document.createElement("p");
+    paymentHint.textContent = "Open PhonePe, Google Pay or any UPI app on another device and scan this QR. Enter the entry amount confirmed by the organizer.";
+    paymentHint.style.color = "#bdc9d8";
+    const qrImage = document.createElement("img");
+    qrImage.src = "/payment-qr.svg";
+    qrImage.alt = "IMRO ESPORTS PhonePe UPI payment QR code";
+    qrImage.loading = "eager";
+    qrImage.style.cssText = "display:block;width:min(100%,300px);height:auto;margin:12px auto;background:#fff;border-radius:8px;";
+    const upiLabel = document.createElement("p");
+    upiLabel.textContent = "UPI ID: 7676811098-2@axl";
+    upiLabel.style.cssText = "color:#fff;font-weight:bold;overflow-wrap:anywhere;";
+    const copyUpi = document.createElement("button");
+    copyUpi.type = "button";
+    copyUpi.textContent = "Copy UPI ID";
+    copyUpi.style.cssText = "padding:10px 16px;border:0;border-radius:7px;background:#55e6a5;color:#06130c;font-weight:bold;";
+    copyUpi.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText("7676811098-2@axl");
+        copyUpi.textContent = "UPI ID copied";
+      } catch (_) {
+        upiLabel.textContent = "UPI ID: 7676811098-2@axl (select and copy)";
+      }
+    });
+    paymentBox.append(paymentTitle,paymentHint,qrImage,upiLabel,copyUpi);
+    result.appendChild(paymentBox);
+
     const whatsappMessage =
       "Hello IMRO ESPORTS! I have completed my tournament registration.\n\n" +
       "Player: " + body.ign + "\n" +
