@@ -443,7 +443,7 @@ const AVATAR_EMOJI={
 };
 function avatarBadge(id){return AVATAR_EMOJI[id]||"👤";}
 function contactPhone(registration){
-  const raw=String(registration?.phone||"").trim();
+  const raw=String(registration?.contact_number||"").trim();
   const digits=raw.replace(/\\D/g,"");
   if(!digits)return null;
   // Registration numbers are commonly entered as +91XXXXXXXXXX.
