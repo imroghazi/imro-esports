@@ -112,6 +112,8 @@ button:disabled{opacity:.5}
 <section>
 <h2>Payment receipts</h2>
 <p class="small">Record payments manually. This does not collect money.</p>
+<label for="receiptPlayerSearch">Find registered player</label>
+<input id="receiptPlayerSearch" type="search" placeholder="Search player name, UID or contact number">
 <label>Registered player</label>
 <select id="receiptPlayer"></select>
 
@@ -168,6 +170,7 @@ let currentUser = null;
 let tournaments = [];
 let players = [];
 let registrations = [];
+let receipts = [];
 let matches = [];
 let currentDrawId = null;
 
@@ -258,6 +261,7 @@ async function loadAll(){
   players=p.data||[];
   registrations=r.data||[];
   matches=m.data||[];
+  receipts=rc.data||[];
 
   renderPlayers();
   renderPlayerSelects();
@@ -534,9 +538,7 @@ function renderPlayerSelects(){
 
   $("playerOne").innerHTML=options;
   $("playerTwo").innerHTML=options;
-  $("receiptPlayer").innerHTML=registrations.map(r=>
-    `<option value="${r.id}">${safe(r.ign)} — ${safe(r.player_uid)}</option>`
-  ).join("");
+  renderReceiptPlayerOptions();
 }
 
 async function approvePlayer(id){
@@ -892,10 +894,47 @@ async function createReceipt(){
   await loadAll();
 }
 
+function renderReceiptPlayerOptions(){
+  const query=($("receiptPlayerSearch")?.value||"").trim().toLowerCase();
+  const select=$("receiptPlayer");
+  const previous=select.value;
+  const filtered=registrations.filter(r=>{
+    const player=players.find(p=>p.registration_id===r.id);
+    return [r.ign,r.player_uid,r.contact_number,player?.player_name]
+      .some(value=>String(value||"").toLowerCase().includes(query));
+  });
+  select.innerHTML=filtered.map(r=>
+    `<option value="${safe(r.id)}">${safe(r.ign)} — ${safe(r.player_uid)} — ${safe(r.contact_number)}</option>`
+  ).join("");
+  if(filtered.some(r=>r.id===previous))select.value=previous;
+  else if(!filtered.length)select.innerHTML='<option value="">No matching players</option>';
+}
+
 function renderReceipts(){
-  $("receipts").innerHTML=registrations.length ?
-    "<p class='small'>Receipt records are stored privately in the database.</p>" :
-    "<p>No registrations available for receipts.</p>";
+  $("receipts").innerHTML=receipts.length ? receipts.map(receipt=>{
+    const registration=registrations.find(r=>r.id===receipt.registration_id);
+    const player=players.find(p=>p.registration_id===receipt.registration_id);
+    const name=registration?.ign||player?.player_name||"Unknown player";
+    const uid=registration?.player_uid||player?.game_uid||"";
+    return `<div class="item">
+      <strong>${safe(receipt.receipt_number||"Payment receipt")} · ${safe(name)}</strong>
+      <div class="small">UID: ${safe(uid)}</div>
+      <div class="small">Transaction ID: ${safe(receipt.transaction_id)}</div>
+      <div class="small">Amount: ₹${Number(receipt.amount).toLocaleString("en-IN")} · Status: ${safe(receipt.payment_status||"recorded")}</div>
+      ${receipt.note?`<div class="small">Note: ${safe(receipt.note)}</div>`:""}
+      <button class="danger" onclick="deleteReceipt('${receipt.id}')">🗑 Delete receipt</button>
+    </div>`;
+  }).join("") : "<p>No payment receipts recorded yet.</p>";
+}
+
+async function deleteReceipt(id){
+  const receipt=receipts.find(item=>item.id===id);
+  if(!receipt)return;
+  if(!confirm("Delete receipt "+(receipt.receipt_number||"")+" for transaction "+receipt.transaction_id+"? This permanently removes this receipt record."))return;
+  const {error}=await db.from("payment_receipts").delete().eq("id",id);
+  if(error){message("Receipt deletion failed: "+error.message);return;}
+  message("Payment receipt deleted.");
+  await loadAll();
 }
 
 $("tournament").addEventListener("change",async()=>{
@@ -904,6 +943,7 @@ $("tournament").addEventListener("change",async()=>{
 });
 $("matchTier").addEventListener("change",renderPlayerSelects);
 $("playerSearch").addEventListener("input",renderPlayers);
+$("receiptPlayerSearch").addEventListener("input",renderReceiptPlayerOptions);
 $("toggleRegistration").onclick=toggleRegistration;
 $("refresh").onclick=loadAll;
 $("createDraw").onclick=createDraw;
