@@ -292,31 +292,44 @@ function updatePrizeTotal(){
 }
 
 async function savePrizeSettings(){
+  const button=$("savePrizes");
+  const messageNode=$("prizeMessage");
   const tier1=Number($("prizeTier1").value);
   const tier2=Number($("prizeTier2").value);
   const tier3=Number($("prizeTier3").value);
 
   if([tier1,tier2,tier3].some(n=>!Number.isFinite(n)||n<0)){
-    $("prizeMessage").textContent="Enter valid prize amounts.";
+    messageNode.textContent="Enter valid prize amounts.";
     return;
   }
 
-  const {error}=await db.from("prize_settings").upsert({
-    id:1,
-    tier1_prize:tier1,
-    tier2_prize:tier2,
-    tier3_prize:tier3,
-    prize_status:$("prizeStatus").value,
-    updated_at:new Date().toISOString()
-  });
-
-  if(error){
-    $("prizeMessage").textContent=error.message;
-    return;
+  button.disabled=true;
+  button.textContent="Saving…";
+  messageNode.textContent="Saving prize pool…";
+  try{
+    const payload={
+      id:1,
+      tier1_prize:tier1,
+      tier2_prize:tier2,
+      tier3_prize:tier3,
+      prize_status:$("prizeStatus").value,
+      updated_at:new Date().toISOString()
+    };
+    const {data,error}=await db.from("prize_settings").upsert(payload,{onConflict:"id"}).select().single();
+    if(error)throw error;
+    if(!data)throw new Error("The database did not confirm the saved prize pool.");
+    $("prizeTier1").value=data.tier1_prize;
+    $("prizeTier2").value=data.tier2_prize;
+    $("prizeTier3").value=data.tier3_prize;
+    $("prizeStatus").value=data.prize_status;
+    updatePrizeTotal();
+    messageNode.textContent="Prize pool saved and verified successfully.";
+  }catch(error){
+    messageNode.textContent="Save failed: "+(error.message||String(error));
+  }finally{
+    button.disabled=false;
+    button.textContent="Save Prize Pool";
   }
-
-  updatePrizeTotal();
-  $("prizeMessage").textContent="Prize pool saved successfully!";
 }
 
 function renderPlayerStats(){
