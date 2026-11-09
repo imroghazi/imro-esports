@@ -5,6 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IMRO ESPORTS | Admin Login</title>
+  <meta name="theme-color" content="#080d15">
+  <meta name="description" content="Private IMRO ESPORTS tournament administration app">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/imro-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/imro-icon.svg">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
@@ -40,6 +45,7 @@
   <main class="panel">
     <h1>IMRO ESPORTS</h1>
     <p>Private Administrator Login</p>
+    <button id="installApp" type="button" hidden style="margin:0 0 14px;background:#26364b;color:#fff">Install IMRO Admin App</button>
 
     <form id="loginForm">
       <label for="email">Admin email</label>
@@ -61,6 +67,18 @@
     const client = window.supabase.createClient(
       SUPABASE_URL, SUPABASE_KEY
     );
+
+    let installPrompt = null;
+    const installButton = document.getElementById("installApp");
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault(); installPrompt = event; installButton.hidden = false;
+    });
+    installButton.addEventListener("click", async () => {
+      if (!installPrompt) return;
+      installPrompt.prompt(); await installPrompt.userChoice;
+      installPrompt = null; installButton.hidden = true;
+    });
+    if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 
     const form = document.getElementById("loginForm");
     const message = document.getElementById("message");
