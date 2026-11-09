@@ -11,6 +11,7 @@
   <link rel="icon" href="/icons/imro-icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icons/imro-icon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080d15;color:#fff;font-family:Arial,sans-serif}
@@ -929,9 +930,91 @@ function renderReceipts(){
       <div class="small">Transaction ID: ${safe(receipt.transaction_id)}</div>
       <div class="small">Amount: ₹${Number(receipt.amount).toLocaleString("en-IN")} · Status: ${safe(receipt.payment_status||"recorded")}</div>
       ${receipt.note?`<div class="small">Note: ${safe(receipt.note)}</div>`:""}
+      <button type="button" onclick="downloadReceiptPDF('${receipt.id}')">⬇ Download PDF</button>
+      <button type="button" class="secondary" onclick="shareReceiptPDF('${receipt.id}')">↗ Share PDF</button>
       <button class="danger" onclick="deleteReceipt('${receipt.id}')">🗑 Delete receipt</button>
     </div>`;
   }).join("") : "<p>No payment receipts recorded yet.</p>";
+}
+
+function receiptPdfFile(receiptId){
+  const receipt=receipts.find(item=>item.id===receiptId);
+  if(!receipt)throw new Error("Receipt not found. Refresh the dashboard and try again.");
+  if(!window.jspdf?.jsPDF)throw new Error("PDF generator did not load. Check your internet connection and refresh.");
+  const registration=registrations.find(r=>r.id===receipt.registration_id);
+  const player=players.find(p=>p.registration_id===receipt.registration_id);
+  const tournament= tournaments.find(t=>t.id===receipt.tournament_id);
+  const doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"});
+  const left=18;
+  let y=22;
+  doc.setFillColor(8,13,21);
+  doc.rect(0,0,210,43,"F");
+  doc.setTextColor(85,230,165);
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(22);
+  doc.text("IMRO ESPORTS",left,y);
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(10);
+  doc.setFont("helvetica","normal");
+  doc.text("OFFICIAL PAYMENT RECEIPT",left,y+10);
+  y=58;
+  const addLine=(label,value)=>{
+    doc.setTextColor(105,118,135);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(9);
+    doc.text(label.toUpperCase(),left,y);
+    doc.setTextColor(25,33,45);
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(11);
+    const lines=doc.splitTextToSize(String(value||"—"),170);
+    doc.text(lines,left,y+6);
+    y+=Math.max(15,lines.length*5+9);
+  };
+  addLine("Receipt number",receipt.receipt_number||receipt.id);
+  addLine("Tournament",tournament?.title||"IMRO ESPORTS Tournament");
+  addLine("Player / IGN",registration?.ign||player?.player_name||"Unknown player");
+  addLine("Free Fire UID",registration?.player_uid||player?.game_uid||"—");
+  addLine("Contact number",registration?.contact_number||"—");
+  addLine("Tier",registration?.tier||player?.tier||"—");
+  addLine("Transaction ID",receipt.transaction_id);
+  addLine("Amount received","INR "+Number(receipt.amount||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}));
+  addLine("Payment status",receipt.payment_status||"recorded");
+  addLine("Receipt date",receipt.created_at?new Date(receipt.created_at).toLocaleString("en-IN"):"—");
+  if(receipt.note)addLine("Note",receipt.note);
+  y=Math.max(y+5,245);
+  doc.setDrawColor(210,218,228);
+  doc.line(left,y,192,y);
+  doc.setTextColor(95,105,118);
+  doc.setFontSize(9);
+  doc.text("This receipt records a payment entered by the tournament administrator.",left,y+8);
+  doc.text("Keep this document as proof of the recorded transaction.",left,y+14);
+  const filename="IMRO-Receipt-"+String(receipt.receipt_number||receipt.id).replace(/[^a-z0-9_-]/gi,"-")+".pdf";
+  return {doc,filename};
+}
+
+function downloadReceiptPDF(receiptId){
+  try{
+    const {doc,filename}=receiptPdfFile(receiptId);
+    doc.save(filename);
+    message("Receipt PDF downloaded.");
+  }catch(error){message("Could not create PDF: "+error.message);}
+}
+
+async function shareReceiptPDF(receiptId){
+  try{
+    const {doc,filename}=receiptPdfFile(receiptId);
+    const blob=doc.output("blob");
+    const file=new File([blob],filename,{type:"application/pdf"});
+    if(navigator.canShare?.({files:[file]}) && navigator.share){
+      await navigator.share({files:[file],title:"IMRO ESPORTS payment receipt",text:"Payment receipt from IMRO ESPORTS."});
+      message("Receipt shared.");
+    }else{
+      doc.save(filename);
+      message("PDF downloaded. Open it from Downloads and use Share to send it.");
+    }
+  }catch(error){
+    if(error.name!=="AbortError")message("Could not share receipt: "+error.message);
+  }
 }
 
 async function deleteReceipt(id){
