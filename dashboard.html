@@ -5,6 +5,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IMRO ESPORTS | Control Room</title>
+  <meta name="theme-color" content="#080d15">
+  <meta name="description" content="Private IMRO ESPORTS tournament administration app">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/imro-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/imro-icon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
@@ -34,6 +39,7 @@ button:disabled{opacity:.5}
 <header>
 <h1>IMRO ESPORTS</h1>
 <div>ADMIN CONTROL ROOM</div>
+<button id="installApp" type="button" hidden style="margin-top:12px;background:#26364b;color:#fff">Install IMRO Admin App</button>
 <p class="small">Private tournament management</p>
 </header>
 
@@ -343,13 +349,14 @@ async function savePrizeSettings(){
 }
 
 function renderPlayerStats(){
+  const activeRegistrations=registrations.filter(r=>!r.archived_at);
   const approved=players.filter(p=>p.status==="approved");
   const pending=players.filter(p=>p.status==="pending");
   const reserve=players.filter(p=>p.status==="reserve");
   const eliminated=players.filter(p=>p.status==="eliminated");
 
   $("playerStats").innerHTML=`
-    <div class="item"><strong>${registrations.length}</strong><div class="small">Total registrations</div></div>
+    <div class="item"><strong>${activeRegistrations.length}</strong><div class="small">Active registrations</div></div>
     <div class="item"><strong>${approved.length}</strong><div class="small">Approved players</div></div>
     <div class="item"><strong>${pending.length}</strong><div class="small">Pending approval</div></div>
     <div class="item"><strong>${reserve.length}</strong><div class="small">Reserve players</div></div>
@@ -898,7 +905,7 @@ function renderReceiptPlayerOptions(){
   const query=($("receiptPlayerSearch")?.value||"").trim().toLowerCase();
   const select=$("receiptPlayer");
   const previous=select.value;
-  const filtered=registrations.filter(r=>{
+  const filtered=registrations.filter(r=>!r.archived_at).filter(r=>{
     const player=players.find(p=>p.registration_id===r.id);
     return [r.ign,r.player_uid,r.contact_number,player?.player_name]
       .some(value=>String(value||"").toLowerCase().includes(query));
@@ -957,6 +964,12 @@ $("logout").onclick=async()=>{
 };
 
 start();
+
+let installPrompt=null;
+const installButton=document.getElementById("installApp");
+window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();installPrompt=event;installButton.hidden=false;});
+installButton.addEventListener("click",async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installButton.hidden=true;});
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script>
 <script type="module">
 import { buildSingleEliminationBracket } from "/supabase/functions/_shared/bracket-engine.js";
