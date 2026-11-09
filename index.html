@@ -6,6 +6,9 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>IMRO ESPORTS — Community Tournament</title>
 <meta name="theme-color" content="#090909">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="description" content="Install the IMRO ESPORTS player app to register and follow community tournaments.">
+<link rel="icon" href="/icons/imro-icon.svg" type="image/svg+xml">
 <style>
 :root{--bg:#090909;--panel:#151515;--line:#292929;--red:#ef233c;--gold:#e6bd55;--muted:#aaa}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#321015 0,transparent 34%),var(--bg);color:#f7f7f7;font:16px/1.5 system-ui,Arial,sans-serif}
@@ -38,7 +41,13 @@ form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}
   </section>
 <header><div><div class="brand">IMRO <span>ESPORTS</span></div><div class="tag">COMMUNITY TOURNAMENT</div></div><a class="btn" href="#register">REGISTER</a></header>
 <main>
-<div class="hero"><div class="eyebrow">LOCAL COMMUNITY • PURE GAMEPLAY</div><h1>ENTER THE<br><span style="color:var(--red)">ARENA.</span></h1><p>Compete, prove your skills, and represent your tier. Register for the IMRO ESPORTS community tournament.</p><a class="btn" href="#register">Register now ↓</a></div>
+<div class="hero"><div class="eyebrow">LOCAL COMMUNITY • PURE GAMEPLAY</div><h1>ENTER THE<br><span style="color:var(--red)">ARENA.</span></h1><p>Compete, prove your skills, and represent your tier. Register for the IMRO ESPORTS community tournament.</p><a class="btn" href="#register">Register now ↓</a>
+<div class="card" style="margin-top:18px;max-width:520px;border-color:#7b252e">
+  <strong style="color:#e6bd55">📲 Get the IMRO Player App</strong>
+  <p class="muted" style="margin:7px 0 12px">Install IMRO ESPORTS on your Android home screen. Registration, player tokens, payment instructions and tournament updates stay together.</p>
+  <button class="btn" id="installPlayerApp" type="button" style="width:100%">Install Player App</button>
+  <p id="installPlayerHelp" class="muted" style="margin:9px 0 0;font-size:12px">On Android, open this website in Chrome to install.</p>
+</div></div>
 <div class="notice">No payment is collected on this website. Choose only a tier marked OPEN below; registration availability is controlled live by the organizer.</div>
 <section><h2 class="section-title">Choose your tier</h2><div class="grid">
 <div class="card"><div class="tier">TIER 01</div><h3>Rising Challengers</h3><div id="tierAvailability1" class="status">Checking availability…</div><div class="muted">4 winners • Organizer-announced prize reference subject to confirmation.</div></div>
@@ -382,5 +391,16 @@ setInterval(loadTierAvailability,15000);
   </script>
 </div>
 
+<script>
+let playerInstallPrompt=null;
+const playerInstallButton=document.getElementById("installPlayerApp");
+const playerInstallHelp=document.getElementById("installPlayerHelp");
+window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();playerInstallPrompt=event;playerInstallButton.textContent="Install IMRO Player App";playerInstallHelp.textContent="Ready to install on this device.";});
+playerInstallButton.addEventListener("click",async()=>{
+  if(playerInstallPrompt){playerInstallPrompt.prompt();const choice=await playerInstallPrompt.userChoice;playerInstallPrompt=null;playerInstallHelp.textContent=choice.outcome==="accepted"?"App installation started.":"You can install later from Chrome menu.";return;}
+  playerInstallHelp.textContent=/iphone|ipad|ipod/i.test(navigator.userAgent)?"On iPhone: tap Share, then Add to Home Screen.":"In Chrome: tap ⋮, then Install app or Add to Home screen.";
+});
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+</script>
 </body>
 </html>
