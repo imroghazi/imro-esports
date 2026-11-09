@@ -50,6 +50,12 @@ button:disabled{opacity:.5}
 </section>
 
 <section>
+<h2>Tier controls</h2>
+<p class="small">Each tier runs independently. Stop prevents new matches but lets running matches finish. Pause also blocks new matches. End publishes the final tier leaderboard only after every match is completed.</p>
+<div id="tierControls"></div>
+</section>
+
+<section>
 <h2>Player management</h2>
 <div id="players"></div>
 </section>
@@ -250,6 +256,7 @@ async function loadAll(){
   renderPlayers();
   renderPlayerSelects();
   renderMatches();
+  await renderTierControls();
   renderReceipts();
   updateRegistrationStatus();
   loadPrizeSettings();
@@ -511,8 +518,11 @@ function renderMatches(){
       <strong>Tier ${m.tier} · Round ${m.round_number}</strong>
       <p>${safe(playerName(m.player_one))} vs ${safe(playerName(m.player_two))}</p>
       <div class="small">Status: ${safe(m.status)} · ${m.published?"Published":"Unpublished"}</div>
-      ${m.status==="pending" && m.published && m.player_one && m.player_two? `
-        <div class="small">Record the confirmed winner:</div>
+      ${m.status==="pending" && m.published? `<button onclick="setMatchState('${m.id}','in_progress')">Start match</button>`: ""}
+      ${m.status==="paused" && m.published? `<button onclick="setMatchState('${m.id}','in_progress')">Resume match</button>`: ""}
+      ${m.status==="in_progress"? `<button class="secondary" onclick="setMatchState('${m.id}','paused')">Pause match</button>`: ""}
+      ${m.status==="in_progress" && m.published && m.player_one && m.player_two? `
+        <div class="small">Confirm the winner:</div>
         <button onclick="recordMatchWinner('${m.id}','${m.player_one}')">${safe(playerName(m.player_one))} won</button>
         <button onclick="recordMatchWinner('${m.id}','${m.player_two}')">${safe(playerName(m.player_two))} won</button>`: ""}
       ${m.status==="pending"?
@@ -532,9 +542,72 @@ function renderMatches(){
   `).join("") || "<p>No matches created yet.</p>";
 }
 
+
+async function renderTierControls(){
+  const {data,error}=await db.from("tournament_tier_controls")
+    .select("*").eq("tournament_id",tournamentId()).order("tier");
+  if(error){$("tierControls").textContent="Could not load tier controls: "+error.message;return;}
+  const controls=data||[];
+  $("tierControls").innerHTML=[1,2,3].map(tier=>{
+    const c=controls.find(x=>Number(x.tier)===tier)||{state:"stopped",leaderboard_published:false};
+    const counts=matches.filter(m=>Number(m.tier)===tier);
+    const running=counts.filter(m=>m.status==="in_progress").length;
+    const unresolved=counts.filter(m=>m.status!=="completed").length;
+    const ended=c.state==="ended";
+    return `<div class="item">
+      <strong>Tier ${tier}</strong>
+      <div class="small">State: ${safe(c.state)} · Matches: ${counts.length} · Running: ${running} · Unresolved: ${unresolved}</div>
+      <button ${ended?"disabled":""} onclick="changeTierState(${tier},'running')">Start / Resume tier</button>
+      <button class="secondary" ${ended?"disabled":""} onclick="changeTierState(${tier},'stopped')">Stop tier</button>
+      <button class="secondary" ${ended?"disabled":""} onclick="changeTierState(${tier},'paused')">Pause tier</button>
+      <button class="danger" ${ended?"disabled":""} onclick="endTier(${tier})">End tier & publish leaderboard</button>
+      ${ended?"<div class='small'>Final leaderboard published.</div>":""}
+    </div>`;
+  }).join("");
+}
+
+async function changeTierState(tier,state){
+  const labels={running:"start / resume",stopped:"stop",paused:"pause"};
+  const warning=state==="stopped"
+    ?"Stop Tier "+tier+"? New matches will not start. Already-running matches may finish."
+    :state==="paused"
+      ?"Pause Tier "+tier+"? New matches cannot start. Already-running matches may finish."
+      :"Start / resume Tier "+tier+"? New matches may now start.";
+  if(!confirm(warning))return;
+  const {error}=await db.rpc("set_tier_state",{p_tournament_id:tournamentId(),p_tier:tier,p_state:state});
+  if(error){message(error.message);return;}
+  message("Tier "+tier+" "+labels[state]+".");
+  await loadAll();
+}
+
+async function setMatchState(matchId,state){
+  const m=matches.find(x=>x.id===matchId);
+  if(!m)return;
+  const action=state==="paused"?"Pause":"Start / resume";
+  if(!confirm(action+" this match?"))return;
+  const {error}=await db.rpc("set_match_state",{p_match_id:matchId,p_state:state});
+  if(error){message(error.message);return;}
+  message(state==="paused"?"Match paused.":"Match started.");
+  await loadAll();
+}
+
+async function endTier(tier){
+  const count=matches.filter(m=>Number(m.tier)===tier).length;
+  const unresolved=matches.filter(m=>Number(m.tier)===tier && m.status!=="completed").length;
+  if(!count){message("Create and publish matches before ending this tier.");return;}
+  const warning="FINAL CONFIRMATION — END TIER "+tier+"? This permanently closes this tier and publishes its final leaderboard. "+unresolved+" unresolved match(es) remain. The database will reject ending until every match is completed. Continue?";
+  if(!confirm(warning))return;
+  const second=prompt("Type END TIER "+tier+" to confirm publication:");
+  if(second!=="END TIER "+tier){message("Tier end cancelled.");return;}
+  const {error}=await db.rpc("finalize_tier",{p_tournament_id:tournamentId(),p_tier:tier});
+  if(error){message(error.message);return;}
+  message("Tier "+tier+" ended. Its final leaderboard is now public.");
+  await loadAll();
+}
+
 async function recordMatchWinner(matchId,winnerId){
   const match=matches.find(item=>item.id===matchId);
-  if(!match || !match.published || match.status!=="pending")return;
+  if(!match || !match.published || match.status!=="in_progress")return;
   const winner=playerName(winnerId);
   const loserId=match.player_one===winnerId?match.player_two:match.player_one;
   const loser=playerName(loserId);
@@ -544,7 +617,7 @@ async function recordMatchWinner(matchId,winnerId){
     p_winner_id:winnerId
   });
   if(error){message(error.message);return;}
-  message("Result saved. Winner advanced to the next match.");
+  message("Result saved. Loser eliminated and winner advanced. Leaderboard becomes public when the tier is ended.");
   await loadAll();
 }
 

@@ -55,6 +55,7 @@ form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}
 <button class="btn" type="submit">Preview registration</button>
 </form><div id="result">Preview only: no information has been sent or saved. Database setup is still required.</div>
 </div></section>
+<section id="leaderboards"><h2 class="section-title">Live tier leaderboards</h2><p class="muted">Final rankings appear here after the organizer ends the respective tier.</p><div id="publicLeaderboards" class="grid"><div class="card muted">Loading published leaderboards…</div></div></section>
 <section><h2 class="section-title">Tournament rules</h2><div class="card"><ul><li>Pure gameplay.</li><li>No gun attributes.</li><li>No character skills.</li><li>No player substitution.</li><li>Draws are generated manually by the organizer after registration closes.</li><li>Pairings are separated by tier and are shown publicly only after the organizer publishes them.</li></ul></div></section>
 </main><footer>IMRO ESPORTS • Community tournament • Not affiliated with Garena</footer>
 <script>
@@ -175,7 +176,29 @@ async function loadPublicPrizePool() {
   }
 }
 
-loadPublicPrizePool();
+
+async function loadTierLeaderboards(){
+  const target=document.getElementById("publicLeaderboards");
+  const url="https://gjjhuultiezaybvoykra.supabase.co/rest/v1/rpc/leaderboard_for_tier";
+  const key="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+  try{
+    const tournamentsResponse=await fetch("https://gjjhuultiezaybvoykra.supabase.co/rest/v1/tournaments?select=id&order=created_at.desc&limit=1",{headers:{apikey:key,Authorization:"Bearer "+key}});
+    if(!tournamentsResponse.ok)throw new Error("Could not identify the current tournament");
+    const tournaments=await tournamentsResponse.json();
+    if(!tournaments.length){target.innerHTML="<div class='card muted'>No tournament is available.</div>";return;}
+    const tournamentId=tournaments[0].id;
+    const sections=await Promise.all([1,2,3].map(async tier=>{
+      const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json",apikey:key,Authorization:"Bearer "+key},body:JSON.stringify({p_tournament_id:tournamentId,p_tier:tier})});
+      if(!response.ok)throw new Error("Leaderboard request failed");
+      const rows=await response.json();
+      if(!rows.length)return "<div class='card'><div class='tier'>TIER "+tier+"</div><p class='muted'>Leaderboard not published yet.</p></div>";
+      return "<div class='card'><div class='tier'>TIER "+tier+" · FINAL</div><h3>Leaderboard</h3><ol>"+rows.map(row=>"<li><strong>"+escapeLeaderboard(row.player_name)+"</strong> — "+row.wins+" wins · "+escapeLeaderboard(row.player_status)+"</li>").join("")+"</ol></div>";
+    }));
+    target.innerHTML=sections.join("");
+  }catch(error){target.innerHTML="<div class='card muted'>Leaderboards will appear when a tier is finalized.</div>";}
+}
+function escapeLeaderboard(value){return String(value??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+\nloadPublicPrizePool();\nloadTierLeaderboards();
   </script>
 </div>
 
