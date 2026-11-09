@@ -199,6 +199,7 @@ async function loadTierLeaderboards(){
 }
 function escapeLeaderboard(value){return String(value??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 \nloadPublicPrizePool();\nloadTierLeaderboards();
+setInterval(loadTierLeaderboards,20000);
   </script>
 </div>
 
