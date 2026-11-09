@@ -55,6 +55,21 @@ button:disabled{opacity:.5}
 </section>
 
 <section>
+<h2>Bracket engine preview (safe demo)</h2>
+<p class="small">Uses fictional demo participants only. This preview does not read, change, or publish real player records.</p>
+<label>Demo field size</label>
+<select id="demoFieldSize">
+<option value="4">4 demo players</option>
+<option value="6" selected>6 demo players (one reserve)</option>
+<option value="8">8 demo players</option>
+<option value="10">10 demo players (one reserve)</option>
+<option value="16">16 demo players</option>
+</select>
+<button type="button" id="runBracketDemo">Generate demo bracket</button>
+<div id="bracketDemoResult" class="small" aria-live="polite">Choose a demo field size and generate a preview.</div>
+</section>
+
+<section>
 <h2>Manual 1v1 matchmaking</h2>
 <label>Tier</label>
 <select id="matchTier">
@@ -649,6 +664,39 @@ $("logout").onclick=async()=>{
 };
 
 start();
+</script>
+<script type="module">
+import { buildSingleEliminationBracket } from "/supabase/functions/_shared/bracket-engine.js";
+const demoButton = document.getElementById("runBracketDemo");
+demoButton.addEventListener("click", () => {
+  const count = Number(document.getElementById("demoFieldSize").value);
+  const demoPlayers = Array.from({length: count}, (_, i) => ({
+    id: "demo-" + (i + 1),
+    name: "Demo Player " + (i + 1)
+  }));
+  const result = buildSingleEliminationBracket(demoPlayers);
+  const target = document.getElementById("bracketDemoResult");
+  const safe = value => String(value).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+  let html = "<p><strong>Preview only — no database writes.</strong></p>";
+  html += "<p>Active: " + result.players.length + " · Reserve: " +
+    result.reserves.length + " · Byes: " + result.byeCount +
+    " · Matches: " + result.matchCount + "</p>";
+  if (result.reserves.length) html += "<p>Reserve: " + safe(result.reserves[0].name) + "</p>";
+  for (const round of result.rounds) {
+    html += "<div class='item'><strong>Round " + round.number + "</strong>";
+    if (round.byes.length) html += "<p class='small'>Byes: " +
+      round.byes.map(x => safe(x.player.name)).join(", ") + "</p>";
+    for (const match of round.matches) {
+      const one = match.playerOne?.name || "Winner of previous match";
+      const two = match.playerTwo?.name || "Winner of previous match";
+      html += "<p>" + safe(one) + " vs " + safe(two) + "</p>";
+    }
+    html += "</div>";
+  }
+  target.innerHTML = html;
+});
 </script>
 </body>
 </html>
