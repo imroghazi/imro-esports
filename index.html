@@ -155,6 +155,31 @@ form.addEventListener("submit", async (e) => {
   const button = form.querySelector('button[type="submit"]');
   const termsAccepted = form.elements.terms_accept.checked;
   const consent = form.elements.privacy_consent.checked;
+
+  // Enforce all required player details even if browser validation is bypassed.
+  const playerName = form.elements.ign.value.trim();
+  const playerUid = form.elements.uid.value.trim();
+  const contactNumber = form.elements.phone.value.trim();
+  const contactDigits = contactNumber.replace(/\\D/g, "");
+  const selectedTier = form.elements.tier.value.trim();
+
+  if (!playerName || !playerUid || !contactNumber || !selectedTier) {
+    result.style.display = "block";
+    result.textContent = "Registration incomplete: player name, Free Fire UID, contact number and tier are all mandatory.";
+    return;
+  }
+
+  if (contactDigits.length < 10 || contactDigits.length > 15) {
+    result.style.display = "block";
+    result.textContent = "Please enter a valid contact number with 10 to 15 digits.";
+    return;
+  }
+
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
   if (!form.elements.avatar_id.value) {
     result.style.display = "block";
     result.textContent = "Please choose an avatar before registering.";
