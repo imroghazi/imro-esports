@@ -659,7 +659,7 @@ async function addMatch(){
   }).select().single();
 
   if(error){message(error.message);return;}
-  message("Match added. Select its winner when ready to publish.");
+  message("Match added. Choose the winner in the confirmation window, then publish the result.");
   await loadAll();
   openWinnerDialog(data.id);
 }
