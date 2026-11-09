@@ -73,6 +73,7 @@ form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}
 <button class="btn" type="submit">Submit registration</button>
 </form><div id="result"></div>
 </div></section>
+<section id="liveScores"><h2 class="section-title">Live match scores</h2><p class="muted">Published match results from the tournament.</p><button class="btn" type="button" id="refreshLiveScores">↻ Refresh scores</button><p id="liveScoresUpdated" class="muted" aria-live="polite">Loading scores…</p><div id="publicLiveScores" class="grid"><div class="card muted">Loading published match scores…</div></div></section>
 <section id="leaderboards"><h2 class="section-title">Live tier leaderboards</h2><p class="muted">Final rankings appear here after the organizer ends the respective tier.</p><div id="publicLeaderboards" class="grid"><div class="card muted">Loading published leaderboards…</div></div></section>
 <section><h2 class="section-title">About IMRO ESPORTS</h2><div class="card"><p>IMRO ESPORTS is a community-run Free Fire tournament initiative built to bring local players together through fair competition, organized brackets and transparent results.</p><p class="muted">Follow the tournament announcements, check tier availability and view published leaderboards here. Match results are published by the organizer.</p><a class="btn" href="/about.html">Learn about IMRO ESPORTS</a></div></section>
 <section><h2 class="section-title">Partner with our community</h2><div class="card"><div class="tier">SPONSORSHIP OPPORTUNITIES</div><h3>Support the next generation of community gaming</h3><p class="muted">We welcome relevant local businesses and gaming brands interested in supporting community tournaments. Sponsorship placements are subject to agreement and clear disclosure.</p><a class="btn" href="/sponsors.html">Explore sponsorships</a></div></section>
@@ -380,12 +381,32 @@ async function loadTierLeaderboards(){
     target.innerHTML=sections.join("");
   }catch(error){target.innerHTML="<div class='card muted'>Leaderboards will appear when a tier is finalized.</div>";}
 }
+async function loadPublicMatchScores(){
+ const target=document.getElementById('publicLiveScores');
+ const updated=document.getElementById('liveScoresUpdated');
+ const key=SUPABASE_ANON_KEY;
+ try{
+  const tr=await fetch(SUPABASE_URL+'/rest/v1/tournaments?select=id&order=created_at.desc&limit=1',{headers:{apikey:key,Authorization:'Bearer '+key}});
+  if(!tr.ok)throw new Error('Tournament lookup failed');
+  const tournaments=await tr.json();
+  if(!tournaments.length){target.innerHTML='<div class="card muted">No tournament is available.</div>';return;}
+  const response=await fetch(SUPABASE_URL+'/rest/v1/rpc/get_live_match_scores',{method:'POST',headers:{'Content-Type':'application/json',apikey:key,Authorization:'Bearer '+key},body:JSON.stringify({p_tournament_id:tournaments[0].id})});
+  if(!response.ok)throw new Error('Could not load match scores');
+  const rows=await response.json();
+  if(!rows.length){target.innerHTML='<div class="card muted">No match results have been published yet. Check back soon.</div>';}
+  else{target.innerHTML=rows.map(row=>'<div class="card"><div class="tier">TIER '+escapeLeaderboard(row.tier)+' · ROUND '+escapeLeaderboard(row.round_number)+'</div><h3>'+escapeLeaderboard(row.player_one_name||'Player 1')+' vs '+escapeLeaderboard(row.player_two_name||'Player 2')+'</h3><p class="muted">'+(row.winner_name?'🏆 Winner: <strong>'+escapeLeaderboard(row.winner_name)+'</strong>':'Match: '+escapeLeaderboard(row.status))+'</p><span class="muted">'+(row.status==='completed'?'Result published':'Match published')+'</span></div>').join('');}
+  updated.textContent='Last refreshed: '+new Date().toLocaleTimeString('en-IN');
+ }catch(error){target.innerHTML='<div class="card muted">Live scores could not load. Tap refresh to try again.</div>';updated.textContent='Refresh unavailable';}
+}
+document.getElementById('refreshLiveScores').addEventListener('click',loadPublicMatchScores);
 function escapeLeaderboard(value){return String(value??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 
 loadPublicPrizePool();
 loadTierLeaderboards();
+loadPublicMatchScores();
 loadTierAvailability();
 setInterval(loadPublicPrizePool,15000);
+setInterval(loadPublicMatchScores,15000);
 setInterval(loadTierLeaderboards,20000);
 setInterval(loadTierAvailability,15000);
   </script>
