@@ -7,7 +7,7 @@
   <title>IMRO ESPORTS | Admin Login</title>
   <meta name="theme-color" content="#080d15">
   <meta name="description" content="Private IMRO ESPORTS tournament administration app">
-  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="manifest" href="/admin/manifest.webmanifest">
   <link rel="icon" href="/icons/imro-icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icons/imro-icon.svg">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -78,7 +78,7 @@
       installPrompt.prompt(); await installPrompt.userChoice;
       installPrompt = null; installButton.hidden = true;
     });
-    if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+    if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("/admin/sw.js").catch(()=>{}));
 
     const form = document.getElementById("loginForm");
     const message = document.getElementById("message");
