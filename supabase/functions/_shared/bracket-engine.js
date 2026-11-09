@@ -86,3 +86,23 @@ export function buildSingleEliminationBracket(input, random = Math.random) {
     byeCount,
   };
 }
+
+/**
+ * Convert admin-dashboard-shaped player records into bracket inputs.
+ * Pure helper: it never fetches or writes player records.
+ */
+export function prepareTierBracketPlayers(players, tier) {
+  if (!Array.isArray(players)) throw new TypeError("players must be an array");
+  if (![1, 2, 3].includes(Number(tier))) throw new RangeError("tier must be 1, 2, or 3");
+  return players
+    .filter(player => player && player.status === "approved" && Number(player.tier) === Number(tier))
+    .map(player => {
+      if (typeof player.id !== "string" || !player.id.trim()) {
+        throw new TypeError("Every eligible player must have a non-empty string id");
+      }
+      return {
+        id: player.id,
+        name: String(player.player_name || player.id)
+      };
+    });
+}

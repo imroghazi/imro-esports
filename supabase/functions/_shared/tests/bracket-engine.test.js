@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildSingleEliminationBracket } from "../bracket-engine.js";
+import { buildSingleEliminationBracket, prepareTierBracketPlayers } from "../bracket-engine.js";
 
 const player = id => ({ id: String(id) });
 const stableRandom = () => 0.5;
@@ -71,4 +71,23 @@ test("all active players appear once in the initial bracket", () => {
     assert.equal(initial.length, result.players.length);
     assert.equal(new Set(initial).size, result.players.length);
   }
+});
+
+test("tier adapter includes only approved players from the selected tier", () => {
+  const records = [
+    {id:"a", player_name:"A", tier:1, status:"approved"},
+    {id:"b", player_name:"B", tier:1, status:"pending"},
+    {id:"c", player_name:"C", tier:2, status:"approved"},
+    {id:"d", player_name:"D", tier:"1", status:"approved"},
+    {id:"e", player_name:"E", tier:1, status:"eliminated"}
+  ];
+  assert.deepEqual(prepareTierBracketPlayers(records, 1), [
+    {id:"a", name:"A"},
+    {id:"d", name:"D"}
+  ]);
+});
+
+test("tier adapter rejects invalid tiers and malformed eligible IDs", () => {
+  assert.throws(() => prepareTierBracketPlayers([], 4), /tier must be/);
+  assert.throws(() => prepareTierBracketPlayers([{id:"",tier:1,status:"approved"}], 1), /non-empty string id/);
 });
