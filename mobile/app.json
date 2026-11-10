@@ -16,11 +16,6 @@
         "backgroundColor": "#09090B"
       }
     },
-    "plugins": [],
-    "extra": {
-      "eas": {
-        "projectId": "SET_AFTER_EAS_PROJECT_CREATION"
-      }
-    }
+    "plugins": []
   }
 }
