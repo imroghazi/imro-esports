@@ -447,6 +447,15 @@ main section .card:after,
  .imro-youtube-inner,.imro-social-inner,.imro-youtube-inner:before,.imro-youtube-inner:after,.imro-social-inner:before,.imro-social-inner:after{animation:none!important;will-change:auto}
 }
 
+
+/* Logo visibility correction: distinct platform marks on every phone size */
+.imro-youtube-button,.imro-instagram-button{display:inline-flex!important;align-items:center!important;justify-content:center!important}
+.imro-social-logo{display:block!important;flex:0 0 38px!important;width:38px!important;height:38px!important;padding:4px!important;border-radius:10px!important;background:#fff!important;box-shadow:0 0 0 1px #ffffffaa,0 0 14px #fff8!important;opacity:1!important;visibility:visible!important}
+.imro-youtube-logo{flex-basis:43px!important;width:43px!important;height:34px!important;padding:3px!important;filter:drop-shadow(0 0 7px #ff263d)!important}
+.imro-instagram-logo{filter:drop-shadow(0 0 7px #ff70bb)!important}
+.imro-youtube-button span,.imro-instagram-button span{display:inline-block!important}
+@media(max-width:480px){.imro-social-logo{flex-basis:34px!important;width:34px!important;height:34px!important}.imro-youtube-logo{flex-basis:39px!important;width:39px!important;height:31px!important}}
+
 </style>
   <link rel="stylesheet" href="/journey-colors.css?v=8">
 </head>
@@ -484,7 +493,7 @@ main section .card:after,
   <div class="tier">▶ OFFICIAL IMRO ESPORTS YOUTUBE CHANNEL</div>
   <h2 id="youtubeLiveTitle">THE BATTLE DOESN'T STOP HERE.</h2>
   <p>Subscribe to our official YouTube channel and watch IMRO ESPORTS tournament live matches, battle highlights and tournament coverage. Be there when champions are made.</p>
-  <a class="imro-youtube-button" href="https://youtube.com/@imrogamer1209?si=xIbcDrJm4rkp2cv4" target="_blank" rel="noopener noreferrer" aria-label="Subscribe to IMRO ESPORTS on YouTube"><svg class="imro-social-logo imro-youtube-logo" viewBox="0 0 48 34" role="img" aria-label="YouTube logo"><rect x="1" y="1" width="46" height="32" rx="9" fill="currentColor"/><path d="M20 10.5 32 17 20 23.5Z" fill="#fff"/></svg><span>SUBSCRIBE &amp; WATCH LIVE MATCHES</span></a>
+  <a class="imro-youtube-button" href="https://youtube.com/@imrogamer1209?si=xIbcDrJm4rkp2cv4" target="_blank" rel="noopener noreferrer" aria-label="Subscribe to IMRO ESPORTS on YouTube"><svg class="imro-social-logo imro-youtube-logo" viewBox="0 0 48 34" role="img" aria-label="YouTube logo"><rect x="1" y="1" width="46" height="32" rx="9" fill="#ff0033"/><path d="M20 10.5 32 17 20 23.5Z" fill="#fff"/></svg><span>SUBSCRIBE &amp; WATCH LIVE MATCHES</span></a>
   <div class="imro-youtube-note">LIVE TOURNAMENTS • MATCH HIGHLIGHTS • THE ROAD TO BOOYAH</div>
  </div>
 </section>
@@ -493,7 +502,7 @@ main section .card:after,
 <div class="tier">📣 OFFICIAL IMRO ESPORTS UPDATES</div>
 <h2 id="instagramUpdatesTitle">FOLLOW THE BATTLE. NEVER MISS AN ANNOUNCEMENT.</h2>
 <p>Follow <strong>@imro_esports_tournament</strong> on Instagram for tournament announcements, registration updates, match schedules, winners and prize announcements.</p>
-<a class="imro-instagram-button" href="https://www.instagram.com/imro_esports_tournament/" target="_blank" rel="noopener noreferrer" aria-label="Follow IMRO ESPORTS on Instagram"><svg class="imro-social-logo imro-instagram-logo" viewBox="0 0 40 40" role="img" aria-label="Instagram logo"><rect x="3" y="3" width="34" height="34" rx="10" fill="none" stroke="currentColor" stroke-width="3.5"/><circle cx="20" cy="20" r="8" fill="none" stroke="currentColor" stroke-width="3.5"/><circle cx="30" cy="10.5" r="2.3" fill="currentColor"/></svg><span>FOLLOW US ON INSTAGRAM</span></a>
+<a class="imro-instagram-button" href="https://www.instagram.com/imro_esports_tournament/" target="_blank" rel="noopener noreferrer" aria-label="Follow IMRO ESPORTS on Instagram"><svg class="imro-social-logo imro-instagram-logo" viewBox="0 0 40 40" role="img" aria-label="Instagram logo"><defs><linearGradient id="imroInstagramGradient" x1="0" y1="40" x2="40" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#ffd76a"/><stop offset=".48" stop-color="#ff4f8b"/><stop offset="1" stop-color="#a64dff"/></linearGradient></defs><rect x="3" y="3" width="34" height="34" rx="10" fill="none" stroke="url(#imroInstagramGradient)" stroke-width="3.5"/><circle cx="20" cy="20" r="8" fill="none" stroke="url(#imroInstagramGradient)" stroke-width="3.5"/><circle cx="30" cy="10.5" r="2.3" fill="#ffb45e"/></svg><span>FOLLOW US ON INSTAGRAM</span></a>
 <div class="imro-social-note">Official updates • Tournament news • Winners & prize announcements</div>
 </div>
 </section>
