@@ -4,9 +4,9 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#080b10;color:#f4f7fb;font:16px Arial,sans-serif}header{padding:26px 18px;text-align:center;background:linear-gradient(130deg,#10251d,#111827);border-bottom:1px solid #29483b}h1,h2{color:#63e6a4}main{max-width:900px;margin:auto;padding:18px}.card{background:#121a24;border:1px solid #2b3b4c;border-radius:14px;padding:18px;margin:16px 0}.muted{color:#aab8c7;font-size:14px}label{display:block;margin:12px 0 6px;color:#c8d4df}input,select{width:100%;padding:12px;border:1px solid #45576b;border-radius:8px;background:#08111c;color:white}.btn{display:inline-block;border:0;border-radius:9px;background:#55e6a5;color:#07130d;font-weight:bold;padding:12px 16px;text-decoration:none;cursor:pointer;margin-top:12px}.btn.alt{background:#26394b;color:#fff}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.avatar{padding:12px;border:1px solid #435468;border-radius:10px;background:#0c1520;color:white;font-size:24px;cursor:pointer}.avatar.selected{border:2px solid #55e6a5;background:#173528}.team{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #283747}.team .emoji{font-size:25px}.pill{font-size:12px;color:#b6f5d5;border:1px solid #347958;border-radius:20px;padding:4px 8px}.result{white-space:pre-wrap;padding:12px;border-radius:8px;background:#0b1721;margin-top:12px}a{color:#70e6ae}
 </style></head><body>
-<header><h1>IMRO ESPORTS</h1><div>FREE FIRE • BATTLE ROYALE SQUAD TOURNAMENT</div><p class="muted">4 players • Random map • Admin-controlled results</p></header>
+<header><h1>IMRO ESPORTS</h1><div>FOUR-PLAYER SQUAD REGISTRATION</div><p class="muted">Register your team • Track approval • View live results</p><a class="btn alt" href="/">← Back to registration choices</a></header>
 <main>
-<section class="card"><h2>Register your squad</h2><p class="muted">Register one team with exactly four players. Include the squad leader among the four player names. Only the leader's Free Fire UID is required. Your registration stays pending until the organizer approves it.</p>
+<section class="card"><h2>Squad registration form</h2><p class="muted">Register one team with exactly four players. Include the squad leader among the four player names. Only the leader's Free Fire UID is required. Your registration stays pending until the organizer approves it.</p>
 <div id="settings" class="muted">Checking registration status…</div>
 <form id="squadForm">
 <label>Team name *</label><input name="team_name" maxlength="40" required placeholder="Your squad name">
@@ -22,7 +22,7 @@
 <button class="btn" id="submitSquad" type="submit">Register squad</button>
 </form><div id="formResult" class="result" hidden aria-live="polite"></div></section>
 <section class="card"><h2>Registered squads <span id="squadCount" class="pill">0 teams</span></h2><p class="muted">Team names appear here after registration. Refreshes automatically.</p><div id="teams">Loading teams…</div></section>
-<section class="card" id="liveResults"><h2>Live tournament results</h2><div id="liveResults">No published results yet.</div></section>
+<section class="card"><h2>Live tournament results</h2><div id="liveResults">No published results yet.</div></section>
 <section class="card"><h2>Winner announcements</h2><div id="winners">No winners announced yet.</div></section>
 <p><a href="/">← Back to IMRO ESPORTS home</a></p>
 </main>
