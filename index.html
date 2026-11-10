@@ -411,43 +411,6 @@ main section .card:after,
 @media(max-width:480px){.imro-social-logo{width:30px;height:30px}.imro-youtube-logo{width:35px;height:26px}.imro-youtube-button,.imro-instagram-button{padding:13px 15px;font-size:12px}}
 
 
-/* Living neon wallpaper — lightweight animated depth behind social panels */
-.imro-youtube-inner,.imro-social-inner{position:relative;isolation:isolate;overflow:hidden}
-.imro-youtube-inner:before,.imro-youtube-inner:after,
-.imro-social-inner:before,.imro-social-inner:after{
- content:"";position:absolute;z-index:-1;pointer-events:none;border-radius:50%;
- filter:blur(24px);will-change:transform,opacity
-}
-.imro-youtube-inner:before{
- width:260px;height:260px;left:-75px;top:-105px;
- background:radial-gradient(circle,#ff263d88 0%,#ff263d22 48%,transparent 72%);
- animation:imroLiveDriftA 9s ease-in-out infinite alternate
-}
-.imro-youtube-inner:after{
- width:310px;height:230px;right:-95px;bottom:-125px;
- background:radial-gradient(ellipse,#e6bd5577 0%,#ff263d20 48%,transparent 73%);
- animation:imroLiveDriftB 11s ease-in-out infinite alternate
-}
-.imro-social-inner:before{
- width:280px;height:260px;left:-90px;bottom:-125px;
- background:radial-gradient(circle,#d6297680 0%,#8134af38 48%,transparent 73%);
- animation:imroLiveDriftB 10s ease-in-out infinite alternate
-}
-.imro-social-inner:after{
- width:300px;height:250px;right:-90px;top:-125px;
- background:radial-gradient(ellipse,#ff8b5580 0%,#8134af35 48%,transparent 73%);
- animation:imroLiveDriftA 12s ease-in-out infinite alternate
-}
-.imro-youtube-inner,.imro-social-inner{background-size:180% 180%;animation:imroWallpaperGlow 14s ease-in-out infinite alternate}
-.imro-youtube-inner>* ,.imro-social-inner>*{position:relative;z-index:1}
-@keyframes imroLiveDriftA{0%{transform:translate3d(0,0,0) scale(.88);opacity:.55}50%{opacity:1}100%{transform:translate3d(85px,55px,0) scale(1.18);opacity:.8}}
-@keyframes imroLiveDriftB{0%{transform:translate3d(0,0,0) scale(1.08);opacity:.65}100%{transform:translate3d(-75px,-48px,0) scale(.86);opacity:1}}
-@keyframes imroWallpaperGlow{0%{background-position:0% 50%}100%{background-position:100% 50%}}
-@media(prefers-reduced-motion:reduce){
- .imro-youtube-inner,.imro-social-inner,.imro-youtube-inner:before,.imro-youtube-inner:after,.imro-social-inner:before,.imro-social-inner:after{animation:none!important;will-change:auto}
-}
-
-
 /* Logo visibility correction: distinct platform marks on every phone size */
 .imro-youtube-button,.imro-instagram-button{display:inline-flex!important;align-items:center!important;justify-content:center!important}
 .imro-social-logo{display:block!important;flex:0 0 38px!important;width:38px!important;height:38px!important;padding:4px!important;border-radius:10px!important;background:#fff!important;box-shadow:0 0 0 1px #ffffffaa,0 0 14px #fff8!important;opacity:1!important;visibility:visible!important}
@@ -457,39 +420,11 @@ main section .card:after,
 @media(max-width:480px){.imro-social-logo{flex-basis:34px!important;width:34px!important;height:34px!important}.imro-youtube-logo{flex-basis:39px!important;width:39px!important;height:31px!important}}
 
 
-/* Explicit fixed wallpaper element: reliable stacking on mobile browsers */
-html,body{background:#08090d!important}
-body{position:relative!important;isolation:isolate!important}
-#imroLiveWallpaper{
- position:fixed!important;inset:0!important;z-index:0!important;
- pointer-events:none!important;overflow:hidden!important;
- background:
-  radial-gradient(ellipse at 12% 18%,#a51e3580 0%,transparent 35%),
-  radial-gradient(ellipse at 86% 24%,#d6a44755 0%,transparent 31%),
-  radial-gradient(ellipse at 72% 78%,#8c1c3470 0%,transparent 38%),
-  radial-gradient(ellipse at 22% 86%,#5a182d60 0%,transparent 34%),
-  linear-gradient(135deg,#08090d 0%,#160b13 36%,#0b0d13 68%,#100a11 100%)!important;
- background-size:180% 180%!important;
- animation:imroArenaAtmosphere 26s ease-in-out infinite alternate!important;
-}
-#imroLiveWallpaper:after{
- content:"";position:absolute;inset:-10%;
- background-image:
-  radial-gradient(circle,#f3c66d 0 1px,transparent 2px),
-  radial-gradient(circle,#ff4054 0 1px,transparent 2px),
-  radial-gradient(circle,#f4d9a4 0 1px,transparent 2px);
- background-size:137px 173px,211px 197px,293px 251px;
- animation:imroArenaEmbers 38s linear infinite;
- opacity:.48;
-}
-body>*:not(#imroLiveWallpaper){position:relative;z-index:1}
-@media(prefers-reduced-motion:reduce){#imroLiveWallpaper,#imroLiveWallpaper:after{animation:none!important}}
-
 </style>
   <link rel="stylesheet" href="/journey-colors.css?v=12">
 </head>
 <body>
-<div id="imroLiveWallpaper" aria-hidden="true"></div>
+
 
 <div id="imroCinematicIntro" role="status" aria-label="Entering IMRO ESPORTS">
  <div class="imro-intro-inner">
