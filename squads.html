@@ -146,7 +146,8 @@ h1,h2{color:#f0c56d!important}
 <section class="card"><h2>Winner announcements</h2><div id="winners">No winners announced yet.</div></section>
 <p><a href="/">← Back to IMRO ESPORTS home</a></p>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script><script>
 const URL="https://gjjhuultiezaybvoykra.supabase.co",KEY="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";let db=null;try{if(!window.supabase||!window.supabase.createClient)throw new Error("Secure connection library did not load. Refresh the page or open it in Chrome.");db=window.supabase.createClient(URL,KEY);}catch(initError){document.getElementById("settings").textContent=initError.message;}
 const WA="917676811098",icons=["⚔️","🐉","🔥","👑","🦅","☠️","🤖","🌙","⚡","🛡️","🐺","🎯"];
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
