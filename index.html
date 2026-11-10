@@ -88,6 +88,79 @@ input,select,textarea{background:#0a0b10;border-color:#4b3b3a}
 footer{background:#08090d;border-color:#4a2929}
 @media(max-width:600px){header{padding:15px 16px}.hero{padding-top:48px}.card{padding:16px}#liveScores,#leaderboards{padding:14px}}
 
+
+/* CINEMATIC IMRO ARENA — season 2026 */
+:root{--gold:#f1c66b;--red:#ff263d;--ink:#07080b}
+body{background-color:var(--ink);background-image:radial-gradient(ellipse at 78% 12%,#68151d55 0,transparent 34%),radial-gradient(ellipse at 4% 48%,#30101866 0,transparent 30%),linear-gradient(180deg,#08090d,#09090c 58%,#050609)}
+header{padding:14px max(20px,calc((100% - 1180px)/2));background:#08090deF;border-bottom:1px solid #6d3330}
+header:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,#ff3448,#f1c66b,transparent)}
+.brand{font-size:27px;letter-spacing:2px}.tag{font-size:9px;color:#d6b66c}
+main{max-width:1180px;padding-top:18px}
+.hero{min-height:510px;padding:75px 0 55px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.hero:before{inset:0 -18px;background:linear-gradient(90deg,#07080bf7 0%,#0a090cf0 43%,#0a090c44 75%,#07080b99 100%),radial-gradient(ellipse at 77% 50%,#b21d2d55,transparent 43%);border:0}
+.hero:after{content:"";position:absolute;z-index:-1;left:-8vw;right:-8vw;bottom:0;height:1px;background:linear-gradient(90deg,transparent,#8d3430,#e3b75e,#8d3430,transparent)}
+.hero .eyebrow{font-size:11px;color:#f1c66b;letter-spacing:4px}
+.hero h1{max-width:700px;font-size:clamp(58px,10vw,112px);line-height:.83;letter-spacing:-4px;margin:24px 0;text-transform:uppercase}
+.hero h1 span{color:#ff3348!important;text-shadow:0 0 34px #ff243b66}
+.hero>p{max-width:480px;font-size:17px;color:#d4cbd0}
+.hero>.btn{width:max-content;padding:15px 25px;border-radius:3px;letter-spacing:1.3px;text-transform:uppercase}
+.hero>.card{max-width:370px!important;background:#101116d9;border:1px solid #70413a!important;border-radius:5px;padding:13px 16px;backdrop-filter:blur(8px)}
+.arena-art{position:absolute;z-index:-1;right:-3%;top:0;width:min(59%,680px);height:100%;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 58% 48%,#f04a3530,transparent 48%),linear-gradient(120deg,transparent 20%,#68151d22 62%,transparent)}
+.arena-sun{position:absolute;width:390px;height:390px;right:12%;top:7%;border-radius:50%;background:radial-gradient(circle,#f3b85c55 0 2%,#c42a3733 25%,#8b1b2b18 52%,transparent 72%);filter:blur(2px)}
+.arena-ring{position:absolute;border:1px solid #e6b65b55;border-radius:50%;transform:rotate(-24deg) skewX(-14deg)}
+.ring-one{width:520px;height:180px;right:2%;top:37%;box-shadow:0 0 35px #ef3d3d22}
+.ring-two{width:420px;height:140px;right:10%;top:42%;border-color:#f33b4b55}
+.arena-fighter{position:absolute;bottom:4%;right:19%;width:210px;height:390px;clip-path:polygon(42% 0,62% 4%,72% 17%,66% 26%,85% 34%,100% 67%,84% 70%,75% 53%,79% 100%,20% 100%,28% 59%,9% 80%,0 73%,21% 39%,34% 28%,29% 17%);background:linear-gradient(110deg,#090a0d 4%,#3b2024 28%,#b34b3c 44%,#171116 63%,#050609 82%);filter:drop-shadow(0 0 28px #ff344866)}
+.fighter-back{right:45%;bottom:0;transform:scale(.77) rotate(-8deg);opacity:.66;filter:brightness(.55) drop-shadow(0 0 25px #a52b34)}
+.fighter-front:before{content:"";position:absolute;left:35%;top:3%;width:36%;height:15%;border-radius:45% 45% 30% 30%;background:linear-gradient(110deg,#0a0b0d,#b97854 48%,#161014 70%)}
+.fighter-front:after{content:"";position:absolute;left:17%;top:29%;width:75%;height:13%;background:linear-gradient(90deg,#171116,#d6a35e,#32161b);transform:rotate(-23deg);box-shadow:0 0 20px #f44b3d66}
+.arena-flare{position:absolute;right:2%;bottom:12%;width:75%;height:2px;transform:rotate(-19deg);background:linear-gradient(90deg,transparent,#ff5a42,#f3c56a,transparent);box-shadow:0 0 24px #ff4c3d}
+.arena-art-label{position:absolute;right:5%;top:12%;display:grid;text-align:right;color:#f0c56e;letter-spacing:4px;text-shadow:0 2px 18px #000}
+.arena-art-label b{font-size:clamp(30px,5vw,60px);font-weight:1000;line-height:1}
+.arena-art-label span{font-size:8px;color:#e8d7c2;letter-spacing:2px}
+.season-strip{display:grid;grid-template-columns:2fr repeat(3,1fr);gap:0;margin:0 0 30px;border:1px solid #49302d;background:linear-gradient(100deg,#171015,#0b0c11);box-shadow:0 14px 35px #0007}
+.season-strip>div{padding:17px 20px;border-right:1px solid #3c2929;display:flex;flex-direction:column;justify-content:center}
+.season-strip>div:last-child{border:0}
+.strip-kicker{font-size:9px;letter-spacing:2px;color:#c5a35f;font-weight:900}
+.season-strip strong{font-size:16px;letter-spacing:1px}.season-strip em{color:#f2c66b;font-style:normal}
+.strip-stat b{font-size:20px;color:#f3c66e;letter-spacing:2px}.strip-stat span{font-size:9px;color:#aaa;letter-spacing:1px}
+section{margin-top:46px}
+.section-title{display:flex;align-items:center;gap:12px;font-size:clamp(23px,4vw,30px);letter-spacing:1.2px}
+.section-title:before{content:"";width:4px;height:25px;background:linear-gradient(#ff3448,#f0c36b);box-shadow:0 0 12px #ff3448}
+#prizePool{position:relative;overflow:hidden;background:linear-gradient(115deg,#17090e,#351018 48%,#0b0b10)!important;border:1px solid #a34d3e!important;border-radius:5px!important;box-shadow:0 18px 55px #0009,0 0 35px #a11d2b22!important}
+#prizePool:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(125deg,transparent 0 34px,#ffffff04 35px 36px);pointer-events:none}
+#prizePool>div:first-child{color:#f1c66b!important;letter-spacing:5px!important}
+#prizePool h2{font-size:clamp(28px,5vw,42px)!important;letter-spacing:3px}
+#publicTotalPrize{font-size:clamp(42px,8vw,66px)!important;text-shadow:0 0 26px #f0b74b55}
+#prizePool .card{border-radius:4px;background:#0b0d12;border-color:#78503c}
+#registrationChoice .grid{gap:18px}
+#registrationChoice .card{min-height:190px;padding:26px;background:linear-gradient(135deg,#1c1016,#101116 65%,#20110f);border:1px solid #71403b;border-radius:5px}
+#registrationChoice .card h3{font-size:25px;color:#f2d49a}
+#registrationChoice .card:after{content:"";display:block;width:58px;height:3px;margin-top:20px;background:linear-gradient(90deg,#ff3448,#f1c66b)}
+#registrationChoice .btn{border-radius:3px}
+#liveScores,#leaderboards{border-radius:5px;border-color:#70423b;background:linear-gradient(120deg,#160e13,#0b0c11)}
+.card{border-radius:5px}
+.notice{border-radius:3px;border-left:4px solid #e6b95e}
+footer{margin-top:45px}
+@media(max-width:760px){
+ .hero{min-height:570px;padding:58px 0 34px}
+ .hero:before{background:linear-gradient(90deg,#07080bf7,#08090bea 58%,#09090ca8),radial-gradient(ellipse at 80% 36%,#b21d2d44,transparent 55%)}
+ .arena-art{width:100%;right:-24%;top:5%;height:58%;opacity:.68}
+ .arena-fighter{right:17%;transform:scale(.76);transform-origin:bottom right}
+ .fighter-back{right:42%;transform:scale(.59) rotate(-8deg);transform-origin:bottom right}
+ .arena-art-label{right:7%;top:12%}
+ .hero h1{font-size:clamp(54px,15vw,82px);letter-spacing:-3px;max-width:100%}
+ .hero>p{max-width:360px;font-size:15px}
+ .hero>.card{max-width:100%!important}
+ .season-strip{grid-template-columns:1fr 1fr}
+ .season-strip>div{padding:13px;border-bottom:1px solid #3c2929}
+ .season-strip>div:nth-child(2){border-right:0}
+ .season-strip>div:nth-child(3){border-bottom:0}
+ .season-strip>div:nth-child(4){border-bottom:0;border-right:0}
+ #prizePool>div:last-of-type{grid-template-columns:1fr!important}
+}
+@media(prefers-reduced-motion:no-preference){.arena-sun{animation:arenaPulse 5s ease-in-out infinite alternate}.arena-flare{animation:flarePulse 3s ease-in-out infinite alternate}@keyframes arenaPulse{from{opacity:.55;transform:scale(.94)}to{opacity:1;transform:scale(1.06)}}@keyframes flarePulse{from{opacity:.35}to{opacity:1}}}
+
 </style>
 </head>
 <body>
@@ -100,7 +173,19 @@ footer{background:#08090d;border-color:#4a2929}
   <p class="muted" style="margin:7px 0 12px">Install IMRO ESPORTS on your Android home screen. Registration, player tokens, payment instructions and tournament updates stay together.</p>
   <button class="btn" id="installPlayerApp" type="button" style="width:100%">Install Player App</button>
   <p id="installPlayerHelp" class="muted" style="margin:9px 0 0;font-size:12px">On Android, open this website in Chrome to install.</p>
-</div></div>
+</div>
+  <div class="arena-art" aria-hidden="true">
+    <div class="arena-sun"></div><div class="arena-ring ring-one"></div><div class="arena-ring ring-two"></div>
+    <div class="arena-fighter fighter-back"></div><div class="arena-fighter fighter-front"></div>
+    <div class="arena-flare"></div><div class="arena-art-label"><b>IMRO</b><span>THE BATTLE STARTS HERE</span></div>
+  </div>
+</div>
+<div class="season-strip">
+  <div><span class="strip-kicker">THE COMMUNITY ARENA</span><strong>ONE COMMUNITY. <em>ONE CHAMPION.</em></strong></div>
+  <div class="strip-stat"><b>SOLO</b><span>INDIVIDUAL SHOWDOWN</span></div>
+  <div class="strip-stat"><b>SQUAD</b><span>FOUR PLAYER BATTLE</span></div>
+  <div class="strip-stat"><b>LIVE</b><span>PUBLISHED MATCH UPDATES</span></div>
+</div>
   <section id="prizePool" style="margin:18px auto;padding:22px 16px;text-align:center;background:linear-gradient(135deg,#190909,#321010,#090909);border:1px solid #ed6b55;border-radius:16px;box-shadow:0 0 20px #ed233c33;">
   <div style="color:#ed6b55;font-weight:900;letter-spacing:4px;">🏆 IMRO ESPORTS</div>
   <h2 style="font-size:26px;margin:10px 0;color:#fff;">PRIZE POOL</h2>
