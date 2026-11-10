@@ -827,7 +827,7 @@ async function loadImroPlayerAlerts(){
  if(!host||!list)return;
  try{
   const key="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
-  const base="https://gjjhuultiezaybvoykra.supabase.co/rest/v1/player_match_alerts?select=id,title,message,target_type,target_value,alert_kind,created_at,expires_at&active=eq.true&order=created_at.desc&limit=6";
+  const base="https://gjjhuultiezaybvoykra.supabase.co/rest/v1/player_match_alerts?select=id,title,message,target_type,target_value,alert_kind,created_at,expires_at&active=eq.true&target_type=eq.all&order=created_at.desc&limit=6";
   const res=await fetch(base,{headers:{apikey:key,Authorization:"Bearer "+key}});
   if(!res.ok)throw new Error("Alerts unavailable");
   const rows=await res.json();
