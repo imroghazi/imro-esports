@@ -161,6 +161,49 @@ footer{margin-top:45px}
 }
 @media(prefers-reduced-motion:no-preference){.arena-sun{animation:arenaPulse 5s ease-in-out infinite alternate}.arena-flare{animation:flarePulse 3s ease-in-out infinite alternate}@keyframes arenaPulse{from{opacity:.55;transform:scale(.94)}to{opacity:1;transform:scale(1.06)}}@keyframes flarePulse{from{opacity:.35}to{opacity:1}}}
 
+
+/* Broadcast match centre, verified standings and champions */
+#liveScores,#leaderboards,#champions{position:relative;overflow:hidden;padding:clamp(17px,3vw,28px);border:1px solid #70403a;border-radius:6px;background:linear-gradient(135deg,#1a0d13 0%,#0b0c11 56%,#171014);box-shadow:0 22px 55px #0009}
+#liveScores:before,#leaderboards:before,#champions:before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#ff3448 25%,#f1c66b 52%,#ff3448 78%,transparent)}
+.broadcast-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.broadcast-kicker{display:block;color:#e9bd68;font-size:10px;font-weight:950;letter-spacing:2.4px;text-transform:uppercase}
+.broadcast-header .section-title{margin:7px 0 8px}
+.broadcast-live-badge,.match-state{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #654039;background:#160e12;color:#e8cf9c;font-size:9px;font-weight:900;letter-spacing:1.2px}
+.broadcast-live-badge i{width:7px;height:7px;border-radius:50%;background:#e0b75f;box-shadow:0 0 12px #e0b75f}
+.broadcast-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid #39262a;border-bottom:1px solid #39262a;margin-bottom:15px}
+.broadcast-toolbar .btn{padding:10px 15px;font-size:11px;letter-spacing:1px}
+.broadcast-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:13px}
+.broadcast-match,.broadcast-card,.champion-card{position:relative;overflow:hidden;border:1px solid #63403b;background:linear-gradient(145deg,#20151a,#0e1016 70%);padding:17px;border-radius:4px;box-shadow:0 10px 28px #0006}
+.broadcast-match:after,.champion-card:after{content:"";position:absolute;right:-35px;top:-48px;width:120px;height:120px;border:1px solid #d9ad5b33;border-radius:50%;box-shadow:0 0 0 14px #d9ad5b08,0 0 0 29px #d9ad5b06;pointer-events:none}
+.match-live{border-color:#b14b43;box-shadow:0 0 0 1px #ff334522,0 12px 32px #0008}
+.match-topline{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.match-state{font-size:8px;padding:6px 8px;white-space:nowrap}
+.state-live{border-color:#a62b3b;color:#ff8790;background:#260d14}
+.versus-grid{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;padding:22px 0 17px}
+.versus-player{min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+.player-emblem{width:42px;height:42px;display:grid;place-items:center;border:1px solid #8e603d;background:radial-gradient(circle,#54301f,#171015);color:#f3ca75;font-size:22px}
+.versus-player strong{font-size:clamp(13px,2vw,16px);overflow-wrap:anywhere;color:#f7eee3}
+.versus-player small{font-size:8px;letter-spacing:2px;color:#f1c66b;font-weight:950}
+.versus-mark{font-size:12px;font-weight:1000;color:#ff5261;letter-spacing:2px;text-shadow:0 0 16px #ff304555}
+.match-bottomline{border-top:1px solid #493033;padding-top:11px;color:#f0c56d;font-size:12px;font-weight:800}
+.broadcast-empty{grid-column:1/-1;padding:32px 18px;text-align:center;border:1px dashed #64423b;background:#100e13;color:#b9a9a5}
+.broadcast-empty-icon{display:block;font-size:28px;color:#e8bd68;margin-bottom:8px}
+.broadcast-empty strong{display:block;color:#f1c66b;letter-spacing:2px}
+.broadcast-empty p{margin:8px auto 0;max-width:420px;font-size:13px}
+.leaderboard-card h3{margin:7px 0 14px;color:#f5d99e}
+.standings-list{display:grid;gap:7px}
+.standing-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px;background:#0a0c11;border:1px solid #35282b}
+.standing-rank{color:#eec66e;font-weight:950}
+.standing-row strong{overflow-wrap:anywhere;font-size:13px}
+.standing-wins{color:#f0c56d;font-size:11px;font-weight:900}
+.champions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:13px}
+.champion-card{text-align:center;padding:22px 14px;background:linear-gradient(150deg,#24181a,#0d0f14)}
+.champion-first{border-color:#d1a44d;background:radial-gradient(ellipse at 50% 0,#69451f55,transparent 65%),linear-gradient(150deg,#24191a,#0d0f14)}
+.champion-medal{display:grid;place-items:center;width:55px;height:55px;margin:0 auto 13px;border-radius:50%;border:1px solid #bd914b;background:radial-gradient(circle,#4d321d,#151116);font-size:27px;color:#f4d17b}
+.champion-card h3{margin:9px 0 4px;color:#f8e7c5;overflow-wrap:anywhere}
+.champion-card p{margin:0;color:#d8b96f;font-size:12px;font-weight:800}
+@media(max-width:600px){.broadcast-header{flex-direction:column}.broadcast-live-badge{align-self:flex-start}.broadcast-toolbar{align-items:flex-start;flex-direction:column}.broadcast-toolbar .btn{width:100%}.broadcast-match{padding:13px}.versus-grid{padding:17px 0 13px}}
+
 </style>
 </head>
 <body>
@@ -223,8 +266,8 @@ footer{margin-top:45px}
 <button class="btn" type="submit">Submit registration</button>
 </form><div id="result"></div>
 </div></section>
-<section id="liveScores"><h2 class="section-title">Live match scores</h2><p class="muted">Published match results from the tournament. Scores refresh automatically every 5 seconds.</p><button class="btn" type="button" id="refreshLiveScores">↻ Refresh live scores</button><p id="liveScoresUpdated" class="muted" aria-live="polite">Loading scores…</p><div id="publicLiveScores" class="grid"><div class="card muted">Loading published match scores…</div></div></section>
-<section id="leaderboards"><h2 class="section-title">Live tier leaderboards</h2><p class="muted">Final rankings appear here after the organizer ends the respective tier.</p><div id="publicLeaderboards" class="grid"><div class="card muted">Loading published leaderboards…</div></div></section>
+<section id="liveScores"><h2 class="section-title">Live match scores</h2><div class="broadcast-header"><div><span class="broadcast-kicker">IMRO ESPORTS · OFFICIAL MATCH FEED</span><h2 class="section-title">THE BATTLE DESK</h2><p class="muted">Published matchups and verified results, refreshed automatically.</p></div><div class="broadcast-live-badge"><i></i><span id="broadcastSummary">CONNECTING TO ARENA</span></div></div><div class="broadcast-toolbar"><span id="liveScoresUpdated" class="muted" aria-live="polite">Connecting to live data…</span><button class="btn" type="button" id="refreshLiveScores">↻ REFRESH</button></div><div id="publicLiveScores" class="broadcast-grid"><div class="broadcast-empty">Loading official match feed…</div></div></section>
+<section id="leaderboards"><div class="broadcast-header"><div><span class="broadcast-kicker">OFFICIAL STANDINGS</span><h2 class="section-title">FINAL LEADERBOARDS</h2><p class="muted">Only finalized and published tier standings are displayed.</p></div></div><div id="publicLeaderboards" class="broadcast-grid"><div class="broadcast-empty">Loading official standings…</div></div></section><section id="champions"><div class="broadcast-header"><div><span class="broadcast-kicker">THE ONES WHO ROSE ABOVE</span><h2 class="section-title">HALL OF CHAMPIONS</h2><p class="muted">Top finishers appear here only after the organizer publishes a tier final.</p></div></div><div id="championsWall" class="champions-grid"><div class="broadcast-empty">Waiting for official champions…</div></div></section>
 <section><h2 class="section-title">About IMRO ESPORTS</h2><div class="card"><p>IMRO ESPORTS is a community-run Free Fire tournament initiative built to bring local players together through fair competition, organized brackets and transparent results.</p><p class="muted">Follow the tournament announcements, check tier availability and view published leaderboards here. Match results are published by the organizer.</p><a class="btn" href="/about.html">Learn about IMRO ESPORTS</a></div></section>
 <section><h2 class="section-title">Partner with our community</h2><div class="card"><div class="tier">SPONSORSHIP OPPORTUNITIES</div><h3>Support the next generation of community gaming</h3><p class="muted">We welcome relevant local businesses and gaming brands interested in supporting community tournaments. Sponsorship placements are subject to agreement and clear disclosure.</p><a class="btn" href="/sponsors.html">Explore sponsorships</a></div></section>
 <section><h2 class="section-title">Tournament rules</h2><div class="card"><ul><li>Pure gameplay.</li><li>No gun attributes.</li><li>No character skills.</li><li>No player substitution.</li><li>Draws are generated manually by the organizer after registration closes.</li><li>Pairings are separated by tier and are shown publicly only after the organizer publishes them.</li></ul></div></section>
@@ -515,40 +558,57 @@ async function loadPublicPrizePool() {
 
 async function loadTierLeaderboards(){
   const target=document.getElementById("publicLeaderboards");
-  const url="https://gjjhuultiezaybvoykra.supabase.co/rest/v1/rpc/leaderboard_for_tier";
-  const key="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+  const champions=document.getElementById("championsWall");
+  const url=SUPABASE_URL+"/rest/v1/rpc/leaderboard_for_tier";
   try{
-    const tournamentsResponse=await fetch("https://gjjhuultiezaybvoykra.supabase.co/rest/v1/tournaments?select=id&order=created_at.desc&limit=1",{headers:{apikey:key,Authorization:"Bearer "+key}});
-    if(!tournamentsResponse.ok)throw new Error("Could not identify the current tournament");
-    const tournaments=await tournamentsResponse.json();
-    if(!tournaments.length){target.innerHTML="<div class='card muted'>No tournament is available.</div>";return;}
+    const tr=await fetch(SUPABASE_URL+"/rest/v1/tournaments?select=id&order=created_at.desc&limit=1",{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY}});
+    if(!tr.ok)throw new Error("Could not identify the current tournament");
+    const tournaments=await tr.json();
+    if(!tournaments.length){target.innerHTML="<div class='card muted'>No tournament is available.</div>";champions.innerHTML="<div class='card muted'>Champions will appear after a tier is finalized.</div>";return;}
     const tournamentId=tournaments[0].id;
-    const sections=await Promise.all([1,2,3].map(async tier=>{
-      const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json",apikey:key,Authorization:"Bearer "+key},body:JSON.stringify({p_tournament_id:tournamentId,p_tier:tier})});
+    const tiers=await Promise.all([1,2,3].map(async tier=>{
+      const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({p_tournament_id:tournamentId,p_tier:tier})});
       if(!response.ok)throw new Error("Leaderboard request failed");
-      const rows=await response.json();
-      if(!rows.length)return "<div class='card'><div class='tier'>TIER "+tier+"</div><p class='muted'>Leaderboard not published yet.</p></div>";
-      return "<div class='card'><div class='tier'>TIER "+tier+" · FINAL</div><h3>Leaderboard</h3><ol>"+rows.map(row=>"<li><strong>"+escapeLeaderboard(row.player_name)+"</strong> — "+row.wins+" wins · "+escapeLeaderboard(row.player_status)+"</li>").join("")+"</ol></div>";
+      return {tier,rows:await response.json()};
     }));
-    target.innerHTML=sections.join("");
-  }catch(error){target.innerHTML="<div class='card muted'>Leaderboards will appear when a tier is finalized.</div>";}
+    target.innerHTML=tiers.map(({tier,rows})=>{
+      if(!rows.length)return "<article class='broadcast-card leaderboard-card'><div class='broadcast-kicker'>TIER "+tier+"</div><h3>Awaiting the final</h3><p class='muted'>This leaderboard is not published yet.</p></article>";
+      return "<article class='broadcast-card leaderboard-card'><div class='broadcast-kicker'>OFFICIAL FINAL · TIER "+tier+"</div><h3>Player standings</h3><div class='standings-list'>"+rows.map((row,index)=>"<div class='standing-row'><span class='standing-rank'>"+(row.rank_position||index+1)+"</span><strong>"+escapeLeaderboard(row.player_name)+"</strong><span class='standing-wins'>"+Number(row.wins||0)+" W</span></div>").join("")+"</div></article>";
+    }).join("");
+    const podium=tiers.flatMap(({tier,rows})=>rows.slice(0,3).map(row=>({tier,row}))).sort((a,b)=>Number(a.row.rank_position)-Number(b.row.rank_position));
+    champions.innerHTML=podium.length?podium.map(({tier,row},index)=>"<article class='champion-card "+(Number(row.rank_position)===1?"champion-first":"")+"'><span class='champion-medal'>"+(Number(row.rank_position)===1?"♛":Number(row.rank_position)===2?"🥈":"🥉")+"</span><div class='broadcast-kicker'>TIER "+tier+" · RANK "+escapeLeaderboard(row.rank_position)+"</div><h3>"+escapeLeaderboard(row.player_name)+"</h3><p>"+Number(row.wins||0)+" match wins</p></article>").join(""):"<div class='card muted'>The champions wall unlocks when the organizer finalizes a tier. No unconfirmed winners are shown.</div>";
+  }catch(error){
+    target.innerHTML="<div class='card muted'>Final leaderboards will appear when a tier is finalized.</div>";
+    champions.innerHTML="<div class='card muted'>Champions wall is waiting for published final standings.</div>";
+  }
 }
 async function loadPublicMatchScores(){
- const target=document.getElementById('publicLiveScores');
- const updated=document.getElementById('liveScoresUpdated');
- const key=SUPABASE_ANON_KEY;
+ const target=document.getElementById("publicLiveScores");
+ const updated=document.getElementById("liveScoresUpdated");
+ const summary=document.getElementById("broadcastSummary");
  try{
-  const tr=await fetch(SUPABASE_URL+'/rest/v1/tournaments?select=id&order=created_at.desc&limit=1',{headers:{apikey:key,Authorization:'Bearer '+key}});
-  if(!tr.ok)throw new Error('Tournament lookup failed');
+  const tr=await fetch(SUPABASE_URL+"/rest/v1/tournaments?select=id&order=created_at.desc&limit=1",{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY}});
+  if(!tr.ok)throw new Error("Tournament lookup failed");
   const tournaments=await tr.json();
-  if(!tournaments.length){target.innerHTML='<div class="card muted">No tournament is available.</div>';return;}
-  const response=await fetch(SUPABASE_URL+'/rest/v1/rpc/get_live_match_scores',{method:'POST',headers:{'Content-Type':'application/json',apikey:key,Authorization:'Bearer '+key},body:JSON.stringify({p_tournament_id:tournaments[0].id})});
-  if(!response.ok)throw new Error('Could not load match scores');
+  if(!tournaments.length){target.innerHTML="<div class='broadcast-empty'>No tournament is available.</div>";summary.textContent="TOURNAMENT NOT STARTED";return;}
+  const response=await fetch(SUPABASE_URL+"/rest/v1/rpc/get_live_match_scores",{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({p_tournament_id:tournaments[0].id})});
+  if(!response.ok)throw new Error("Could not load match scores");
   const rows=await response.json();
-  if(!rows.length){target.innerHTML='<div class="card muted">No match results have been published yet. Check back soon.</div>';}
-  else{target.innerHTML=rows.map(row=>'<div class="card"><div class="tier">TIER '+escapeLeaderboard(row.tier)+' · ROUND '+escapeLeaderboard(row.round_number)+'</div><h3>'+escapeLeaderboard(row.player_one_name||'Player 1')+' vs '+escapeLeaderboard(row.player_two_name||'Player 2')+'</h3><p class="muted">'+(row.winner_name?'🏆 Winner: <strong>'+escapeLeaderboard(row.winner_name)+'</strong>':'Match: '+escapeLeaderboard(row.status))+'</p><span class="muted">'+(row.status==='completed'?'Result published':'Match published')+'</span></div>').join('');}
-  updated.textContent='Last refreshed: '+new Date().toLocaleTimeString('en-IN');
- }catch(error){target.innerHTML='<div class="card muted">Live scores could not load. Tap refresh to try again.</div>';updated.textContent='Refresh unavailable';}
+  const active=rows.filter(row=>row.status==="in_progress");
+  const completed=rows.filter(row=>row.status==="completed");
+  summary.textContent=active.length?active.length+" MATCH"+(active.length===1?"":"ES")+" IN PROGRESS":completed.length?completed.length+" PUBLISHED RESULT"+(completed.length===1?"":"S"):"MATCH CENTRE READY";
+  if(!rows.length){target.innerHTML="<div class='broadcast-empty'><span class='broadcast-empty-icon'>◈</span><strong>THE ARENA IS WAITING</strong><p>No match results have been published yet. Published matches will appear here automatically.</p></div>";}
+  else{
+   const sorted=[...rows].sort((a,b)=>(a.status==="in_progress"?-1:0)-(b.status==="in_progress"?-1:0)||new Date(b.published_at||0)-new Date(a.published_at||0));
+   target.innerHTML=sorted.map(row=>{
+    const live=row.status==="in_progress";
+    const done=row.status==="completed";
+    const state=live?"LIVE NOW":done?"RESULT PUBLISHED":"MATCH ANNOUNCED";
+    return "<article class='broadcast-match "+(live?"match-live":"")+"'><div class='match-topline'><span class='broadcast-kicker'>TIER "+escapeLeaderboard(row.tier)+" · ROUND "+escapeLeaderboard(row.round_number)+"</span><span class='match-state "+(live?"state-live":"")+"'>"+(live?"● ":"")+state+"</span></div><div class='versus-grid'><div class='versus-player'><span class='player-emblem'>"+(done&&row.winner_name===row.player_one_name?"♛":"◈")+"</span><strong>"+escapeLeaderboard(row.player_one_name||"Player 1")+"</strong>"+(done&&row.winner_name===row.player_one_name?"<small>WINNER</small>":"")+"</div><span class='versus-mark'>VS</span><div class='versus-player'><span class='player-emblem'>"+(done&&row.winner_name===row.player_two_name?"♛":"◈")+"</span><strong>"+escapeLeaderboard(row.player_two_name||"Player 2")+"</strong>"+(done&&row.winner_name===row.player_two_name?"<small>WINNER</small>":"")+"</div></div><div class='match-bottomline'>"+(done?"🏆 "+escapeLeaderboard(row.winner_name||"Winner pending"):"<span>"+(live?"Match currently underway":"Matchup published by organizer")+"</span>")+"</div></article>";
+   }).join("");
+  }
+  updated.textContent="LIVE DATA · Last refreshed "+new Date().toLocaleTimeString("en-IN");
+ }catch(error){target.innerHTML="<div class='broadcast-empty'>Live match centre is temporarily unavailable. Tap refresh to try again.</div>";summary.textContent="CONNECTION UNAVAILABLE";updated.textContent="Refresh unavailable";}
 }
 document.getElementById('refreshLiveScores').addEventListener('click',loadPublicMatchScores);
 function escapeLeaderboard(value){return String(value??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
