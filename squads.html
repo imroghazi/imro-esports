@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IMRO ESPORTS | Squad Tournament</title><meta name="description" content="Register your four-player Free Fire squad for IMRO ESPORTS Battle Royale tournaments.">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080b10;color:#f4f7fb;font:16px Arial,sans-serif}header{padding:26px 18px;text-align:center;background:linear-gradient(130deg,#10251d,#111827);border-bottom:1px solid #29483b}h1,h2{color:#63e6a4}main{max-width:900px;margin:auto;padding:18px}.card{background:#121a24;border:1px solid #2b3b4c;border-radius:14px;padding:18px;margin:16px 0}.muted{color:#aab8c7;font-size:14px}label{display:block;margin:12px 0 6px;color:#c8d4df}input,select{width:100%;padding:12px;border:1px solid #45576b;border-radius:8px;background:#08111c;color:white}.btn{display:inline-block;border:0;border-radius:9px;background:#55e6a5;color:#07130d;font-weight:bold;padding:12px 16px;text-decoration:none;cursor:pointer;margin-top:12px}.btn.alt{background:#26394b;color:#fff}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.avatar{padding:12px;border:1px solid #435468;border-radius:10px;background:#0c1520;color:white;font-size:24px;cursor:pointer}.avatar.selected{border:2px solid #55e6a5;background:#173528}.team{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #283747}.team .emoji{font-size:25px}.pill{font-size:12px;color:#b6f5d5;border:1px solid #347958;border-radius:20px;padding:4px 8px}.result{white-space:pre-wrap;padding:12px;border-radius:8px;background:#0b1721;margin-top:12px}a{color:#70e6ae}
+</style></head><body>
+<header><h1>IMRO ESPORTS</h1><div>FREE FIRE • BATTLE ROYALE SQUAD TOURNAMENT</div><p class="muted">4 players • Random map • Admin-controlled results</p></header>
+<main>
+<section class="card"><h2>Register your squad</h2><p class="muted">Register one team with exactly four players. Include the squad leader among the four player names. Only the leader's Free Fire UID is required. Your registration stays pending until the organizer approves it.</p>
+<div id="settings" class="muted">Checking registration status…</div>
+<form id="squadForm">
+<label>Team name *</label><input name="team_name" maxlength="40" required placeholder="Your squad name">
+<label>Choose team avatar *</label><div id="avatars" class="grid"></div><input type="hidden" name="team_avatar" required>
+<label>Squad leader name / in-game name *</label><input name="leader_name" maxlength="40" required>
+<label>Squad leader Free Fire UID *</label><input name="leader_uid" maxlength="24" inputmode="numeric" pattern="[0-9]{3,24}" required placeholder="Numeric UID">
+<label>Squad leader contact number *</label><input name="contact_number" maxlength="20" required placeholder="+91...">
+<h3>Four squad members</h3><p class="muted">Enter all four player names. Player 1 can be the squad leader.</p>
+<label>Player 1 name *</label><input name="player1" maxlength="40" required>
+<label>Player 2 name *</label><input name="player2" maxlength="40" required>
+<label>Player 3 name *</label><input name="player3" maxlength="40" required>
+<label>Player 4 name *</label><input name="player4" maxlength="40" required>
+<button class="btn" id="submitSquad" type="submit">Register squad</button>
+</form><div id="formResult" class="result" hidden aria-live="polite"></div></section>
+<section class="card"><h2>Registered squads <span id="squadCount" class="pill">0 teams</span></h2><p class="muted">Team names appear here after registration. Refreshes automatically.</p><div id="teams">Loading teams…</div></section>
+<section class="card"><h2>Live tournament results</h2><div id="liveResults">No published results yet.</div></section>
+<section class="card"><h2>Winner announcements</h2><div id="winners">No winners announced yet.</div></section>
+<p><a href="/">← Back to IMRO ESPORTS home</a></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+const URL="https://gjjhuultiezaybvoykra.supabase.co",KEY="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM",db=supabase.createClient(URL,KEY);
+const WA="917676811098",icons=["⚔️","🐉","🔥","👑","🦅","☠️","🤖","🌙","⚡","🛡️","🐺","🎯"];
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const form=document.getElementById("squadForm"),res=document.getElementById("formResult");
+document.getElementById("avatars").innerHTML=icons.map((x,i)=>'<button class="avatar" type="button" data-avatar="'+esc(x)+'" aria-label="Team avatar '+(i+1)+'">'+x+'</button>').join("");
+document.querySelectorAll(".avatar").forEach(b=>b.onclick=()=>{document.querySelectorAll(".avatar").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");form.elements.team_avatar.value=b.dataset.avatar;});
+async function loadSettings(){const {data}=await db.from("squad_tournament_settings").select("registration_open,entry_mode").eq("id",1).maybeSingle();document.getElementById("settings").textContent=!data?"Registration settings unavailable":!data.registration_open?"Squad registration is currently closed.":data.entry_mode==="paid"?"Registration is open. Contact the organizer for payment instructions.":"Registration is OPEN — free entry for now." ;form.querySelector("button").disabled=!data||!data.registration_open;}
+form.addEventListener("submit",async e=>{e.preventDefault();const b=document.getElementById("submitSquad");const v=form.elements;if(!v.team_avatar.value){res.hidden=false;res.textContent="Please choose a team avatar.";return;}b.disabled=true;b.textContent="Submitting…";res.hidden=false;res.textContent="Saving your squad…";
+try{const payload={team_name:v.team_name.value.trim(),team_avatar:v.team_avatar.value,leader_name:v.leader_name.value.trim(),leader_uid:v.leader_uid.value.trim(),contact_number:v.contact_number.value.trim(),players:[v.player1.value,v.player2.value,v.player3.value,v.player4.value].map(x=>x.trim())};
+const response=await fetch(URL+"/functions/v1/register-squad",{method:"POST",headers:{"Content-Type":"application/json","apikey":KEY},body:JSON.stringify(payload)});const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||"Registration failed.");
+res.textContent="SQUAD REGISTERED!\nTeam: "+data.team_name+"\nYour token: "+data.token+"\nStatus: Pending admin approval.\n\nTap below to message IMRO ESPORTS on WhatsApp.";
+const msg="IMRO ESPORTS SQUAD REGISTRATION%0ATeam: "+encodeURIComponent(data.team_name)+"%0AToken: "+encodeURIComponent(data.token)+"%0ALeader: "+encodeURIComponent(payload.leader_name)+"%0AUID: "+encodeURIComponent(payload.leader_uid)+"%0AContact: "+encodeURIComponent(payload.contact_number)+"%0APlayers: "+encodeURIComponent(payload.players.join(", "));
+const a=document.createElement("a");a.className="btn";a.target="_blank";a.rel="noopener";a.href="https://wa.me/"+WA+"?text="+msg;a.textContent="Continue to WhatsApp";res.appendChild(document.createElement("br"));res.appendChild(a);form.reset();document.querySelectorAll(".avatar").forEach(x=>x.classList.remove("selected"));await loadTeams();
+}catch(err){res.textContent=err.message;}finally{b.disabled=false;b.textContent="Register squad";}});
+async function loadTeams(){const {data,error}=await db.from("squad_public_teams").select("id,team_name,team_avatar,status,created_at").order("created_at",{ascending:true});if(error){document.getElementById("teams").textContent="Could not load squads.";return;}document.getElementById("squadCount").textContent=(data.length||0)+" teams";document.getElementById("teams").innerHTML=data.length?data.map(t=>'<div class="team"><span class="emoji">'+esc(t.team_avatar)+'</span><div><strong>'+esc(t.team_name)+'</strong><div class="muted">'+(t.status==="approved"?"Approved":t.status==="rejected"?"Registration rejected":"Registration received")+'</div></div></div>').join(""):"No squads registered yet.";}
+async function loadResults(){const {data:matches}=await db.from("squad_matches").select("id,round_number,room_name,map_name,created_at").eq("published",true).order("created_at",{ascending:false});const out=document.getElementById("liveResults");if(!matches?.length){out.textContent="No published results yet.";return;}let html="";for(const m of matches){const {data:rows}=await db.from("squad_match_results").select("placement,kills,total_points,is_winner,squad_registrations(team_name,team_avatar)").eq("match_id",m.id).eq("published",true).order("total_points",{ascending:false});html+='<div class="card"><strong>Round '+m.round_number+' • '+esc(m.room_name)+'</strong><div class="muted">Map: '+esc(m.map_name)+'</div>'+(rows||[]).map(r=>'<div class="team">'+(r.is_winner?"🏆":"#"+(r.placement??"—"))+' <strong>'+esc(r.squad_registrations?.team_name||"Squad")+'</strong><span class="muted">Kills '+r.kills+' • Points '+r.total_points+'</span></div>').join("")+'</div>';}out.innerHTML=html;}
+async function loadWinners(){const {data}=await db.from("squad_winner_announcements").select("id,title,message,published_at").eq("published",true).order("published_at",{ascending:false});let html="";for(const a of data||[]){const {data:w}=await db.from("squad_announcement_winners").select("award_label,squad_registrations(team_name,team_avatar)").eq("announcement_id",a.id);html+='<div class="card"><h3>'+esc(a.title)+'</h3><p>'+esc(a.message)+'</p>'+(w||[]).map(x=>'<div class="team">🏆 '+esc(x.squad_registrations?.team_name||"Team")+' — '+esc(x.award_label)+'</div>').join("")+'</div>';}document.getElementById("winners").innerHTML=html||"No winners announced yet.";}
+async function refresh(){await Promise.all([loadSettings(),loadTeams(),loadResults(),loadWinners()]);}
+refresh();setInterval(refresh,8000);
+</script></body></html>
