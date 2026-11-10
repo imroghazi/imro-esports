@@ -96,6 +96,26 @@ dialog{background:#151116;border-color:#8a443b}
 <div id="tierControls"></div>
 </section>
 
+<section id="matchAlertConsole">
+<h2>🔔 IMRO PLAYER ALERT CONTROL</h2>
+<p class="small">Call players online for a match, room opening or schedule update. Website alerts are published immediately; WhatsApp opens a ready-to-share message for your selected group.</p>
+<div class="grid">
+ <div><label for="alertTournament">Tournament</label><select id="alertTournament"></select></div>
+ <div><label for="alertAudience">Send to</label><select id="alertAudience"><option value="all">All players</option><option value="tier">A solo tier</option><option value="squad">Squad leaders / squads</option></select></div>
+ <div id="alertTargetWrap" class="hidden"><label for="alertTarget">Tier</label><select id="alertTarget"><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option></select></div>
+ <div><label for="alertKind">Alert type</label><select id="alertKind"><option value="match_call">Match call — come online</option><option value="room_open">Room is open</option><option value="schedule_change">Schedule update</option><option value="general">General announcement</option></select></div>
+ <div><label for="alertExpiry">Expires after</label><select id="alertExpiry"><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="180">3 hours</option><option value="720">12 hours</option><option value="1440">24 hours</option></select></div>
+</div>
+<label for="alertTitle">Headline</label><input id="alertTitle" maxlength="90" value="IMRO MATCH CALL — COME ONLINE">
+<label for="alertMessage">Message to players</label><textarea id="alertMessage" rows="4" maxlength="700" placeholder="Your match is about to begin. Please open Free Fire and be ready in the tournament lobby."></textarea>
+<div class="grid">
+ <button id="publishMatchAlert">🔔 Publish website alert</button>
+ <button id="shareMatchAlert" class="whatsapp-action">Share WhatsApp message</button>
+</div>
+<p id="alertStatus" class="small" aria-live="polite">Choose your audience and publish an alert.</p>
+<div id="recentMatchAlerts"></div>
+</section>
+
 <section>
 <h2>Player management</h2>
 <label for="playerSearch">Search players</label>
@@ -252,6 +272,9 @@ async function start(){
   $("dashboard").classList.remove("hidden");
   message("Admin verified.");
   await loadTournaments();
+  await loadAlertTournaments();
+  updateAlertTarget();
+  await loadRecentMatchAlerts();
 }
 
 async function loadTournaments(){
@@ -1242,6 +1265,54 @@ document.getElementById("generateTierDrafts").addEventListener("click", () => {
       "Could not generate preview: " + error.message;
   }
 });
+
+/* IMRO PLAYER ALERT CONTROL */
+let lastPublishedAlert=null;
+function alertStatus(text){$("alertStatus").textContent=text;}
+function updateAlertTarget(){
+ const type=$("alertAudience").value;
+ $("alertTargetWrap").classList.toggle("hidden",type!=="tier");
+ $("alertTargetWrap").querySelector("label").textContent=type==="tier"?"Select tier":"Select squad";
+}
+async function loadAlertTournaments(){
+ $("alertTournament").innerHTML=$("tournament").innerHTML;
+}
+async function loadRecentMatchAlerts(){
+ const {data,error}=await db.from("player_match_alerts").select("id,title,message,target_type,target_value,alert_kind,created_at,expires_at,active").order("created_at",{ascending:false}).limit(8);
+ if(error){$("recentMatchAlerts").textContent="Could not load alerts: "+error.message;return;}
+ $("recentMatchAlerts").innerHTML="<h3>Recent alerts</h3>"+((data||[]).map(a=>{
+  const audience=a.target_type==="all"?"All players":a.target_type==="tier"?"Tier "+safe(a.target_value):"Squad players";
+  return "<div class='item'><strong>"+safe(a.title)+"</strong><p class='small'>"+audience+" · "+safe(a.alert_kind)+" · "+new Date(a.created_at).toLocaleString()+"</p><p>"+safe(a.message)+"</p><span class='small'>"+(a.active?"Active":"Inactive")+"</span></div>";
+ }).join("")||"<p class='small'>No match alerts published yet.</p>");
+}
+async function publishMatchAlert(){
+ const tournamentId=$("alertTournament").value;
+ const title=$("alertTitle").value.trim();
+ const body=$("alertMessage").value.trim();
+ const targetType=$("alertAudience").value;
+ const targetValue=targetType==="tier"?$("alertTarget").value:null;
+ if(!tournamentId||!title||!body){alertStatus("Select a tournament and enter both a headline and message.");return;}
+ $("publishMatchAlert").disabled=true;
+ const expiry=new Date(Date.now()+Number($("alertExpiry").value)*60000).toISOString();
+ const row={tournament_id:tournamentId,title,message:body,target_type:targetType,target_value:targetValue,alert_kind:$("alertKind").value,expires_at:expiry,created_by:currentUser?.id||null};
+ const {data,error}=await db.from("player_match_alerts").insert(row).select().single();
+ $("publishMatchAlert").disabled=false;
+ if(error){alertStatus("Alert was not published: "+error.message);return;}
+ lastPublishedAlert={...row,id:data.id};
+ alertStatus("Published successfully. The alert is saved on the IMRO platform. Share the WhatsApp message too to reach players outside the website.");
+ await loadRecentMatchAlerts();
+}
+function shareMatchAlert(){
+ const title=$("alertTitle").value.trim(),body=$("alertMessage").value.trim();
+ const audience=$("alertAudience").value==="all"?"All registered players":$("alertAudience").value==="tier"?"Solo Tier "+$("alertTarget").value+" players":"All squad leaders";
+ const msg="🔥 IMRO ESPORTS — "+title+"\n\n"+audience+"\n\n"+body+"\n\nOpen the tournament website: https://imro-esports.vercel.app/\n\nCOMPETE • SURVIVE • DOMINATE";
+ const url="https://wa.me/?text="+encodeURIComponent(msg);
+ window.open(url,"_blank","noopener");
+}
+$("alertAudience").addEventListener("change",updateAlertTarget);
+$("publishMatchAlert").addEventListener("click",publishMatchAlert);
+$("shareMatchAlert").addEventListener("click",shareMatchAlert);
+
 </script>
 </body>
 </html>
