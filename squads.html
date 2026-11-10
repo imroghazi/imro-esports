@@ -20,6 +20,29 @@ label{color:#e5d9d0}
 #teams .card{border-left:3px solid #d8ad56}
 .prize-card{margin:20px auto;padding:30px 18px;text-align:center;border:1px solid #b75b45;border-radius:18px;background:radial-gradient(ellipse at 50% 0,#65202a 0,transparent 65%),linear-gradient(140deg,#210b10,#090a0e);box-shadow:0 0 32px #ef233c30;max-width:1050px}.prize-kicker{color:#e6bd65;font-weight:900;letter-spacing:3px}.prize-card h2{color:#fff;margin:18px 0 4px;font-size:clamp(22px,5vw,32px)}.prize-amount{font-size:clamp(42px,10vw,64px);font-weight:950;color:#f0c66e;text-shadow:0 5px 22px #e9a83b55}.prize-card p{color:#d8c4c2;letter-spacing:2px;font-weight:800}.prize-foot{color:#e6bd65;font-size:12px;letter-spacing:3px;margin-top:22px}@media(max-width:600px){header{padding:22px 16px}.card{padding:15px}}
 
+
+/* Unified IMRO cinematic tournament identity */
+:root{--imro-red:#ff3045;--imro-gold:#f0c56d;--imro-bg:#07080c}
+body{background:radial-gradient(ellipse at 50% -12%,#68182066,transparent 43%),radial-gradient(ellipse at 100% 52%,#3b111b33,transparent 35%),#07080c;color:#f8f2ec;font-family:system-ui,Arial,sans-serif}
+header{position:relative;overflow:hidden;padding:46px 18px 40px;text-align:center;background:linear-gradient(110deg,#09090d,#291016 52%,#090a0e);border-bottom:1px solid #8a443b;box-shadow:0 18px 45px #0009}
+header:before{content:"";position:absolute;width:320px;height:320px;right:8%;top:-190px;border:1px solid #e7b75b77;border-radius:50%;box-shadow:0 0 0 24px #e7b75b0c,0 0 0 55px #e7b75b08}
+header:after{content:"SQUAD BATTLE • FOUR PLAYERS • ONE LEGACY";display:block;margin-top:10px;font-size:10px;letter-spacing:3px;color:#eac477}
+header h1{position:relative;color:#f1c66d!important;font-size:clamp(34px,7vw,58px);font-weight:1000;letter-spacing:2px;text-shadow:0 4px 28px #ff304555}
+header p{position:relative;color:#d2c2bd}
+main{max-width:1080px;padding:24px 18px 70px}
+.card{border-radius:5px;background:linear-gradient(145deg,#1b171c,#0c0d12);border:1px solid #68403b;box-shadow:0 15px 36px #0008}
+h2{color:#f0c56d;letter-spacing:1px}
+.btn{border-radius:3px;background:linear-gradient(120deg,#ff3548,#a50d22);border:1px solid #ff6874;box-shadow:0 7px 20px #ef233c33}
+.btn.alt{background:linear-gradient(120deg,#37343a,#171920);border-color:#66504c}
+input,select,textarea{background:#090a0f;border:1px solid #59413e;border-radius:4px;color:#fff}
+.avatar{background:#111117;border-color:#65413b;border-radius:5px}
+.avatar.selected{border-color:#f0c56d;background:#382116;box-shadow:0 0 0 2px #f0c56d33}
+.pill{color:#f0d28e;border-color:#9a713b}
+.result{background:#151016;border:1px solid #553632}
+.team{border-color:#49302e}
+.prize-card{border-radius:5px!important;background:radial-gradient(ellipse at 50% 0,#78232b 0,transparent 62%),linear-gradient(120deg,#1c0a10,#090a0e)!important;border-color:#a34d3e!important;box-shadow:0 18px 48px #0009,0 0 30px #e82a3b22!important}
+@media(max-width:600px){header{padding:36px 15px 30px}main{padding:18px 13px 55px}.card{padding:15px}}
+
 </style></head><body>
 <header><h1>IMRO ESPORTS</h1><div>FOUR-PLAYER SQUAD REGISTRATION</div><p class="muted">Register your team • Track approval • View live results</p><a class="btn alt" href="/">← Back to registration choices</a></header>
 <section id="squadPrizePool" class="prize-card" hidden><div class="prize-kicker">🏆 IMRO ESPORTS · SQUAD CHAMPIONSHIP</div><h2>WINNING SQUAD PRIZE POOL</h2><div id="publicSquadPrizeAmount" class="prize-amount">₹0</div><p>ONE WINNING SQUAD TAKES IT ALL</p><div class="prize-foot">COMPETE • SURVIVE • DOMINATE</div></section>
