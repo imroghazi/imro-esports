@@ -410,6 +410,43 @@ main section .card:after,
 .imro-instagram-button:hover{transform:translateY(-3px);filter:brightness(1.12);box-shadow:0 0 12px #ff70bb99,0 0 28px #a64dff66,0 10px 28px #d6297650}
 @media(max-width:480px){.imro-social-logo{width:30px;height:30px}.imro-youtube-logo{width:35px;height:26px}.imro-youtube-button,.imro-instagram-button{padding:13px 15px;font-size:12px}}
 
+
+/* Living neon wallpaper — lightweight animated depth behind social panels */
+.imro-youtube-inner,.imro-social-inner{position:relative;isolation:isolate;overflow:hidden}
+.imro-youtube-inner:before,.imro-youtube-inner:after,
+.imro-social-inner:before,.imro-social-inner:after{
+ content:"";position:absolute;z-index:-1;pointer-events:none;border-radius:50%;
+ filter:blur(24px);will-change:transform,opacity
+}
+.imro-youtube-inner:before{
+ width:260px;height:260px;left:-75px;top:-105px;
+ background:radial-gradient(circle,#ff263d88 0%,#ff263d22 48%,transparent 72%);
+ animation:imroLiveDriftA 9s ease-in-out infinite alternate
+}
+.imro-youtube-inner:after{
+ width:310px;height:230px;right:-95px;bottom:-125px;
+ background:radial-gradient(ellipse,#e6bd5577 0%,#ff263d20 48%,transparent 73%);
+ animation:imroLiveDriftB 11s ease-in-out infinite alternate
+}
+.imro-social-inner:before{
+ width:280px;height:260px;left:-90px;bottom:-125px;
+ background:radial-gradient(circle,#d6297680 0%,#8134af38 48%,transparent 73%);
+ animation:imroLiveDriftB 10s ease-in-out infinite alternate
+}
+.imro-social-inner:after{
+ width:300px;height:250px;right:-90px;top:-125px;
+ background:radial-gradient(ellipse,#ff8b5580 0%,#8134af35 48%,transparent 73%);
+ animation:imroLiveDriftA 12s ease-in-out infinite alternate
+}
+.imro-youtube-inner,.imro-social-inner{background-size:180% 180%;animation:imroWallpaperGlow 14s ease-in-out infinite alternate}
+.imro-youtube-inner>* ,.imro-social-inner>*{position:relative;z-index:1}
+@keyframes imroLiveDriftA{0%{transform:translate3d(0,0,0) scale(.88);opacity:.55}50%{opacity:1}100%{transform:translate3d(85px,55px,0) scale(1.18);opacity:.8}}
+@keyframes imroLiveDriftB{0%{transform:translate3d(0,0,0) scale(1.08);opacity:.65}100%{transform:translate3d(-75px,-48px,0) scale(.86);opacity:1}}
+@keyframes imroWallpaperGlow{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@media(prefers-reduced-motion:reduce){
+ .imro-youtube-inner,.imro-social-inner,.imro-youtube-inner:before,.imro-youtube-inner:after,.imro-social-inner:before,.imro-social-inner:after{animation:none!important;will-change:auto}
+}
+
 </style>
   <link rel="stylesheet" href="/journey-colors.css?v=8">
 </head>
