@@ -910,3 +910,126 @@ body{
    linear-gradient(180deg,#f1d1dc 0%,#e8dcf0 23%,#c5ecdf 48%,#cce7f6 72%,#d9efd9 100%)!important;
  }
 }
+
+
+/* Balanced contrast system: light content surfaces framed by rich dark anchor sections. */
+:root{
+ --imro-dark-ink:#172333;
+ --imro-deep-plum:#332039;
+ --imro-deep-teal:#174b4a;
+ --imro-deep-blue:#203e5d;
+ --imro-deep-rose:#57283d;
+}
+/* Keep the brand header and primary actions dark/rich so the page still feels esports. */
+header,.site-header,.topbar{
+ background:linear-gradient(110deg,#17121d 0%,#2b1726 55%,#171b2b 100%)!important;
+ color:#fff!important;border-bottom:1px solid #b88b58!important;
+}
+header a,.site-header a,.topbar a{color:#fff!important}
+button.primary,.btn-primary,.hero .btn,.register-button{
+ box-shadow:0 8px 22px #30142135!important;
+}
+/* Page background: a gentle colour wash with dark anchor bands, not a fully pastel sheet. */
+body{
+ background:
+  radial-gradient(ellipse at 0% 14%,#f4cbd9 0%,transparent 34%),
+  radial-gradient(ellipse at 100% 38%,#c8e9e2 0%,transparent 34%),
+  radial-gradient(ellipse at 0% 72%,#d4dff4 0%,transparent 34%),
+  linear-gradient(180deg,#342137 0%,#e8d9e8 18%,#ccebe1 43%,#d8e6f6 68%,#3a2945 100%)!important;
+ color:var(--imro-dark-ink)!important;
+}
+/* Dark cinematic chapters alternate with lighter reading surfaces. */
+.hero{
+ background:
+  radial-gradient(ellipse at 100% 0%,#a83250 0%,transparent 55%),
+  linear-gradient(135deg,#251522 0%,#3c2038 52%,#1c2b42 100%)!important;
+ color:#fff!important;
+}
+#tierArena{
+ background:linear-gradient(145deg,#38233d 0%,#61405f 52%,#344b68 100%)!important;
+ border-block:1px solid #d7af77!important;
+}
+#tierArena .grid>.card:nth-child(1){
+ background:linear-gradient(145deg,#fff0f2,#f5d0dc 65%,#e9b9c9)!important;color:#382638!important;
+}
+#tierArena .grid>.card:nth-child(2){
+ background:linear-gradient(145deg,#edfff8,#ccefe5 65%,#b4dedb)!important;color:#173f40!important;
+}
+#tierArena .grid>.card:nth-child(3){
+ background:linear-gradient(145deg,#fff9e9,#f5e5c3 65%,#e8d0a5)!important;color:#59452c!important;
+}
+/* Registration: bright aqua field, with dark teal heading/action anchors. */
+#registrationChoice{
+ background:linear-gradient(145deg,#174b4a 0%,#298a80 42%,#bfe9dc 100%)!important;
+ border-block:1px solid #a9e1d4!important;
+}
+#registrationChoice .section-title{color:#fff!important}
+#registrationChoice .card{
+ background:linear-gradient(145deg,#fffef8,#e6f7ef)!important;
+ border:1px solid #a6d8ca!important;
+}
+#registrationChoice .card h3{color:#145c56!important}
+#registrationChoice .card .btn{background:linear-gradient(135deg,#087f78,#174b4a)!important;color:#fff!important}
+/* Forms are light and calm; section framing stays teal. */
+#register:not([hidden]){
+ background:linear-gradient(145deg,#174b4a 0%,#7ecabd 32%,#e4f5ed 100%)!important;
+}
+#register>.card,.registration-journey{
+ background:linear-gradient(145deg,#fffef9,#e9f7f0)!important;
+ color:#203a3b!important;border:1px solid #acd8cb!important;
+}
+#register h2,#register h3,.registration-journey h2,.registration-journey h3{color:#145c56!important}
+#regForm input,#regForm select,#regForm textarea,
+#squadForm input,#squadForm select,#squadForm textarea{
+ background:#fff!important;color:#172d35!important;border-color:#9ecfc3!important;
+}
+/* Battle desk: dark blue stage with a bright sky-blue content card and CTA. */
+#scoreboardTeaser{
+ background:linear-gradient(145deg,#172c49 0%,#255b7c 52%,#c7e5f5 100%)!important;
+ border-block:1px solid #9dcbe3!important;
+}
+#scoreboardTeaser h2,#scoreboardTeaser p{color:#f5fbff!important}
+#scoreboardTeaser .btn{background:linear-gradient(135deg,#d9f0ff,#8bc7e7)!important;color:#173b58!important;border:1px solid #fff!important}
+/* About / community / rules alternate warm light surfaces with dark titles. */
+#aboutImro{background:linear-gradient(145deg,#fff0f2,#f0dce9 58%,#493047)!important}
+#partnerImro{background:linear-gradient(145deg,#e7fff5,#cdeee6 58%,#245653)!important}
+#rulesImro{background:linear-gradient(145deg,#fff8e7,#f1e4c9 58%,#57462f)!important}
+#aboutImro .section-title,#partnerImro .section-title,#rulesImro .section-title{color:#253449!important}
+#aboutImro .card,#partnerImro .card,#rulesImro .card{
+ background:linear-gradient(145deg,#fffefa,#f4f7f8)!important;
+ color:#263a4b!important;border:1px solid #d0dce0!important;
+}
+/* Prizes: dark plum framing, luminous champagne and rose prize surface. */
+#prizePool,#publicSquadPrizePool,#squadPrizePool{
+ background:linear-gradient(145deg,#40243d 0%,#70465f 50%,#f3dce0 100%)!important;
+ border-color:#e7c38c!important;
+}
+#prizePool .card,#publicSquadPrizePool .card,#squadPrizePool .card{
+ background:linear-gradient(145deg,#fff8e8,#f7e3e9)!important;
+ color:#462d42!important;border:1px solid #e4c1c9!important;
+}
+/* Payments: navy outer environment and white/ice-blue instructions and controls. */
+#paymentReceipts,#paymentVerification{
+ background:linear-gradient(145deg,#172c49,#285d80 60%,#d5eafb)!important;
+ border:1px solid #a8cde5!important;
+}
+#paymentReceipts .item,#paymentVerification .item{
+ background:linear-gradient(145deg,#fff,#eaf5ff)!important;color:#193951!important;
+}
+/* Success: emerald frame, pale green confirmation surface, gold highlight. */
+#result.is-success,#formResult.is-success{
+ background:linear-gradient(145deg,#eaffef,#c9f3d7)!important;
+ color:#155c3a!important;border:1px solid #8bd0a5!important;
+ box-shadow:0 8px 22px #0e603020!important;
+}
+#result.is-success:before,#formResult.is-success:before{
+ content:"✓";display:inline-grid;place-items:center;
+ width:28px;height:28px;margin-right:8px;border-radius:50%;
+ background:#176c47;color:#fff;font-weight:800;
+}
+@media(max-width:650px){
+ body{
+  background:
+   linear-gradient(180deg,#342137 0%,#ead9e6 17%,#ccebe1 42%,#d8e6f6 68%,#3a2945 100%)!important;
+ }
+}
