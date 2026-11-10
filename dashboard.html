@@ -11,6 +11,7 @@
   <link rel="icon" href="/icons/imro-icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icons/imro-icon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box}
@@ -1276,8 +1277,12 @@ function updateAlertTarget(){
  $("alertTargetWrap").querySelector("label").textContent=type==="tier"?"Select tier":"Select squad";
 }
 async function loadAlertTournaments(){
- $("alertTournament").innerHTML=$("tournament").innerHTML;
+ const source=$("tournament"),target=$("alertTournament");
+ const options=[...source.options].filter(o=>o.value);
+ target.innerHTML=options.length?options.map(o=>'<option value="'+safe(o.value)+'">'+safe(o.textContent)+'</option>').join(""):'<option value="">No tournament loaded — refresh admin data</option>';
+ if(options.length)target.value=source.value||options[0].value;
 }
+$("tournament").addEventListener("change",loadAlertTournaments);
 async function loadRecentMatchAlerts(){
  const {data,error}=await db.from("player_match_alerts").select("id,title,message,target_type,target_value,alert_kind,created_at,expires_at,active").order("created_at",{ascending:false}).limit(8);
  if(error){$("recentMatchAlerts").textContent="Could not load alerts: "+error.message;return;}
