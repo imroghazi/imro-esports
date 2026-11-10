@@ -1,4 +1,4 @@
-const CACHE_NAME = "imro-player-shell-v8";
+const CACHE_NAME = "imro-player-shell-v9";
 const APP_SHELL = ["/", "/scoreboard.html", "/manifest.webmanifest", "/icons/imro-icon.svg", "/imro-hero.jpg", "/imro-squad.jpg", "/imro-score.jpg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
