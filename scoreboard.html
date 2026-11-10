@@ -44,6 +44,13 @@ main{max-width:1180px;margin:auto;padding:22px 18px 60px}.hero{position:relative
 @keyframes imroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @media(prefers-reduced-motion:reduce){#imroCinematicIntro:before,#imroCinematicIntro:after,.imro-intro-crown,.imro-intro-track i{animation:none!important}.imro-reveal{opacity:1;transform:none;transition:none}#imroCinematicIntro{transition:none}}
 
+
+/* IMRO OFFICIAL BROADCAST BACKDROP — readable over action imagery */
+body{background-image:linear-gradient(rgba(5,6,10,.88),rgba(5,6,10,.94)),url("https://images.pexels.com/photos/7915267/pexels-photo-7915267.jpeg?auto=compress&cs=tinysrgb&w=1800"),radial-gradient(ellipse at 50% -12%,#6b182255,transparent 43%);background-size:cover,cover,auto;background-position:center,center top,center;background-attachment:fixed}
+.hero{background-image:linear-gradient(105deg,rgba(24,8,14,.96),rgba(9,10,16,.88) 65%,rgba(24,8,14,.82)),url("https://images.pexels.com/photos/7862617/pexels-photo-7862617.jpeg?auto=compress&cs=tinysrgb&w=1600");background-size:cover;background-position:center 38%;border-color:#9b5146}
+.hero:after{background:radial-gradient(circle at 82% 30%,#e6b75b22,transparent 45%)}
+@media(max-width:700px){body{background-attachment:scroll}}
+
 </style>
 </head>
 <body>
