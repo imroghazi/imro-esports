@@ -680,3 +680,89 @@ main{background:transparent!important}
    linear-gradient(180deg,#4b1e36 0%,#4b2850 24%,#12665f 47%,#175c7b 68%,#24684c 88%,#451d36 100%)!important;
  }
 }
+
+
+/* Colour-rich mobile chapter backgrounds — stronger saturation and layered depth. */
+body{
+ background:
+  radial-gradient(ellipse at 0% 8%,#e04c7180 0%,transparent 27%),
+  radial-gradient(ellipse at 100% 22%,#a64f9c66 0%,transparent 30%),
+  radial-gradient(ellipse at 0% 43%,#18b9a188 0%,transparent 31%),
+  radial-gradient(ellipse at 100% 63%,#399fd388 0%,transparent 30%),
+  radial-gradient(ellipse at 8% 82%,#40bd8280 0%,transparent 30%),
+  linear-gradient(180deg,#57203d 0%,#51284f 22%,#126c62 45%,#155f83 66%,#246d50 85%,#54203d 100%)!important;
+ background-attachment:scroll!important;
+}
+main>section:not(#register):not(#registrationChoice):not(#tierArena):not(#scoreboardTeaser):not(#arenaGallery):not(#aboutImro):not(#partnerImro):not(#rulesImro):not(#prizePool):not(#publicSquadPrizePool){
+ background:linear-gradient(135deg,#35465cdd,#26334ddd 55%,#35213bdd)!important;
+ border:1px solid #8c85a7!important;border-radius:16px!important;
+ padding:22px 18px!important;
+ box-shadow:0 18px 40px #0005,inset 0 1px #ffffff18!important;
+}
+#tierArena{
+ background:
+  radial-gradient(ellipse at 0% 0%,#ff718455,transparent 52%),
+  radial-gradient(ellipse at 100% 100%,#4e9fcf66,transparent 56%),
+  linear-gradient(135deg,#87324f 0%,#65375f 48%,#334a66 100%)!important;
+}
+#tierArena .grid>.card:nth-child(1){
+ background:
+  radial-gradient(ellipse at 100% 0%,#f58b8c66,transparent 62%),
+  linear-gradient(135deg,#a63e5b,#71334e 60%,#482c47)!important;
+}
+#tierArena .grid>.card:nth-child(2){
+ background:
+  radial-gradient(ellipse at 100% 0%,#8de7d477,transparent 58%),
+  linear-gradient(135deg,#087e78,#176c79 58%,#294b67)!important;
+}
+#tierArena .grid>.card:nth-child(3){
+ background:
+  radial-gradient(ellipse at 100% 0%,#ffe2a277,transparent 58%),
+  linear-gradient(135deg,#a87932,#80613b 55%,#51425a)!important;
+}
+#tierArena .grid>.card{
+ color:#fff!important;border-radius:15px!important;
+ box-shadow:0 18px 35px #09071166,inset 0 1px #ffffff44!important;
+}
+#tierArena .grid>.card h3{color:#fff!important}
+#tierArena .grid>.card .tier{color:#fff2c8!important}
+#tierArena .grid>.card .muted{color:#fff0e9!important}
+#tierArena .grid>.card .status{color:#ffe2df!important}
+#scoreboardTeaser{
+ background:
+  radial-gradient(ellipse at 100% 0%,#5ab8e077,transparent 60%),
+  linear-gradient(135deg,#174b78,#176d94 55%,#354e7b)!important;
+}
+#registrationChoice{
+ background:
+  radial-gradient(ellipse at 0% 50%,#53e0c577,transparent 60%),
+  radial-gradient(ellipse at 100% 0%,#f4d17a66,transparent 50%),
+  linear-gradient(135deg,#08756d,#0a9b87 50%,#287d85)!important;
+}
+#arenaGallery{
+ background:
+  radial-gradient(ellipse at 0% 0%,#f0718b66,transparent 55%),
+  radial-gradient(ellipse at 100% 100%,#4b9acb66,transparent 56%),
+  linear-gradient(135deg,#78304d,#55365d 55%,#304c68)!important;
+}
+#aboutImro{
+ background:linear-gradient(135deg,#9b405d,#67416b 55%,#36526c)!important;
+}
+#partnerImro{
+ background:linear-gradient(135deg,#16766e,#267e91 55%,#40567b)!important;
+}
+#rulesImro{
+ background:linear-gradient(135deg,#94702e,#786044 55%,#4d4868)!important;
+}
+#prizePool,#publicSquadPrizePool,#squadPrizePool{
+ background:linear-gradient(135deg,#bd4b60,#873d69 55%,#4d3d72)!important;
+}
+#imroPlayerAlerts{
+ background:linear-gradient(135deg,#126c78,#168c83 55%,#355a7b)!important;
+}
+@media(max-width:650px){
+ main{background:transparent!important}
+ main>section:not(#register):not(#registrationChoice):not(#tierArena):not(#scoreboardTeaser):not(#arenaGallery):not(#aboutImro):not(#partnerImro):not(#rulesImro):not(#prizePool):not(#publicSquadPrizePool){
+  padding:20px 14px!important;
+ }
+}
