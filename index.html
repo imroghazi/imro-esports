@@ -241,6 +241,13 @@ footer{margin-top:45px}
   </div>
   <p style="color:#edb655;font-style:italic;margin-top:18px;">"Your rank is temporary. Your legacy is forever."</p>
   </section>
+  <section id="publicSquadPrizePool" hidden style="margin:18px auto;padding:24px 16px;text-align:center;background:radial-gradient(ellipse at 50% 0,#69202a,transparent 65%),linear-gradient(130deg,#210b10,#090a0e);border:1px solid #a34d3e;box-shadow:0 16px 42px #0009;">
+    <div style="color:#f0c56d;font-weight:900;letter-spacing:4px;">🏆 IMRO ESPORTS · SQUAD CHAMPIONSHIP</div>
+    <h2 style="font-size:clamp(24px,5vw,34px);margin:16px 0;color:#fff;">WINNING SQUAD PRIZE POOL</h2>
+    <div id="homeSquadPrizeAmount" style="font-size:clamp(42px,9vw,62px);font-weight:950;color:#f0c56d;">₹0</div>
+    <p style="color:#e4c9c2;font-weight:800;letter-spacing:2px;">ONE WINNING SQUAD TAKES IT ALL</p>
+    <a class="btn" href="/squads.html">VIEW SQUAD TOURNAMENT</a>
+  </section>
 <div class="notice">No payment is collected on this website. Choose only a tier marked OPEN below; registration availability is controlled live by the organizer.</div>
 <section><h2 class="section-title">Choose your tier</h2><div class="grid">
 <div class="card"><div class="tier">TIER 01</div><h3>Rising Challengers</h3><div id="tierAvailability1" class="status">Checking availability…</div><div class="muted">4 winners • Organizer-announced prize reference subject to confirmation.</div></div>
@@ -633,6 +640,21 @@ playerInstallButton.addEventListener("click",async()=>{
   if(playerInstallPrompt){playerInstallPrompt.prompt();const choice=await playerInstallPrompt.userChoice;playerInstallPrompt=null;playerInstallHelp.textContent=choice.outcome==="accepted"?"App installation started.":"You can install later from Chrome menu.";return;}
   playerInstallHelp.textContent=/iphone|ipad|ipod/i.test(navigator.userAgent)?"On iPhone: tap Share, then Add to Home Screen.":"In Chrome: tap ⋮, then Install app or Add to Home screen.";
 });
+async function loadHomeSquadPrizePool(){
+  const panel=document.getElementById("publicSquadPrizePool");
+  if(!panel)return;
+  try{
+    const response=await fetch(SUPABASE_URL+"/rest/v1/squad_tournament_settings?select=prize_pool_amount,prize_pool_active&id=eq.1",{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY},cache:"no-store"});
+    if(!response.ok)throw new Error("Could not load squad prize");
+    const rows=await response.json(), prize=rows[0];
+    if(prize&&prize.prize_pool_active&&Number(prize.prize_pool_amount)>0){
+      document.getElementById("homeSquadPrizeAmount").textContent="₹"+Number(prize.prize_pool_amount).toLocaleString("en-IN");
+      panel.hidden=false;
+    }else panel.hidden=true;
+  }catch(error){console.error("Homepage squad prize pool:",error);panel.hidden=true;}
+}
+loadHomeSquadPrizePool();
+setInterval(loadHomeSquadPrizePool,15000);
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script>
 </body>
