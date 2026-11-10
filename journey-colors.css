@@ -766,3 +766,147 @@ main>section:not(#register):not(#registrationChoice):not(#tierArena):not(#scoreb
   padding:20px 14px!important;
  }
 }
+
+
+/* Light-spectrum refresh: airy pastel atmospheres while preserving IMRO's dark premium identity. */
+body{
+ background:
+  radial-gradient(ellipse at 8% 8%,#ffc5d2cc 0%,transparent 30%),
+  radial-gradient(ellipse at 94% 23%,#d8c8ffbb 0%,transparent 32%),
+  radial-gradient(ellipse at 4% 48%,#baf3e8bb 0%,transparent 32%),
+  radial-gradient(ellipse at 96% 70%,#bfe6ffbb 0%,transparent 32%),
+  radial-gradient(ellipse at 40% 92%,#d2f4cfbb 0%,transparent 34%),
+  linear-gradient(180deg,#f3cbd7 0%,#e8d7f0 22%,#bfe9df 45%,#c5e5f5 67%,#d5efd7 86%,#f1d2dc 100%)!important;
+ color:#18202b!important;
+}
+/* Soft pastel section canvases with clear, accessible text contrast. */
+#tierArena{
+ background:
+  radial-gradient(ellipse at 0% 0%,#ffe0e8 0%,transparent 58%),
+  radial-gradient(ellipse at 100% 100%,#d9e9ff 0%,transparent 58%),
+  linear-gradient(135deg,#f4d5df 0%,#e9d9f2 48%,#d6e7f7 100%)!important;
+ border-color:#d79aaa!important;
+}
+#tierArena .grid>.card:nth-child(1){
+ background:linear-gradient(145deg,#fff0f2 0%,#ffd9df 55%,#f6c8d6 100%)!important;
+ border:1px solid #e7a4b2!important;color:#4a2535!important;
+}
+#tierArena .grid>.card:nth-child(2){
+ background:linear-gradient(145deg,#edfffa 0%,#c8f3e8 55%,#b4e4e8 100%)!important;
+ border:1px solid #83cdbd!important;color:#164b4a!important;
+}
+#tierArena .grid>.card:nth-child(3){
+ background:linear-gradient(145deg,#fff8e8 0%,#f9e7b8 55%,#f0d3a5 100%)!important;
+ border:1px solid #dfbd78!important;color:#594321!important;
+}
+#tierArena .grid>.card h3{color:#202b36!important}
+#tierArena .grid>.card .tier{color:#80542b!important}
+#tierArena .grid>.card .status{color:#a33b52!important}
+#tierArena .grid>.card .muted{color:#53616b!important}
+
+/* Registration: brighter mint and ivory field, not saturated teal darkness. */
+#registrationChoice{
+ background:
+  radial-gradient(ellipse at 0% 0%,#d8fff2 0%,transparent 62%),
+  radial-gradient(ellipse at 100% 100%,#fff0c9 0%,transparent 58%),
+  linear-gradient(135deg,#aee9dc 0%,#d5f5e9 48%,#bfe8ef 100%)!important;
+ border-color:#72cbb9!important;
+}
+#registrationChoice .section-title{color:#174f4d!important;text-shadow:none!important}
+#registrationChoice .card{
+ background:linear-gradient(145deg,#fffef8 0%,#f0fbf5 58%,#e4f7f2 100%)!important;
+ border-color:#a9dacc!important;
+}
+#registrationChoice .card h3{color:#08766c!important}
+#registrationChoice .card p{color:#536a68!important}
+
+/* Battle Desk: ice blue and pale sky with navy text and blue actions. */
+#scoreboardTeaser{
+ background:
+  radial-gradient(ellipse at 100% 0%,#e0f5ff 0%,transparent 62%),
+  linear-gradient(135deg,#c5e7fa 0%,#d9eaff 48%,#c9d8f5 100%)!important;
+ border-color:#85b9d7!important;
+}
+#scoreboardTeaser h2,#scoreboardTeaser p,#scoreboardTeaser div{color:#173b58!important}
+#scoreboardTeaser .btn{
+ background:linear-gradient(135deg,#347eae,#20577f)!important;color:#fff!important;
+}
+
+/* Community and story panels: rose, lilac and soft blue. */
+#arenaGallery{
+ background:linear-gradient(135deg,#f6dce4 0%,#e8dff4 52%,#d7e8f7 100%)!important;
+ border-color:#d4a9bd!important;
+}
+#arenaGallery .gallery-heading h2,#arenaGallery .gallery-heading p{color:#293348!important}
+#aboutImro{
+ background:linear-gradient(135deg,#ffe4e9 0%,#efdff0 52%,#dce9f8 100%)!important;
+ border-color:#d9b0c0!important;
+}
+#partnerImro{
+ background:linear-gradient(135deg,#d9f5eb 0%,#d3edf2 52%,#dce7fb 100%)!important;
+ border-color:#9bcfc6!important;
+}
+#rulesImro{
+ background:linear-gradient(135deg,#fff1cf 0%,#f8e5d2 52%,#e8e0f4 100%)!important;
+ border-color:#d9bf8b!important;
+}
+#aboutImro .section-title,#partnerImro .section-title,#rulesImro .section-title{color:#263746!important}
+#aboutImro .card,#partnerImro .card,#rulesImro .card{
+ background:linear-gradient(145deg,#fffefa,#f3f7f8)!important;
+ border-color:#c6d6dc!important;color:#253847!important;
+}
+#aboutImro .card p,#partnerImro .card p,#rulesImro .card p{color:#50616d!important}
+
+/* Prize and champion areas: luminous champagne, rose and soft violet. */
+#prizePool,#publicSquadPrizePool,#squadPrizePool{
+ background:
+  radial-gradient(ellipse at 50% 0%,#fff0bd 0%,transparent 60%),
+  linear-gradient(135deg,#f7d5d9 0%,#eed9eb 52%,#dcdcf5 100%)!important;
+ border-color:#d7a6a9!important;
+}
+#prizePool h2,#publicSquadPrizePool h2,#squadPrizePool h2{color:#41283d!important}
+#prizePool p,#publicSquadPrizePool p,#squadPrizePool p{color:#68485a!important}
+#prizePool .card,#publicSquadPrizePool .card,#squadPrizePool .card{
+ background:linear-gradient(145deg,#fffdf5,#f7edf4)!important;
+ border-color:#dfc2cf!important;color:#45364a!important;
+}
+
+/* Player alerts and admin payment areas use light blue surfaces for clarity. */
+#imroPlayerAlerts{
+ background:linear-gradient(135deg,#d9f5f4,#dceeff 58%,#e9e1fa)!important;
+ border-color:#a4d4dd!important;color:#183f53!important;
+}
+#imroPlayerAlerts h2,#imroPlayerAlerts h3,#imroPlayerAlerts p{color:#21485b!important}
+#paymentReceipts,#paymentVerification{
+ background:linear-gradient(135deg,#dceeff 0%,#c9e4f7 55%,#e4e8fb 100%)!important;
+ border-color:#9fc4df!important;color:#173750!important;
+}
+#paymentReceipts h2,#paymentVerification h2,
+#paymentReceipts p,#paymentVerification p{color:#173750!important}
+#paymentReceipts .item,#paymentVerification .item{
+ background:linear-gradient(145deg,#fff,#eef7ff)!important;
+ border-color:#b6d3e8!important;color:#173750!important;
+}
+#paymentReceipts input,#paymentReceipts select,
+#paymentVerification input,#paymentVerification select{
+ background:#fff!important;color:#173750!important;
+}
+
+/* Solo registration success gets a distinct soft emerald finish. */
+#register:not([hidden]){
+ background:linear-gradient(145deg,#c9f1e1 0%,#edfaed 52%,#d5f0df 100%)!important;
+}
+#register #result.is-success,#formResult.is-success{
+ background:linear-gradient(145deg,#eaffef,#c9f3d7)!important;
+ border-color:#8bd0a5!important;color:#155c3a!important;
+}
+@media(max-width:650px){
+ body{
+  background:
+   radial-gradient(ellipse at 0% 8%,#ffd0dc 0%,transparent 32%),
+   radial-gradient(ellipse at 100% 30%,#ded2ff 0%,transparent 32%),
+   radial-gradient(ellipse at 0% 54%,#c2f2e6 0%,transparent 34%),
+   radial-gradient(ellipse at 100% 78%,#c9eaff 0%,transparent 34%),
+   linear-gradient(180deg,#f1d1dc 0%,#e8dcf0 23%,#c5ecdf 48%,#cce7f6 72%,#d9efd9 100%)!important;
+ }
+}
