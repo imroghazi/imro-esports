@@ -122,7 +122,8 @@ dialog{background:#151116;border-color:#8a443b}
 <h2>Player management</h2>
 <label for="playerSearch">Search players</label>
 <input id="playerSearch" type="search" placeholder="Search name, Free Fire UID or contact number">
-<p id="playerSearchCount" class="small" aria-live="polite">Showing all players.</p>
+<p id="playerSearchCount" class="small" aria-live="polite">Showing all active players.</p>
+<label style="display:flex;align-items:center;gap:8px"><input id="showWithdrawnPlayers" type="checkbox" style="width:auto"> Show removed players (restore available)</label>
 <div id="players"></div>
 </section>
 
@@ -568,7 +569,9 @@ function contactPhone(registration){
 
 function renderPlayers(){
   const query=($("playerSearch")?.value||"").trim().toLowerCase();
+  const showWithdrawn=$("showWithdrawnPlayers")?.checked||false;
   const filtered=players.filter(p=>{
+    if(p.status==="withdrawn"&&!showWithdrawn)return false;
     const registration=registrations.find(r=>r.id===p.registration_id);
     const contact=String(registration?.contact_number||"");
     return [p.player_name,p.game_uid,contact,registration?.registration_token]
@@ -576,7 +579,7 @@ function renderPlayers(){
   });
   $("playerSearchCount").textContent=query
     ? "Showing "+filtered.length+" of "+players.length+" player(s)."
-    : "Showing all "+players.length+" player(s).";
+    : "Showing active players (removed hidden).";
 
   $("players").innerHTML=filtered.map(p=>{
     const registration=registrations.find(r=>r.id===p.registration_id);
@@ -613,29 +616,19 @@ function renderPlayers(){
 }
 
 async function deletePlayer(id){
-  const p=players.find(item=>item.id===id);
-  if(!p)return;
-  if(!confirm("Delete "+p.player_name+" from Player management? This cannot be undone. The registration/contact record will be retained. Players already used in matches or promotion history cannot be deleted."))return;
-
-  const [matchRefs,historyRefs]=await Promise.all([
-    db.from("matches").select("id").or("player_one.eq."+id+",player_two.eq."+id+",winner_id.eq."+id+",no_show_player_id.eq."+id).limit(1),
-    db.from("promotion_history").select("id").eq("player_id",id).limit(1)
-  ]);
-  if(matchRefs.error || historyRefs.error){
-    message("Could not check player history. Nothing was deleted: "+(matchRefs.error?.message||historyRefs.error?.message));
-    return;
-  }
-  if((matchRefs.data||[]).length || (historyRefs.data||[]).length){
-    message("This player is linked to match or promotion history, so deletion is blocked to protect tournament records. You can keep the player marked eliminated/rejected.");
-    return;
-  }
-
-  const {error}=await db.from("players").delete().eq("id",id);
-  if(error){message("Delete failed: "+error.message);return;}
-  message("Player removed from Player management. Registration and contact record retained for admin history.");
-  await loadAll();
+ const p=players.find(item=>item.id===id);if(!p)return;
+ if(p.status==='withdrawn'){
+  if(!confirm('Restore '+p.player_name+' to the player list?'))return;
+  const {error}=await db.from('players').update({status:'pending'}).eq('id',id);
+  if(error){message('Could not restore player: '+error.message);return;}
+  message(p.player_name+' restored as pending approval.');await loadAll();return;
+ }
+ if(!confirm('Remove '+p.player_name+' from active Player management? Match results and promotion history will be preserved. You can show and restore removed players later.'))return;
+ const {error}=await db.from('players').update({status:'withdrawn'}).eq('id',id);
+ if(error){message('Could not remove player: '+error.message);return;}
+ message(p.player_name+' removed from the active player list. Historical match records are preserved.');
+ await loadAll();
 }
-
 function renderPlayerSelects(){
   const tier=Number($("matchTier").value);
   const eligible=players.filter(p=>p.status==="approved" && p.tier===tier);
@@ -1185,6 +1178,7 @@ $("draftDrawSelect").addEventListener("change",()=>{
 });
 $("matchTier").addEventListener("change",renderPlayerSelects);
 $("playerSearch").addEventListener("input",renderPlayers);
+$("showWithdrawnPlayers").addEventListener("change",renderPlayers);
 $("receiptPlayerSearch").addEventListener("input",renderReceiptPlayerOptions);
 $("toggleRegistration").onclick=toggleRegistration;
 $("refresh").onclick=refreshAdminData;
