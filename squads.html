@@ -127,6 +127,7 @@ h1,h2{color:#f0c56d!important}
 
 <section class="card"><h2>Squad registration form</h2><p class="muted">Register one team with exactly four players. Include the squad leader among the four player names. Only the leader's Free Fire UID is required. Your registration stays pending until the organizer approves it.</p>
 <div id="settings" class="muted">Checking registration status…</div>
+<section id="imroPlayerAlerts" hidden style="margin:18px auto;padding:18px;border:1px solid #4d8392;border-radius:14px;background:linear-gradient(135deg,#102b38,#0d1723);color:#f5fbff"><div style="font-size:11px;letter-spacing:3px;color:#8ee0d2;font-weight:900">IMRO PLAYER ALERTS</div><h2 style="margin:8px 0;color:#fff">🔔 Match calls & tournament updates</h2><div id="imroPlayerAlertList"></div></section>
 <form id="squadForm">
 <label>Team name *</label><input name="team_name" maxlength="40" required placeholder="Your squad name">
 <label>Choose team avatar *</label><div id="avatars" class="grid"></div><input type="hidden" name="team_avatar" required>
@@ -203,5 +204,25 @@ refresh();loadSquadPrizePool();setInterval(refresh,8000);setInterval(loadSquadPr
  },{passive:true});
  document.documentElement.style.scrollBehavior=reduce?"auto":"smooth";
 })();
+
+async function loadImroPlayerAlerts(){
+ const host=document.getElementById("imroPlayerAlerts"),list=document.getElementById("imroPlayerAlertList");
+ if(!host||!list)return;
+ try{
+  const key="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+  const base="https://gjjhuultiezaybvoykra.supabase.co/rest/v1/player_match_alerts?select=id,title,message,target_type,target_value,alert_kind,created_at,expires_at&active=eq.true&order=created_at.desc&limit=6";
+  const res=await fetch(base,{headers:{apikey:key,Authorization:"Bearer "+key}});
+  if(!res.ok)throw new Error("Alerts unavailable");
+  const rows=await res.json(),visible=rows.filter(a=>!a.expires_at||new Date(a.expires_at)>new Date());
+  if(!visible.length){host.hidden=true;return;} host.hidden=false;
+  list.innerHTML=visible.map(a=>{
+   const audience=a.target_type==="all"?"ALL PLAYERS":a.target_type==="tier"?"SOLO TIER "+a.target_value:"SQUAD PLAYERS";
+   const esc=v=>String(v||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+   return '<article style="padding:13px;margin:10px 0;border-radius:10px;background:#ffffff0b;border-left:3px solid #75cbbb"><small style="color:#8ee0d2;font-weight:900;letter-spacing:1px">'+audience+' · '+new Date(a.created_at).toLocaleString()+'</small><h3 style="color:#fff;margin:7px 0">'+esc(a.title)+'</h3><p style="color:#e5edf2;margin:0;line-height:1.55">'+esc(a.message).replace(/\n/g,"<br>")+'</p></article>';
+  }).join("");
+ }catch(e){host.hidden=true;console.warn("IMRO alerts:",e.message);}
+}
+loadImroPlayerAlerts();setInterval(loadImroPlayerAlerts,30000);
+
 </script>
 </body></html>
