@@ -1082,9 +1082,12 @@ body{
  position:relative;isolation:isolate;
  background:transparent!important;
 }
+body:before,body:after{z-index:0!important}
+body>*{position:relative;z-index:1}
+body>script,body>style{position:static;z-index:auto}
 body:before,body:after{
  content:"";position:fixed;inset:-12%;pointer-events:none;
- z-index:-1;will-change:background-position,transform,opacity;
+ z-index:0;will-change:background-position,transform,opacity;
 }
 body:before{
  background:
