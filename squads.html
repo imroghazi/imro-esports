@@ -43,6 +43,30 @@ input,select,textarea{background:#090a0f;border:1px solid #59413e;border-radius:
 .prize-card{border-radius:5px!important;background:radial-gradient(ellipse at 50% 0,#78232b 0,transparent 62%),linear-gradient(120deg,#1c0a10,#090a0e)!important;border-color:#a34d3e!important;box-shadow:0 18px 48px #0009,0 0 30px #e82a3b22!important}
 @media(max-width:600px){header{padding:36px 15px 30px}main{padding:18px 13px 55px}.card{padding:15px}}
 
+
+/* Squad broadcast results presentation */
+#liveResults,#winners{display:grid;gap:14px}
+.squad-scoreboard{position:relative;overflow:hidden;padding:18px;border:1px solid #75423a;background:linear-gradient(135deg,#211419,#0c0e13 72%);box-shadow:0 13px 32px #0007}
+.squad-scoreboard:before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#ff3045,#f0c56d,transparent)}
+.squad-scoreboard-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:13px;border-bottom:1px solid #4a3030}
+.squad-scoreboard-head h3{margin:6px 0;color:#f2d49a;font-size:clamp(17px,3vw,23px)}
+.squad-scoreboard-head p{margin:0;color:#aaa;font-size:11px;letter-spacing:1.5px}
+.squad-kicker{font-size:9px;letter-spacing:2px;font-weight:950;color:#e9bd68}
+.squad-published{font-size:8px;letter-spacing:1px;font-weight:900;color:#d9c18c;border:1px solid #755c3b;padding:6px 8px;white-space:nowrap}
+.squad-result-list{display:grid;gap:6px;padding:12px 0}
+.squad-result-row{display:grid;grid-template-columns:32px minmax(0,1fr) 58px 65px;align-items:center;gap:9px;padding:10px;background:#0b0d12;border:1px solid #33272b}
+.squad-result-first{border-color:#9a713e;background:linear-gradient(90deg,#2b1e14,#0b0d12)}
+.squad-place{font-weight:950;color:#f0c56d;text-align:center}
+.squad-team-identity{display:flex;align-items:center;gap:8px;min-width:0}
+.squad-team-identity b{font-size:20px}.squad-team-identity strong{font-size:13px;overflow-wrap:anywhere}
+.squad-stat{text-align:center;display:grid}.squad-stat b{font-size:16px;color:#f2d49a}.squad-stat small{font-size:8px;letter-spacing:1px;color:#a9a0a0}
+.squad-top-fragger{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:11px 12px;background:linear-gradient(90deg,#2a1718,#151116);border-left:3px solid #ff394a}
+.squad-top-fragger span{font-size:9px;letter-spacing:1.3px;color:#f0c56d;font-weight:950}
+.squad-top-fragger strong{font-size:12px;color:#f5e7cf}.squad-top-fragger b{margin-left:auto;font-size:11px;color:#ff8790}
+.squad-broadcast-empty{padding:25px;text-align:center;border:1px dashed #75423a;color:#e8c779;background:#110e13;font-weight:950;letter-spacing:2px}
+.squad-broadcast-empty p{font-weight:400;letter-spacing:0;color:#aaa;font-size:13px;margin-bottom:0}
+@media(max-width:480px){.squad-scoreboard{padding:13px}.squad-result-row{grid-template-columns:25px minmax(0,1fr) 44px 50px;gap:5px;padding:8px}.squad-team-identity strong{font-size:11px}.squad-stat b{font-size:14px}.squad-scoreboard-head{flex-direction:column}}
+
 </style></head><body>
 <header><h1>IMRO ESPORTS</h1><div>FOUR-PLAYER SQUAD REGISTRATION</div><p class="muted">Register your team • Track approval • View live results</p><a class="btn alt" href="/">← Back to registration choices</a></header>
 <section id="squadPrizePool" class="prize-card" hidden><div class="prize-kicker">🏆 IMRO ESPORTS · SQUAD CHAMPIONSHIP</div><h2>WINNING SQUAD PRIZE POOL</h2><div id="publicSquadPrizeAmount" class="prize-amount">₹0</div><p>ONE WINNING SQUAD TAKES IT ALL</p><div class="prize-foot">COMPETE • SURVIVE • DOMINATE</div></section>
@@ -84,7 +108,22 @@ const msg="IMRO ESPORTS SQUAD REGISTRATION%0ATeam: "+encodeURIComponent(data.tea
 const a=document.createElement("a");a.className="btn";a.target="_blank";a.rel="noopener";a.href="https://wa.me/"+WA+"?text="+msg;a.textContent="Continue to WhatsApp";res.appendChild(document.createElement("br"));res.appendChild(a);form.reset();document.querySelectorAll(".avatar").forEach(x=>x.classList.remove("selected"));await loadTeams();
 }catch(err){console.error("Squad registration failed:",err);res.textContent="REGISTRATION NOT CONFIRMED\n"+(err?.message||String(err))+"\n\nNo token has been issued. Please send this message to the organizer."; }finally{b.disabled=false;b.textContent="Register squad";}});form.addEventListener("invalid",e=>{res.hidden=false;res.textContent="Please complete the highlighted required field"+(e.target?.name?" ("+e.target.name+")":"")+" before registering.";},true);
 async function loadTeams(){if(!db){document.getElementById("teams").textContent="Team list unavailable because the connection library did not load.";return;}const {data,error}=await db.from("squad_public_teams").select("id,team_name,team_avatar,status,created_at").order("created_at",{ascending:true});if(error){document.getElementById("teams").textContent="Could not load squads.";return;}document.getElementById("squadCount").textContent=(data.length||0)+" teams";document.getElementById("teams").innerHTML=data.length?data.map(t=>'<div class="team"><span class="emoji">'+esc(t.team_avatar)+'</span><div><strong>'+esc(t.team_name)+'</strong><div class="muted">'+(t.status==="approved"?"Approved":t.status==="rejected"?"Registration rejected":"Registration received")+'</div></div></div>').join(""):"No squads registered yet.";}
-async function loadResults(){if(!db)return;const {data:matches}=await db.from("squad_matches").select("id,round_number,room_name,map_name,created_at").eq("published",true).order("created_at",{ascending:false});const out=document.getElementById("liveResults");if(!matches?.length){out.textContent="No published results yet.";return;}let html="";for(const m of matches){const {data:rows}=await db.from("squad_match_results").select("placement,kills,total_points,is_winner,squad_public_teams(team_name,team_avatar)").eq("match_id",m.id).eq("published",true).order("total_points",{ascending:false});html+='<div class="card"><strong>Round '+m.round_number+' • '+esc(m.room_name)+'</strong><div class="muted">Map: '+esc(m.map_name)+'</div>'+(rows||[]).map(r=>'<div class="team">'+(r.is_winner?"🏆":"#"+(r.placement??"—"))+' <strong>'+esc(r.squad_public_teams?.team_name||"Squad")+'</strong><span class="muted">Kills '+r.kills+' • Points '+r.total_points+'</span></div>').join("")+'</div>';}out.innerHTML=html;}
+async function loadResults(){
+ if(!db)return;
+ const {data:matches,error:matchError}=await db.from("squad_matches").select("id,round_number,room_name,map_name,created_at").eq("published",true).order("created_at",{ascending:false});
+ const out=document.getElementById("liveResults");
+ if(matchError){out.innerHTML='<div class="muted">Published match feed is temporarily unavailable.</div>';return;}
+ if(!matches?.length){out.innerHTML='<div class="squad-broadcast-empty">THE BATTLE DESK IS READY<p>Published squad match results will appear here.</p></div>';return;}
+ let html="";
+ for(const m of matches){
+  const {data:rows,error}=await db.from("squad_match_results").select("placement,kills,total_points,is_winner,squad_public_teams(team_name,team_avatar)").eq("match_id",m.id).eq("published",true).order("total_points",{ascending:false});
+  if(error)continue;
+  const sorted=rows||[];
+  const topFragger=[...sorted].sort((a,b)=>Number(b.kills||0)-Number(a.kills||0))[0];
+  html+='<article class="squad-scoreboard"><div class="squad-scoreboard-head"><div><span class="squad-kicker">OFFICIAL MATCH RESULT</span><h3>ROUND '+esc(m.round_number)+' · '+esc(m.room_name||"BATTLE ROYALE")+'</h3><p>MAP · '+esc(m.map_name||"Not specified")+'</p></div><span class="squad-published">RESULT PUBLISHED</span></div><div class="squad-result-list">'+sorted.map((r,index)=>'<div class="squad-result-row '+(index===0?"squad-result-first":"")+'><span class="squad-place">'+(r.is_winner?"♛":("#"+esc(r.placement??"—")) )+'</span><span class="squad-team-identity"><b>'+(r.squad_public_teams?.team_avatar||"⚔️")+'</b><strong>'+esc(r.squad_public_teams?.team_name||"Squad")+'</strong></span><span class="squad-stat"><b>'+Number(r.kills||0)+'</b><small>KILLS</small></span><span class="squad-stat"><b>'+Number(r.total_points||0)+'</b><small>POINTS</small></span></div>').join("")+'</div>'+(topFragger?'<div class="squad-top-fragger"><span>⚡ ROUND TOP FRAGGER</span><strong>'+(topFragger.squad_public_teams?.team_avatar||"⚔️")+' '+esc(topFragger.squad_public_teams?.team_name||"Squad")+'</strong><b>'+Number(topFragger.kills||0)+' KILLS</b></div>':"")+'</article>';
+ }
+ out.innerHTML=html||'<div class="squad-broadcast-empty">No published results available yet.</div>';
+}
 async function loadWinners(){if(!db)return;const {data}=await db.from("squad_winner_announcements").select("id,title,message,published_at").eq("published",true).order("published_at",{ascending:false});let html="";for(const a of data||[]){const {data:w}=await db.from("squad_announcement_winners").select("award_label,squad_public_teams(team_name,team_avatar)").eq("announcement_id",a.id);html+='<div class="card"><h3>'+esc(a.title)+'</h3><p>'+esc(a.message)+'</p>'+(w||[]).map(x=>'<div class="team">🏆 '+esc(x.squad_public_teams?.team_name||"Team")+' — '+esc(x.award_label)+'</div>').join("")+'</div>';}document.getElementById("winners").innerHTML=html||"No winners announced yet.";}
 async function refresh(){await Promise.all([loadSettings(),loadTeams(),loadResults(),loadWinners()]);}
 refresh();loadSquadPrizePool();setInterval(refresh,8000);setInterval(loadSquadPrizePool,15000);
