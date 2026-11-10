@@ -102,7 +102,9 @@ dialog select{margin:8px 0 14px}
 <input id="roundNumber" type="number" min="1" value="1">
 
 <button id="createDraw">Create draft draw</button>
-<p id="drawStatus" class="small">No draft draw selected.</p>
+<label for="draftDrawSelect">Resume a saved draft draw</label>
+<select id="draftDrawSelect"><option value="">Loading saved drafts…</option></select>
+<p id="drawStatus" class="small">Loading saved drafts…</p>
 
 <div class="grid">
 <div>
@@ -245,6 +247,45 @@ async function loadTournaments(){
 
   currentDrawId = null;
   await loadAll();
+  await loadDraftDraws(null,true);
+}
+
+async function loadDraftDraws(preferredId=null,autoSelectLatest=true){
+  const select=$("draftDrawSelect");
+  const status=$("drawStatus");
+  if(!select||!status)return;
+  const {data,error}=await db.from("draws")
+    .select("id,generated_at")
+    .eq("tournament_id",tournamentId())
+    .eq("status","draft")
+    .order("generated_at",{ascending:false})
+    .limit(30);
+  if(error){
+    select.innerHTML='<option value="">Could not load drafts</option>';
+    status.textContent="Could not load saved drafts: "+error.message;
+    currentDrawId=null;
+    return;
+  }
+  const drafts=data||[];
+  select.innerHTML='<option value="">Select a saved draft draw</option>'+drafts.map(draw=>{
+    const count=matches.filter(match=>match.draw_id===draw.id).length;
+    const date=draw.generated_at?new Date(draw.generated_at).toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"Saved draft";
+    return '<option value="'+safe(draw.id)+'">'+safe(date)+' · '+count+' match(es) · '+safe(draw.id.slice(0,8))+'</option>';
+  }).join("");
+  const preferredExists=preferredId&&drafts.some(draw=>draw.id===preferredId);
+  currentDrawId=preferredExists?preferredId:(autoSelectLatest?(drafts[0]?.id||null):null);
+  select.value=currentDrawId||"";
+  if(currentDrawId){
+    const chosen=drafts.find(draw=>draw.id===currentDrawId);
+    status.textContent=(preferredExists?"Draft draw selected. ":"Resumed latest saved draft. ")+"ID: "+currentDrawId+" · "+matches.filter(match=>match.draw_id===currentDrawId).length+" match(es).";
+  }else{
+    status.textContent=drafts.length?"Choose a saved draft above, or create a new one.":"No saved draft draws. Create a new draft draw.";
+  }
+}
+
+async function refreshAdminData(){
+  await loadAll();
+  await loadDraftDraws(currentDrawId,false);
 }
 
 function tournamentId(){
@@ -619,9 +660,8 @@ async function createDraw(){
 
   if(error){message(error.message);return;}
 
-  currentDrawId=data.id;
-  $("drawStatus").textContent="Draft draw created. ID: "+data.id;
-  message("Draft draw created.");
+  await loadDraftDraws(data.id,true);
+  message("Draft draw created and selected.");
 }
 
 async function addMatch(){
@@ -877,22 +917,28 @@ async function rescheduleMatch(id){
 }
 
 async function publishDraw(){
-  if(!currentDrawId)return message("Create a draft draw first.");
+  if(!currentDrawId)return message("Select or create a draft draw first.");
+  const drawId=currentDrawId;
+  const drawMatches=matches.filter(match=>match.draw_id===drawId);
+  if(!drawMatches.length)return message("Add at least one match before publishing this draw.");
+  if(!confirm("Publish "+drawMatches.length+" match(es) in this draw? Players will be able to see the matchups."))return;
 
   const {error:matchError}=await db.from("matches")
     .update({published:true})
-    .eq("draw_id",currentDrawId);
+    .eq("draw_id",drawId);
 
   if(matchError){message(matchError.message);return;}
 
   const {error}=await db.from("draws")
     .update({status:"published",published_at:new Date().toISOString()})
-    .eq("id",currentDrawId);
+    .eq("id",drawId);
 
   if(error){message(error.message);return;}
 
+  currentDrawId=null;
   message("Draw and matches published.");
   await loadAll();
+  await loadDraftDraws(null,false);
 }
 
 async function createReceipt(){
@@ -1055,7 +1101,9 @@ async function publishSelectedWinner(){
  button.disabled=true;button.textContent='Publishing…';
  const {error}=await db.rpc('publish_match_result',{p_match_id:matchId,p_winner_id:winnerId});
  if(error){$('winnerDialogMessage').textContent='Could not publish: '+error.message;button.disabled=false;button.textContent='Publish result';return;}
- $('winnerDialog').close();pendingWinnerMatchId=null;message('Match result published on the website.');await loadAll();
+ const completedMatch=matches.find(item=>item.id===matchId);
+ if(completedMatch&&currentDrawId===completedMatch.draw_id)currentDrawId=null;
+ $('winnerDialog').close();pendingWinnerMatchId=null;message('Match result published on the website.');await loadAll();await loadDraftDraws(null,false);
 }
 $('publishWinner').addEventListener('click',publishSelectedWinner);
 $('cancelWinner').addEventListener('click',()=>{$('winnerDialog').close();pendingWinnerMatchId=null;});
@@ -1073,12 +1121,21 @@ async function deleteReceipt(id){
 $("tournament").addEventListener("change",async()=>{
   currentDrawId=null;
   await loadAll();
+  await loadDraftDraws(null,true);
+});
+$("draftDrawSelect").addEventListener("change",()=>{
+  currentDrawId=$("draftDrawSelect").value||null;
+  if(currentDrawId){
+    $("drawStatus").textContent="Selected saved draft. ID: "+currentDrawId+" · "+matches.filter(match=>match.draw_id===currentDrawId).length+" match(es).";
+  }else{
+    $("drawStatus").textContent="No draft selected. Choose a saved draft or create a new one.";
+  }
 });
 $("matchTier").addEventListener("change",renderPlayerSelects);
 $("playerSearch").addEventListener("input",renderPlayers);
 $("receiptPlayerSearch").addEventListener("input",renderReceiptPlayerOptions);
 $("toggleRegistration").onclick=toggleRegistration;
-$("refresh").onclick=loadAll;
+$("refresh").onclick=refreshAdminData;
 $("createDraw").onclick=createDraw;
 $("addMatch").onclick=addMatch;
 $("publishDraw").onclick=publishDraw;
