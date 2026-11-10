@@ -111,6 +111,46 @@ h1,h2{color:#f0c56d!important}
 /* IMRO wordmark: always metallic gold across every page */
 .imro-gold-word{color:#f0c56d!important;background:linear-gradient(180deg,#fff0b8 0%,#f0c56d 48%,#b98228 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent!important;text-shadow:0 2px 16px #e8b84d35!important}
 .imro-intro-brand{color:#f0c56d!important}
+
+/* Squad page contrast and form usability repair */
+body{color:#f5f7fb!important}
+.registration-journey{
+ color:#f5f7fb!important;
+ background:linear-gradient(145deg,#101a2a 0%,#172b43 58%,#241a30 100%)!important;
+ border:1px solid #7896b5!important;
+ box-shadow:0 18px 42px #0008!important;
+}
+.registration-journey h2,.registration-journey h3,
+.registration-journey>h2,.registration-journey>h3{color:#f2c96f!important;text-shadow:0 1px 10px #0008!important}
+.registration-journey p,.registration-journey .muted,
+.registration-journey #settings{color:#dce7f2!important;opacity:1!important}
+.registration-journey label{color:#f4f7fb!important;font-weight:700!important}
+.registration-journey input:not([type=checkbox]):not([type=hidden]),
+.registration-journey select,.registration-journey textarea{
+ background:#fff!important;color:#172638!important;border:1px solid #9db6d0!important;
+}
+.registration-journey input::placeholder,.registration-journey textarea::placeholder{color:#68798b!important;opacity:1!important}
+.registration-journey .avatar{
+ background:linear-gradient(145deg,#101722,#1b2637)!important;color:#fff!important;
+ border:1px solid #8297b1!important;
+}
+.registration-journey .avatar.selected{background:#284b45!important;border:2px solid #f2c96f!important}
+.registration-journey .btn:not(.alt){background:linear-gradient(135deg,#12a58e,#087366)!important;color:#fff!important;border:1px solid #6de0c7!important}
+main>section.card:not(.registration-journey){
+ background:linear-gradient(145deg,#111c2d 0%,#1a2c43 65%,#241b30 100%)!important;
+ color:#f5f7fb!important;border:1px solid #7896b5!important;
+}
+main>section.card:not(.registration-journey) h2{color:#f2c96f!important}
+main>section.card:not(.registration-journey) p,
+main>section.card:not(.registration-journey) .muted{color:#dce7f2!important;opacity:1!important}
+#teams{color:#f5f7fb!important}
+#teams .team{color:#f5f7fb!important;border-bottom:1px solid #52677f!important}
+#teams .team strong,#teams .team b{color:#ffe09a!important}
+#teams .team small,#teams .team .muted{color:#dce7f2!important}
+#teams .pill,.pill{color:#baf6d8!important;border-color:#55bd91!important}
+#settings{padding:9px 11px;border-radius:8px;background:#26364a;color:#fff!important;font-weight:700}
+#formResult{color:#f5f7fb!important}
+
 </style><link rel="stylesheet" href="/journey-colors.css?v=12"></head><body>
 
 <div id="imroCinematicIntro" role="status" aria-label="Entering IMRO ESPORTS">
@@ -152,7 +192,7 @@ h1,h2{color:#f0c56d!important}
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script><script>
-const URL="https://gjjhuultiezaybvoykra.supabase.co",KEY="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";let db=null;try{if(!window.supabase||!window.supabase.createClient)throw new Error("Secure connection library did not load. Refresh the page or open it in Chrome.");db=window.supabase.createClient(URL,KEY);}catch(initError){document.getElementById("settings").textContent=initError.message;}
+const SUPABASE_URL="https://gjjhuultiezaybvoykra.supabase.co";const SUPABASE_ANON_KEY="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";let db=null;try{if(!/^https:\/\/[^\s/]+\.supabase\.co$/.test(SUPABASE_URL))throw new Error("The tournament connection address is invalid. Please contact the organizer.");if(!window.supabase||typeof window.supabase.createClient!=="function")throw new Error("The connection library did not load. Please refresh or open in Chrome.");db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}catch(initError){document.getElementById("settings").textContent="Connection error: "+initError.message;console.error("IMRO Supabase initialization failed:",initError);}
 const WA="917676811098",icons=["⚔️","🐉","🔥","👑","🦅","☠️","🤖","🌙","⚡","🛡️","🐺","🎯"];
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const form=document.getElementById("squadForm"),res=document.getElementById("formResult");
@@ -162,7 +202,7 @@ async function loadSquadPrizePool(){if(!db)return;const panel=document.getElemen
 async function loadSettings(){if(!db){form.querySelector("button").disabled=false;return;}const {data}=await db.from("squad_tournament_settings").select("registration_open,entry_mode").eq("id",1).maybeSingle();document.getElementById("settings").textContent=!data?"Registration settings unavailable":!data.registration_open?"Squad registration is currently closed.":data.entry_mode==="paid"?"Registration is open. Contact the organizer for payment instructions.":"Registration is OPEN — free entry for now." ;form.querySelector("button").disabled=!data||!data.registration_open;}
 form.addEventListener("submit",async e=>{e.preventDefault();res.classList.remove("is-success");const b=document.getElementById("submitSquad");const v=form.elements;if(!v.team_avatar.value){res.hidden=false;res.textContent="Please choose a team avatar.";return;}b.disabled=true;b.textContent="Submitting…";res.hidden=false;res.textContent="Saving your squad…";
 try{const payload={team_name:v.team_name.value.trim(),team_avatar:v.team_avatar.value,leader_name:v.leader_name.value.trim(),leader_uid:v.leader_uid.value.trim(),contact_number:v.contact_number.value.trim(),players:[v.player1.value,v.player2.value,v.player3.value,v.player4.value].map(x=>x.trim())};
-const response=await fetch(URL+"/functions/v1/register-squad",{method:"POST",headers:{"Content-Type":"application/json","apikey":KEY},body:JSON.stringify(payload)});const raw=await response.text();let data;try{data=JSON.parse(raw);}catch{throw new Error("Server returned an unreadable response (HTTP "+response.status+"). Please screenshot this message.");}if(!response.ok||!data.success)throw new Error((data.error||"Registration failed.")+" (HTTP "+response.status+")");
+const response=await fetch(SUPABASE_URL+"/functions/v1/register-squad",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY},body:JSON.stringify(payload)});const raw=await response.text();let data;try{data=JSON.parse(raw);}catch{throw new Error("Server returned an unreadable response (HTTP "+response.status+"). Please screenshot this message.");}if(!response.ok||!data.success)throw new Error((data.error||"Registration failed.")+" (HTTP "+response.status+")");
 res.classList.add("is-success");res.textContent="SQUAD REGISTERED!\nTeam: "+data.team_name+"\nYour token: "+data.token+"\nStatus: Pending admin approval.\n\nTap below to message IMRO ESPORTS on WhatsApp.";
 const msg="IMRO ESPORTS SQUAD REGISTRATION%0ATeam: "+encodeURIComponent(data.team_name)+"%0AToken: "+encodeURIComponent(data.token)+"%0ALeader: "+encodeURIComponent(payload.leader_name)+"%0AUID: "+encodeURIComponent(payload.leader_uid)+"%0AContact: "+encodeURIComponent(payload.contact_number)+"%0APlayers: "+encodeURIComponent(payload.players.join(", "));
 const a=document.createElement("a");a.className="btn";a.target="_blank";a.rel="noopener";a.href="https://wa.me/"+WA+"?text="+msg;a.textContent="Continue to WhatsApp";res.appendChild(document.createElement("br"));res.appendChild(a);form.reset();document.querySelectorAll(".avatar").forEach(x=>x.classList.remove("selected"));await loadTeams();
