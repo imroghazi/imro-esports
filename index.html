@@ -350,6 +350,32 @@ main section .card:after,
  main section .card,#prizePool .card,#tierArena .card,#registrationChoice .card{transition:none}
 }
 
+
+/* Visual quality pass: one hero photograph, no repeated battle wallpaper */
+#tierArena{background:radial-gradient(ellipse at 15% 10%,#6f1b2b55,transparent 42%),radial-gradient(ellipse at 90% 90%,#b27a2c22,transparent 38%),linear-gradient(145deg,#0b0c12,#171017 48%,#08090e)!important}
+#scoreboardTeaser{background:radial-gradient(ellipse at 85% 15%,#7d1d2e55,transparent 45%),linear-gradient(130deg,#090a10,#171019 58%,#090a10)!important}
+#publicSquadPrizePool{background:radial-gradient(ellipse at 78% 20%,#b07b3038,transparent 42%),radial-gradient(ellipse at 12% 90%,#a21c3150,transparent 45%),linear-gradient(135deg,#100b10,#1d1018 55%,#080a10)!important}
+#prizePool{background:radial-gradient(ellipse at 50% 0,#a92a3944,transparent 48%),linear-gradient(145deg,#0c0b10,#251018 55%,#090a0e)!important}
+#aboutImro{background:radial-gradient(ellipse at 95% 10%,#a21d3040,transparent 42%),linear-gradient(130deg,#0a0b10,#171019 60%,#090a0e)!important}
+#arenaGallery{padding:36px 0 0!important}
+#arenaGallery .gallery-heading{padding:0 4px 12px}
+#arenaGallery .gallery-heading h2{max-width:680px;font-size:clamp(27px,5vw,42px);line-height:1.05;letter-spacing:1px}
+.imro-experience-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:16px;align-items:stretch}
+.imro-experience-grid .gallery-photo{min-height:390px;box-shadow:0 22px 48px #000b,0 0 0 1px #e6b45c33}
+.imro-experience-grid .gallery-photo img{min-height:390px;object-fit:cover;filter:saturate(1.28) contrast(1.12) brightness(.9)}
+.focus-feature{position:relative;isolation:isolate;overflow:hidden;min-height:390px;padding:30px 24px;display:flex;flex-direction:column;justify-content:center;background:radial-gradient(ellipse at 100% 0,#a51e344d,transparent 50%),linear-gradient(145deg,#1d1218,#0a0b11 68%);border:1px solid #936143;box-shadow:0 22px 48px #000b,0 0 0 1px #e6b45c22}
+.focus-feature:before{content:"";position:absolute;z-index:-1;width:220px;height:220px;right:-65px;top:-55px;border:1px solid #d8a94b55;border-radius:50%;box-shadow:0 0 0 18px #d8a94b0c,0 0 0 38px #d8a94b08}
+.focus-emblem{font-size:46px;color:#f1c76f;text-shadow:0 0 28px #e8a93c88;margin-bottom:18px}
+.focus-kicker{font-size:11px;font-weight:900;letter-spacing:3px;color:#eac16e}
+.focus-feature h3{font-size:clamp(30px,4vw,46px);line-height:.98;margin:14px 0;color:#fff}
+.focus-feature h3 em{font-style:normal;color:#f04452}
+.focus-feature p{color:#c6bdc0;line-height:1.65}
+.focus-stats{display:grid;gap:9px;margin-top:18px}
+.focus-stats span{padding:10px 12px;background:linear-gradient(90deg,#ffffff0d,#ffffff03);border-left:2px solid #d7a64d;color:#eee;font-size:11px;letter-spacing:1.5px}
+.focus-stats b{color:#f1c66e;margin-right:12px}
+#arenaGallery .quote-ribbon{margin-top:18px;background:radial-gradient(ellipse at 85% 10%,#9d1d3040,transparent 45%),linear-gradient(120deg,#0c0d12,#211019 55%,#090a0f)!important;border:1px solid #785044;box-shadow:0 22px 48px #000a,inset 0 1px #ffffff18}
+@media(max-width:650px){.imro-experience-grid{grid-template-columns:1fr}.imro-experience-grid .gallery-photo,.imro-experience-grid .gallery-photo img{min-height:260px}.focus-feature{min-height:310px;padding:25px 21px}}
+
 </style>
 </head>
 <body>
@@ -442,9 +468,9 @@ main section .card:after,
 </section>
 <section id="arenaGallery" class="arena-gallery">
   <div class="gallery-heading"><span>THE IMRO ESPORTS EXPERIENCE</span><h2>BUILT FOR THE BATTLE. MADE FOR THE LEGACY.</h2><p>Every match is a chance to make your name remembered.</p></div>
-  <div class="gallery-grid">
-    <figure class="gallery-photo gallery-wide"><img src="/imro-squad.jpg" alt="A live esports arena illuminated in red with competitors and spectators" loading="lazy"><figcaption><b>THE ARENA</b><span>Good friends. Big plays. Unforgettable wins</span></figcaption></figure>
-    <figure class="gallery-photo"><img src="/imro-score.jpg" alt="A competitive gamer focused on a tournament match" loading="lazy"><figcaption><b>THE FOCUS</b><span>Every great run starts with one brave move</span></figcaption></figure>
+  <div class="gallery-grid imro-experience-grid">
+    <figure class="gallery-photo gallery-wide"><img src="/imro-squad.jpg" alt="IMRO ESPORTS battle arena scene" loading="lazy"><figcaption><b>THE ARENA</b><span>Good friends. Big plays. Unforgettable wins</span></figcaption></figure>
+    <article class="focus-feature"><div class="focus-emblem">✦</div><span class="focus-kicker">THE COMPETITOR'S EDGE</span><h3>STAY SHARP.<br><em>STRIKE FIRST.</em></h3><p>Every round is a new chance to prove your skill. Every teammate makes the story stronger.</p><div class="focus-stats"><span><b>01</b> DISCIPLINE</span><span><b>02</b> TEAMWORK</span><span><b>03</b> COURAGE</span></div></article>
   </div>
   <div class="quote-ribbon"><span>THE IMRO MINDSET</span><blockquote>“Bring your energy. Back your squad. Celebrate every win.”</blockquote><small>COMPETE • SURVIVE • DOMINATE</small></div>
   <p class="photo-credit">Tournament photography: <a href="https://unsplash.com/license" target="_blank" rel="noopener">Unsplash License</a>.</p>
