@@ -341,3 +341,57 @@ body:has(.registration-journey){
  #aboutImro,#partnerImro,#rulesImro{margin:24px 0!important;padding:20px 14px!important}
  #arenaGallery{padding:22px 12px!important}
 }
+
+
+/* Arena backdrop correction: the competition canvas must read as crimson, not flat black. */
+body{
+ background:
+  radial-gradient(ellipse at 50% 5%,#7d182a55 0%,transparent 42%),
+  radial-gradient(ellipse at 0% 36%,#5516294d 0%,transparent 38%),
+  radial-gradient(ellipse at 100% 72%,#5d1a2633 0%,transparent 36%),
+  linear-gradient(180deg,#160b12 0%,#100b12 32%,#0b0b11 68%,#090a10 100%)!important;
+}
+main{background:transparent!important}
+.hero{
+ background:
+  radial-gradient(ellipse at 80% 12%,#a51e3c44,transparent 48%),
+  linear-gradient(135deg,#1c0c14 0%,#110d15 52%,#0b0d13 100%)!important;
+ border-bottom:1px solid #8b3947!important;
+}
+#arenaGallery{
+ background:
+  radial-gradient(ellipse at 18% 35%,#8e1c344d,transparent 58%),
+  radial-gradient(ellipse at 88% 0%,#b02a3c38,transparent 48%),
+  linear-gradient(145deg,#241019 0%,#170e16 48%,#0c0d13 100%)!important;
+ border-block:1px solid #9b4e52!important;
+}
+#arenaGallery .gallery-photo{
+ background-color:#251019!important;
+ background-image:
+  linear-gradient(180deg,#12091022 35%,#09080de8 100%),
+  url('/imro-squad.jpg')!important;
+ background-position:center 42%!important;
+ background-size:cover!important;
+}
+#arenaGallery .gallery-photo img{
+ display:block!important;opacity:1!important;
+ object-fit:cover!important;object-position:center 42%!important;
+}
+#arenaGallery .gallery-photo:after{
+ background:linear-gradient(180deg,#08090d00 35%,#08090dc9 100%)!important;
+}
+#tierArena{
+ background:
+  radial-gradient(ellipse at 0% 45%,#7d1a3544,transparent 58%),
+  radial-gradient(ellipse at 100% 0%,#9b293a30,transparent 45%),
+  linear-gradient(145deg,#1b0e17,#110d15 58%,#0b0d13)!important;
+}
+#aboutImro,#partnerImro,#rulesImro{
+ background:
+  radial-gradient(ellipse at 100% 0%,#9c263b55,transparent 60%),
+  linear-gradient(145deg,#241019,#171019 54%,#0d0e14)!important;
+}
+@media(max-width:650px){
+ #arenaGallery .gallery-photo{min-height:270px!important}
+ #arenaGallery .gallery-photo img{min-height:270px!important}
+}
