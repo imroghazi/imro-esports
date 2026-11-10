@@ -162,7 +162,19 @@ res.classList.add("is-success");res.textContent="SQUAD REGISTERED!\nTeam: "+data
 const msg="IMRO ESPORTS SQUAD REGISTRATION%0ATeam: "+encodeURIComponent(data.team_name)+"%0AToken: "+encodeURIComponent(data.token)+"%0ALeader: "+encodeURIComponent(payload.leader_name)+"%0AUID: "+encodeURIComponent(payload.leader_uid)+"%0AContact: "+encodeURIComponent(payload.contact_number)+"%0APlayers: "+encodeURIComponent(payload.players.join(", "));
 const a=document.createElement("a");a.className="btn";a.target="_blank";a.rel="noopener";a.href="https://wa.me/"+WA+"?text="+msg;a.textContent="Continue to WhatsApp";res.appendChild(document.createElement("br"));res.appendChild(a);form.reset();document.querySelectorAll(".avatar").forEach(x=>x.classList.remove("selected"));await loadTeams();
 }catch(err){console.error("Squad registration failed:",err);res.textContent="REGISTRATION NOT CONFIRMED\n"+(err?.message||String(err))+"\n\nNo token has been issued. Please send this message to the organizer."; }finally{b.disabled=false;b.textContent="Register squad";}});form.addEventListener("invalid",e=>{res.hidden=false;res.textContent="Please complete the highlighted required field"+(e.target?.name?" ("+e.target.name+")":"")+" before registering.";},true);
-async function loadTeams(){if(!db){document.getElementById("teams").textContent="Team list unavailable because the connection library did not load.";return;}const {data,error}=await db.from("squad_public_teams").select("id,team_name,team_avatar,status,created_at").order("created_at",{ascending:true});if(error){document.getElementById("teams").textContent="Could not load squads.";return;}document.getElementById("squadCount").textContent=(data.length||0)+" teams";document.getElementById("teams").innerHTML=data.length?data.map(t=>'<div class="team"><span class="emoji">'+esc(t.team_avatar)+'</span><div><strong>'+esc(t.team_name)+'</strong><div class="muted">'+(t.status==="approved"?"Approved":t.status==="rejected"?"Registration rejected":"Registration received")+'</div></div></div>').join(""):"No squads registered yet.";}
+async function loadTeams(){
+ const host=document.getElementById('teams'),count=document.getElementById('squadCount');
+ try{
+  const key='sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM';
+  const endpoint='https://gjjhuultiezaybvoykra.supabase.co/rest/v1/squad_public_teams?select=id,team_name,team_avatar,status,created_at&order=created_at.asc';
+  const response=await fetch(endpoint,{headers:{apikey:key,Authorization:'Bearer '+key}});
+  if(!response.ok)throw new Error('Supabase returned '+response.status);
+  const data=await response.json();
+  const approved=(data||[]).filter(t=>t.status==='approved');
+  count.textContent=approved.length+' teams';
+  host.innerHTML=approved.length?approved.map(t=>'<div class="team"><span class="emoji">'+esc(t.team_avatar||'⚔️')+'</span><div><strong>'+esc(t.team_name)+'</strong><div class="muted">Approved</div></div></div>').join(''):'No approved squads yet.';
+ }catch(error){console.error('Public squad list:',error);host.textContent='Squad list temporarily unavailable. Please refresh in a moment.';}
+}
 async function loadResults(){
  if(!db)return;
  const {data:matches,error:matchError}=await db.from("squad_matches").select("id,round_number,room_name,map_name,created_at").eq("published",true).order("created_at",{ascending:false});
