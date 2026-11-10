@@ -18,9 +18,47 @@ main{max-width:1180px;margin:auto;padding:22px 18px 60px}.hero{position:relative
 .tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.tier-card{padding:17px;border:1px solid #5a403c;background:linear-gradient(145deg,#191a21,#0d0f14)}.tier-head{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #3d3032;padding-bottom:10px}.tier-head b{color:var(--gold);font-size:11px;letter-spacing:2px}.tier-head span{font-size:9px;color:#a6a0a2}.standings{margin-top:8px}.standing{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 2px;border-bottom:1px solid #30282e;font-size:12px}.rank{color:var(--gold);font-weight:1000}.wins{color:#e8c878;font-weight:900}.await{padding:15px 0;color:var(--muted);font-size:12px}
 .podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.champ{padding:17px;text-align:center;border:1px solid #77533e;background:radial-gradient(ellipse at 50% 0,#5c321e66,transparent 70%),#111219}.champ:first-child{border-color:#c99a50}.medal{font-size:27px}.champ h3{font-size:15px;margin:8px 0;color:#f5d99c;overflow-wrap:anywhere}.champ p{margin:0;color:var(--muted);font-size:11px}.foot{text-align:center;color:#777;font-size:10px;letter-spacing:2px;margin-top:40px;padding-top:18px;border-top:1px solid #33252b}
 @media(max-width:700px){main{padding:14px 12px 45px}.hero{padding:21px 17px}.stats{grid-template-columns:repeat(2,1fr);gap:8px}.matches{grid-template-columns:1fr}.tiers{grid-template-columns:1fr}.podium{grid-template-columns:1fr}.section-head{align-items:flex-start;flex-direction:column}.toolbar{align-items:flex-start;flex-direction:column}.navlinks a{padding:8px 9px;font-size:9px}.match{padding:14px}}
-.hero{background-image:linear-gradient(90deg,#08090df2 0%,#08090dbd 52%,#08090d66 100%),url("https://images.unsplash.com/photo-1776823300754-d67e731434f2?auto=format&fit=crop&fm=jpg&q=80&w=1600");background-size:cover;background-position:center 42%}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#090a0e66,transparent 55%);pointer-events:none}.hero>*{position:relative;z-index:1}.score-quote{margin:16px 0 28px;padding:19px 16px;border:1px solid #79513d;text-align:center;background:linear-gradient(110deg,#241017,#101116);color:#f3d18b;font-size:clamp(18px,3vw,26px);font-weight:850}.score-quote small{display:block;margin-top:7px;color:#aaa;font-size:9px;letter-spacing:3px}</style>
+.hero{background-image:linear-gradient(90deg,#08090df2 0%,#08090dbd 52%,#08090d66 100%),url("https://images.unsplash.com/photo-1776823300754-d67e731434f2?auto=format&fit=crop&fm=jpg&q=80&w=1600");background-size:cover;background-position:center 42%}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#090a0e66,transparent 55%);pointer-events:none}.hero>*{position:relative;z-index:1}.score-quote{margin:16px 0 28px;padding:19px 16px;border:1px solid #79513d;text-align:center;background:linear-gradient(110deg,#241017,#101116);color:#f3d18b;font-size:clamp(18px,3vw,26px);font-weight:850}.score-quote small{display:block;margin-top:7px;color:#aaa;font-size:9px;letter-spacing:3px}
+/* IMRO cinematic public experience */
+#imroCinematicIntro{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#4a101d 0%,#170b12 42%,#050609 78%);opacity:1;visibility:visible;transition:opacity .65s ease,visibility .65s ease}
+#imroCinematicIntro.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
+#imroCinematicIntro:before,#imroCinematicIntro:after{content:"";position:absolute;width:min(78vw,620px);aspect-ratio:1;border:1px solid #d7a74a44;border-radius:50%;box-shadow:0 0 0 22px #d7a74a08,0 0 0 55px #d7a74a06;animation:imroOrbit 14s linear infinite}
+#imroCinematicIntro:after{width:min(58vw,440px);animation-direction:reverse;animation-duration:19s;border-color:#f23a4b44}
+.imro-intro-inner{position:relative;z-index:1;width:min(90vw,620px);text-align:center;padding:28px 18px;animation:imroRise .9s cubic-bezier(.2,.8,.2,1) both}
+.imro-intro-crown{font-size:clamp(34px,8vw,60px);filter:drop-shadow(0 0 18px #e7b64d77);animation:imroFloat 2.6s ease-in-out infinite}
+.imro-intro-brand{font-size:clamp(32px,9vw,66px);font-weight:1000;letter-spacing:2px;line-height:1.02;text-shadow:0 5px 28px #ff263b55}.imro-intro-brand span{color:#ff354b}
+.imro-intro-sub{margin-top:9px;color:#e8c778;font-size:10px;letter-spacing:5px;font-weight:900}
+.imro-intro-quote{margin:28px auto 24px;max-width:440px;color:#eee0cf;font-family:Georgia,serif;font-size:clamp(18px,4vw,25px);font-style:italic}
+.imro-intro-track{width:min(68vw,300px);height:3px;margin:0 auto;background:#ffffff20;overflow:hidden}
+.imro-intro-track i{display:block;width:42%;height:100%;background:linear-gradient(90deg,#ff3045,#f4ca72);box-shadow:0 0 15px #ff3045;animation:imroLoad 1.45s ease-in-out forwards}
+.imro-intro-enter{margin-top:17px;border:0;background:transparent;color:#e9c777;font-size:10px;font-weight:900;letter-spacing:3px;cursor:pointer;padding:10px 16px}
+.imro-reveal{opacity:0;transform:translateY(24px);transition:opacity .75s ease,transform .75s cubic-bezier(.2,.75,.2,1)}
+.imro-reveal.imro-visible{opacity:1;transform:none}
+.imro-touch{position:relative;overflow:hidden;transform:translateZ(0);transition:transform .18s ease,filter .18s ease}
+.imro-touch:active{transform:scale(.975);filter:brightness(1.18)}
+.imro-touch:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--tap-x,50%) var(--tap-y,50%),#ffffff38,transparent 42%);opacity:0;transition:opacity .35s;pointer-events:none}
+.imro-touch.imro-tapped:after{opacity:1}
+@keyframes imroLoad{from{transform:translateX(-110%)}to{transform:translateX(250%)}}
+@keyframes imroOrbit{to{transform:rotate(360deg)}}
+@keyframes imroRise{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes imroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@media(prefers-reduced-motion:reduce){#imroCinematicIntro:before,#imroCinematicIntro:after,.imro-intro-crown,.imro-intro-track i{animation:none!important}.imro-reveal{opacity:1;transform:none;transition:none}#imroCinematicIntro{transition:none}}
+
+</style>
 </head>
 <body>
+
+<div id="imroCinematicIntro" role="status" aria-label="Entering IMRO ESPORTS">
+ <div class="imro-intro-inner">
+  <div class="imro-intro-crown" aria-hidden="true">♛</div>
+  <div class="imro-intro-brand">IMRO <span>ESPORTS</span></div>
+  <div class="imro-intro-sub">COMMUNITY TOURNAMENT</div>
+  <div class="imro-intro-quote">“Your next match could become your greatest story.”</div>
+  <div class="imro-intro-track"><i></i></div>
+  <button class="imro-intro-enter" id="imroEnterNow" type="button">ENTER THE ARENA ↗</button>
+ </div>
+</div>
+
 <header class="topbar"><div class="nav"><a href="/" aria-label="IMRO ESPORTS home"><div class="brand">IMRO <span>ESPORTS</span><small class="tag">OFFICIAL TOURNAMENT SCOREBOARD</small></div></a><nav class="navlinks"><a href="/">HOME</a><a href="/squads.html">SQUAD RESULTS</a><a class="primary" href="/#registrationChoice">REGISTER</a></nav></div></header>
 <main>
 <section class="hero"><div class="eyebrow">IMRO ESPORTS · FREE FIRE COMMUNITY TOURNAMENT</div><h1>THE <span>BATTLE</span> DESK</h1><p>Every matchup. Every published result. Every champion. Follow the official tournament action with live updates from the IMRO ESPORTS arena.</p><div class="hero-actions"><a class="action" href="#matchFeed">VIEW MATCH FEED ↓</a><a class="action" href="#finalStandings">OFFICIAL STANDINGS</a></div></section>
@@ -66,5 +104,28 @@ async function loadStandings(){
 document.querySelectorAll("[data-tier]").forEach(b=>b.addEventListener("click",()=>{currentTier=b.dataset.tier;document.querySelectorAll("[data-tier]").forEach(x=>x.classList.toggle("active",x===b));renderMatches();}));
 document.getElementById("refreshButton").addEventListener("click",()=>{loadMatches();loadStandings();});
 loadMatches();loadStandings();setInterval(loadMatches,5000);setInterval(loadStandings,20000);
+</script>
+<script>
+(()=>{
+ const intro=document.getElementById("imroCinematicIntro");
+ if(!intro)return;
+ const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ let seen=false;try{seen=sessionStorage.getItem("imro-arena-entered")==="1";}catch(e){}
+ const close=()=>{intro.classList.add("is-leaving");try{sessionStorage.setItem("imro-arena-entered","1");}catch(e){};setTimeout(()=>intro.remove(),reduce?0:700);};
+ document.getElementById("imroEnterNow")?.addEventListener("click",close);
+ if(seen||reduce){intro.remove();}else{setTimeout(close,2100);}
+ const revealTargets=document.querySelectorAll("main section,main .card,main .arena-gallery,main .hero,main .section");
+ if("IntersectionObserver"in window&&!reduce){
+  const io=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("imro-visible");io.unobserve(entry.target);}}),{threshold:.08});
+  revealTargets.forEach(el=>{el.classList.add("imro-reveal");io.observe(el);});
+ }else revealTargets.forEach(el=>el.classList.add("imro-visible"));
+ document.addEventListener("pointerdown",event=>{
+  const el=event.target.closest("button,.btn,.action,.navlinks a,.filter");
+  if(!el)return;
+  const rect=el.getBoundingClientRect();el.style.setProperty("--tap-x",((event.clientX-rect.left)/rect.width*100)+"%");el.style.setProperty("--tap-y",((event.clientY-rect.top)/rect.height*100)+"%");
+  el.classList.add("imro-touch","imro-tapped");setTimeout(()=>el.classList.remove("imro-tapped"),360);
+ },{passive:true});
+ document.documentElement.style.scrollBehavior=reduce?"auto":"smooth";
+})();
 </script>
 </body></html>
