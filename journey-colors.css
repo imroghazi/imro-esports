@@ -1,0 +1,91 @@
+/* IMRO ESPORTS — colour psychology system
+   Brand = prestige; registration = welcoming; payments = clarity; success = achievement. */
+:root{
+  --imro-ink:#142b30;
+  --imro-ivory:#f7f5ec;
+  --imro-teal:#087f78;
+  --imro-teal-deep:#075d59;
+  --imro-mint:#c8f0e5;
+  --imro-aqua:#e3f7f3;
+  --imro-amber:#d99b2b;
+  --imro-navy:#10243b;
+  --imro-blue:#286a9a;
+  --imro-sky:#dceefa;
+  --imro-emerald:#13784d;
+  --imro-success-bg:#e5f6eb;
+}
+/* Registration: calm ivory surfaces, teal actions, mint focus states. */
+#registrationChoice .card,
+#register .card,
+.registration-journey{
+  color:var(--imro-ink)!important;
+  background:linear-gradient(145deg,var(--imro-ivory),#edf8f4)!important;
+  border:1px solid #a9d9ce!important;
+  box-shadow:0 16px 38px #001b2026,inset 0 1px #ffffff!important;
+}
+#registrationChoice .card h3,
+#register .card h2,
+.registration-journey h2,
+.registration-journey h3{color:var(--imro-teal-deep)!important}
+#registrationChoice .card .muted,
+#register .card .muted,
+.registration-journey .muted{color:#53696a!important}
+#regForm,#squadForm{color:var(--imro-ink)!important}
+#regForm label,#squadForm label{color:#29494b!important;font-weight:650}
+#regForm input:not([type=checkbox]):not([type=hidden]),
+#regForm select,#regForm textarea,
+#squadForm input:not([type=checkbox]):not([type=hidden]),
+#squadForm select,#squadForm textarea{
+  color:#17363a!important;background:#fff!important;
+  border:1px solid #a9cfc8!important;border-radius:11px!important;
+  box-shadow:inset 0 1px 2px #17363a0b!important;
+}
+#regForm input:focus,#regForm select:focus,#regForm textarea:focus,
+#squadForm input:focus,#squadForm select:focus,#squadForm textarea:focus{
+  outline:3px solid #65cdbb66!important;border-color:var(--imro-teal)!important;
+}
+#regForm input::placeholder,#regForm textarea::placeholder,
+#squadForm input::placeholder,#squadForm textarea::placeholder{color:#7b9290!important}
+#registrationChoice .btn,#regForm button[type=submit],#squadForm button[type=submit],
+#squadForm .btn:not(.alt){
+  color:#fff!important;background:linear-gradient(135deg,var(--imro-teal),var(--imro-teal-deep))!important;
+  border:1px solid #4eb8a7!important;box-shadow:0 8px 20px #087f7830!important;
+}
+#regForm a,#squadForm a{color:var(--imro-teal-deep)!important;font-weight:700}
+#tierAvailabilityMessage{color:var(--imro-teal-deep)!important}
+#avatarChoices .avatar-option.selected,#avatars .avatar.selected,
+#avatarChoices .avatar-option:focus-visible,#avatars .avatar:focus-visible{
+  border-color:var(--imro-teal)!important;background:var(--imro-mint)!important;
+}
+/* Squad form is a dedicated registration journey, not a brand-colour battle panel. */
+.registration-journey{padding:clamp(16px,3vw,26px)!important}
+.registration-journey #imroPlayerAlerts{
+  background:linear-gradient(135deg,#123d4c,#174b52)!important;border-color:#5ba99f!important;
+}
+/* Payments: cool navy and blue convey clear, careful handling. */
+#paymentReceipts,#paymentVerification{
+  background:linear-gradient(145deg,#10243b,#142f4c)!important;
+  border:1px solid #426d91!important;box-shadow:0 16px 36px #0005!important;
+}
+#paymentReceipts h2,#paymentVerification h2{color:#c9e8ff!important}
+#paymentReceipts input,#paymentReceipts select,
+#paymentVerification input,#paymentVerification select{
+  background:#f7fbff!important;color:#132c43!important;border:1px solid #8fb4d2!important;
+}
+#paymentReceipts button:not(.danger),#paymentVerification button:not(.danger){
+  background:linear-gradient(135deg,#347eae,#20577f)!important;color:#fff!important;border:1px solid #79b9e5!important;
+}
+#paymentReceipts .item,#paymentVerification .item{
+  background:#173653!important;border-color:#426d91!important;
+}
+/* Success and completion: green only for confirmed outcomes, not routine decoration. */
+#result:not(:empty),#formResult:not(:empty),
+#prizeMessage:not(:empty),#squadPrizeStatus.success{
+  color:#125b3d!important;background:var(--imro-success-bg)!important;
+  border:1px solid #9ed6b5!important;border-radius:12px!important;padding:12px!important;
+}
+#result a,#formResult a{color:#0d6742!important;font-weight:750}
+@media(max-width:650px){
+  #registrationChoice .card,#register .card,.registration-journey{border-radius:16px!important}
+  #regForm button[type=submit],#squadForm button[type=submit]{width:100%;min-height:48px}
+}
