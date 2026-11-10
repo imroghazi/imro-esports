@@ -91,3 +91,78 @@
   #registrationChoice .card,#register .card,.registration-journey{border-radius:16px!important}
   #regForm button[type=submit],#squadForm button[type=submit]{width:100%;min-height:48px}
 }
+
+/* IMRO art direction pass — tighten mobile composition and unify the journey */
+@media(max-width:650px){
+  /* Hero story: stop the artwork collapsing into a thin banner. */
+  .imro-experience-grid{gap:14px}
+  .imro-experience-grid .gallery-photo{
+    height:clamp(250px,72vw,340px)!important;
+    min-height:0!important;
+    aspect-ratio:4/3;
+    border-radius:14px!important;
+    box-shadow:0 18px 36px #0009,0 0 0 1px #d7aa5a22;
+  }
+  .imro-experience-grid .gallery-photo img{
+    position:absolute!important;inset:0!important;
+    width:100%!important;height:100%!important;min-height:0!important;
+    object-fit:cover!important;object-position:center 40%!important;
+  }
+  .imro-experience-grid .gallery-photo:after{
+    inset:30% 0 0!important;
+    background:linear-gradient(180deg,transparent 0%,#07080bd9 100%)!important;
+  }
+  .focus-feature{
+    min-height:0!important;padding:25px 21px!important;
+    border-radius:14px!important;justify-content:flex-start!important;
+    gap:7px!important;
+  }
+  .focus-emblem{font-size:36px!important;margin-bottom:8px!important}
+  .focus-feature h3{font-size:clamp(30px,9vw,40px)!important;margin:10px 0!important}
+  .focus-feature p{font-size:15px!important;line-height:1.55!important;margin:8px 0!important}
+  .focus-stats{gap:7px!important;margin-top:12px!important}
+  .focus-stats span{padding:9px 11px!important}
+  /* Registration: keep the welcoming palette, but make it belong to IMRO. */
+  #registrationChoice{
+    margin:34px 0!important;padding:22px 14px!important;
+    border:1px solid #277f78!important;border-left:3px solid #42b8a8!important;
+    border-radius:16px!important;
+    background:radial-gradient(ellipse at 0 0,#087f7826,transparent 58%),linear-gradient(145deg,#0b1518,#090b10 75%)!important;
+    box-shadow:0 18px 42px #0008!important;
+  }
+  #registrationChoice .grid{gap:12px!important}
+  #registrationChoice .card{
+    min-height:0!important;padding:21px 19px!important;
+    border-radius:14px!important;
+    background:linear-gradient(145deg,#f8f7ef 0%,#eaf7f2 100%)!important;
+    border:1px solid #a7d7cd!important;
+    box-shadow:0 12px 24px #0004,inset 0 1px #fff!important;
+    justify-content:space-between!important;gap:12px!important;
+  }
+  #registrationChoice .card:before{
+    height:4px!important;background:linear-gradient(90deg,#087f78,#8dd8c8,#d99b2b)!important;
+  }
+  #registrationChoice .card h3{font-size:23px!important;line-height:1.15!important;margin:3px 0!important}
+  #registrationChoice .card p{font-size:14px!important;line-height:1.5!important;margin:0!important}
+  #registrationChoice .card .btn{min-height:46px!important;padding:12px 16px!important;border-radius:9px!important}
+  /* Less dead space between major chapters. */
+  .arena-gallery{margin:28px 0!important}
+  .gallery-heading{margin-bottom:12px!important}
+  #tierArena{margin:28px -1px!important;padding:24px 14px!important}
+  #tierArena .card{min-height:0!important;padding:20px 17px!important}
+  #tierArena .card:nth-child(2),#tierArena .card:nth-child(3){transform:none!important}
+}
+
+/* Compact, premium squad prize panel on phones. */
+@media(max-width:600px){
+  .prize-card{
+    margin:14px auto!important;padding:22px 16px!important;
+    border-radius:14px!important;
+    background:radial-gradient(ellipse at 50% 0,#65202a 0,transparent 68%),linear-gradient(140deg,#211017,#0b0d12)!important;
+  }
+  .prize-kicker{font-size:11px!important;letter-spacing:2px!important;line-height:1.5!important}
+  .prize-card h2{font-size:clamp(20px,5.6vw,25px)!important;line-height:1.18!important;margin:13px auto 8px!important;max-width:18ch!important}
+  .prize-amount{font-size:clamp(42px,12vw,56px)!important;line-height:1.05!important;margin:10px 0!important}
+  .prize-card p{font-size:11px!important;letter-spacing:1.4px!important;line-height:1.5!important;margin:10px 0!important}
+  .prize-foot{font-size:10px!important;letter-spacing:2px!important;margin-top:13px!important}
+}
