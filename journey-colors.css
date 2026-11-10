@@ -79,10 +79,12 @@
   background:#173653!important;border-color:#426d91!important;
 }
 /* Success and completion: green only for confirmed outcomes, not routine decoration. */
-#result:not(:empty),#formResult:not(:empty),
-#prizeMessage:not(:empty),#squadPrizeStatus.success{
-  color:#125b3d!important;background:var(--imro-success-bg)!important;
-  border:1px solid #9ed6b5!important;border-radius:12px!important;padding:12px!important;
+#result:not(:empty),#formResult:not(:empty){
+  color:#234d50!important;background:var(--imro-aqua)!important;
+  border:1px solid #a9d9ce!important;border-radius:12px!important;padding:12px!important;
+}
+#result.is-success,#formResult.is-success{
+  color:#125b3d!important;background:var(--imro-success-bg)!important;border-color:#9ed6b5!important;
 }
 #result a,#formResult a{color:#0d6742!important;font-weight:750}
 @media(max-width:650px){
