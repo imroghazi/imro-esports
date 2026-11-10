@@ -407,6 +407,7 @@ main section .card:after,
     <div class="arena-flare"></div><div class="arena-art-label"><b>IMRO</b><span>THE BATTLE STARTS HERE</span></div>
   </div>
 </div>
+<section id="imroPlayerAlerts" hidden style="margin:18px auto;padding:18px;border:1px solid #4d8392;border-radius:14px;background:linear-gradient(135deg,#102b38,#0d1723);color:#f5fbff"><div style="font-size:11px;letter-spacing:3px;color:#8ee0d2;font-weight:900">IMRO PLAYER ALERTS</div><h2 style="margin:8px 0;color:#fff">🔔 Match calls & tournament updates</h2><div id="imroPlayerAlertList"></div></section>
 <div class="season-strip">
   <div><span class="strip-kicker">THE COMMUNITY ARENA</span><strong>ONE COMMUNITY. <em>ONE CHAMPION.</em></strong></div>
   <div class="strip-stat"><b>SOLO</b><span>INDIVIDUAL SHOWDOWN</span></div>
@@ -820,6 +821,30 @@ if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.ser
  },{passive:true});
  document.documentElement.style.scrollBehavior=reduce?"auto":"smooth";
 })();
+
+async function loadImroPlayerAlerts(){
+ const host=document.getElementById("imroPlayerAlerts"),list=document.getElementById("imroPlayerAlertList");
+ if(!host||!list)return;
+ try{
+  const key="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+  const base="https://gjjhuultiezaybvoykra.supabase.co/rest/v1/player_match_alerts?select=id,title,message,target_type,target_value,alert_kind,created_at,expires_at&active=eq.true&order=created_at.desc&limit=6";
+  const res=await fetch(base,{headers:{apikey:key,Authorization:"Bearer "+key}});
+  if(!res.ok)throw new Error("Alerts unavailable");
+  const rows=await res.json();
+  const visible=rows.filter(a=>!a.expires_at||new Date(a.expires_at)>new Date());
+  if(!visible.length){host.hidden=true;return;}
+  host.hidden=false;
+  list.innerHTML=visible.map(a=>{
+   const audience=a.target_type==="all"?"ALL PLAYERS":a.target_type==="tier"?"SOLO TIER "+a.target_value:"SQUAD PLAYERS";
+   const title=String(a.title||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+   const msg=String(a.message||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])).replace(/\n/g,"<br>");
+   return '<article style="padding:13px;margin:10px 0;border-radius:10px;background:#ffffff0b;border-left:3px solid #75cbbb"><small style="color:#8ee0d2;font-weight:900;letter-spacing:1px">'+audience+' · '+new Date(a.created_at).toLocaleString()+'</small><h3 style="color:#fff;margin:7px 0">'+title+'</h3><p style="color:#e5edf2;margin:0;line-height:1.55">'+msg+'</p></article>';
+  }).join("");
+ }catch(e){host.hidden=true;console.warn("IMRO alerts:",e.message);}
+}
+loadImroPlayerAlerts();
+setInterval(loadImroPlayerAlerts,30000);
+
 </script>
 </body>
 </html>
