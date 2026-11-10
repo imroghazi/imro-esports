@@ -816,11 +816,11 @@ async function renderTierControls(){
     const running=counts.filter(m=>m.status==="in_progress").length;
     const unresolved=counts.filter(m=>m.status!=="completed").length;
     const ended=c.state==="ended";
-    return `<div class="item">
-      <strong>Tier ${tier}</strong>
-      <div class="small">Registration: ${c.registration_open?"OPEN":"CLOSED"} · Matches: ${counts.length} · Running: ${running} · Unresolved: ${unresolved}</div>
+    return `<div class="item" style="background:linear-gradient(145deg,#fffdf8,#e8f1fb)!important;color:#26384a!important;border:1px solid #c3d4e2">
+      <strong style="display:block!important;color:#174b72!important;font-size:22px!important;font-weight:900!important;line-height:1.4!important;opacity:1!important;margin-bottom:8px!important">Tier ${tier}</strong>
+      <div class="small" style="color:#354b60!important;font-weight:600">Registration: ${c.registration_open?"OPEN":"CLOSED"} · Matches: ${counts.length} · Running: ${running} · Unresolved: ${unresolved}</div>
       <button class="${c.registration_open?"danger":"secondary"}" onclick="changeTierRegistration(${tier},${!c.registration_open})">${c.registration_open?"Close registration":"Open registration"}</button>
-      <div class="small">Match state: ${safe(c.state)}</div>
+      <div class="small" style="color:#354b60!important;font-weight:700">Match state: ${safe(c.state)}</div>
       <button ${ended?"disabled":""} onclick="changeTierState(${tier},'running')">Start / Resume tier</button>
       <button class="secondary" ${ended?"disabled":""} onclick="changeTierState(${tier},'stopped')">Stop tier</button>
       <button class="secondary" ${ended?"disabled":""} onclick="changeTierState(${tier},'paused')">Pause tier</button>
