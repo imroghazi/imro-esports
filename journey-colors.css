@@ -395,3 +395,115 @@ main{background:transparent!important}
  #arenaGallery .gallery-photo{min-height:270px!important}
  #arenaGallery .gallery-photo img{min-height:270px!important}
 }
+
+
+/* FULL-BLEED JOURNEY BACKDROPS — colour must fill the page canvas, not sit inside cards. */
+html{background:#100b12!important}
+body{
+ background:
+  radial-gradient(ellipse at 50% 4%,#762036 0%,#351522 28%,transparent 58%),
+  linear-gradient(180deg,#1b0e18 0%,#160f19 26%,#102b30 48%,#102f3b 67%,#101d32 82%,#102b22 100%)!important;
+ background-attachment:scroll!important;
+}
+main{
+ background:transparent!important;
+ position:relative;
+ isolation:isolate;
+}
+/* The competition chapters fill the full viewport width despite the centred content column. */
+#tierArena,#prizePool,#publicSquadPrizePool,#arenaGallery,
+#aboutImro,#partnerImro,#rulesImro{
+ width:calc(100% + 36px)!important;
+ margin-left:-18px!important;margin-right:-18px!important;
+}
+/* Crimson arena chapter: full-bleed burgundy behind all internal content. */
+#prizePool,#publicSquadPrizePool,#tierArena,#arenaGallery,
+#aboutImro,#partnerImro,#rulesImro{
+ background-color:#1b1019!important;
+}
+#tierArena{
+ padding:30px 18px!important;
+ background:
+  radial-gradient(ellipse at 15% 20%,#a72b493d,transparent 56%),
+  radial-gradient(ellipse at 95% 80%,#76203a66,transparent 48%),
+  linear-gradient(135deg,#321421 0%,#24121f 48%,#15111c 100%)!important;
+}
+#prizePool,#publicSquadPrizePool{
+ padding:26px 18px!important;
+ background:
+  radial-gradient(ellipse at 50% 0%,#d34b4b4d,transparent 62%),
+  linear-gradient(135deg,#451827,#2b1424 60%,#17111b)!important;
+}
+#arenaGallery{
+ padding:30px 18px!important;
+ background:
+  radial-gradient(ellipse at 15% 20%,#a52c493d,transparent 58%),
+  radial-gradient(ellipse at 95% 95%,#64203a66,transparent 50%),
+  linear-gradient(145deg,#351622 0%,#281522 48%,#17121d 100%)!important;
+}
+/* Story / community chapters keep a visible warm burgundy field. */
+#aboutImro,#partnerImro,#rulesImro{
+ padding:28px 18px!important;
+ background:
+  radial-gradient(ellipse at 100% 0%,#a42a4655,transparent 62%),
+  linear-gradient(145deg,#351723 0%,#291521 52%,#17121c 100%)!important;
+}
+/* Registration: full-bleed teal/mint, with soft fade-in and fade-out into the arena. */
+#registrationChoice{
+ width:calc(100% + 36px)!important;
+ margin-left:-18px!important;margin-right:-18px!important;
+ padding:38px 18px!important;
+ border-block:1px solid #67c8b7!important;
+ background:
+  linear-gradient(180deg,#24121f 0%,#173c3a 13%,#0c6259 38%,#08766c 58%,#124a4c 84%,#18232e 100%)!important;
+ box-shadow:inset 0 35px 48px -40px #d2fff0,inset 0 -35px 48px -40px #d2fff0!important;
+}
+#registrationChoice:before{
+ top:0;height:90px!important;
+ background:linear-gradient(180deg,#24121f 0%,#24121f88 35%,transparent 100%)!important;
+}
+#registrationChoice:after{
+ bottom:0;height:90px!important;
+ background:linear-gradient(0deg,#17121c 0%,#17121c88 35%,transparent 100%)!important;
+}
+#registrationChoice .grid{position:relative;z-index:1}
+#registrationChoice .card{
+ background:linear-gradient(145deg,#fffdf4 0%,#eaf8f1 72%,#dff4ec 100%)!important;
+ border-color:#b8e4d8!important;
+}
+/* The solo form stays in the same teal family after the choice screen. */
+#register:not([hidden]){
+ width:calc(100% + 36px)!important;
+ margin-left:-18px!important;margin-right:-18px!important;
+ padding:34px 18px!important;
+ background:
+  linear-gradient(180deg,#173f3c 0%,#0d786c 22%,#bfe9dc 48%,#d9f2e8 78%,#193b3b 100%)!important;
+}
+/* Battle desk / scoreboard: make the entire chapter blue, not just its card. */
+#scoreboardTeaser{
+ width:calc(100% + 36px)!important;
+ margin-left:-18px!important;margin-right:-18px!important;
+ padding:32px 18px!important;
+ background:
+  linear-gradient(180deg,#20131f 0%,#12324a 13%,#0d4566 42%,#123b5a 78%,#17212f 100%)!important;
+ border-block:1px solid #6096ba!important;border-left:0!important;border-right:0!important;
+}
+#scoreboardTeaser .btn{
+ background:linear-gradient(135deg,#4d9ac5,#17628b)!important;
+ border-color:#a1d7f4!important;
+}
+/* Squad page canvas also transitions through the same registration palette. */
+body:has(.registration-journey){
+ background:
+  linear-gradient(180deg,#21111b 0%,#0e504d 20%,#08766a 50%,#174b4c 78%,#101b29 100%)!important;
+}
+@media(max-width:650px){
+ #tierArena,#prizePool,#publicSquadPrizePool,#arenaGallery,
+ #aboutImro,#partnerImro,#rulesImro,#registrationChoice,
+ #register:not([hidden]),#scoreboardTeaser{
+  width:calc(100% + 36px)!important;
+  margin-left:-18px!important;margin-right:-18px!important;
+  border-radius:0!important;
+ }
+ #registrationChoice,#register:not([hidden]),#scoreboardTeaser{padding-left:18px!important;padding-right:18px!important}
+}
