@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "IMRO ESPORTS",
+    "slug": "imro-esports",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "imroesports",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.imroesports.app"
+    },
+    "android": {
+      "package": "com.imroesports.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#09090B"
+      }
+    },
+    "plugins": [],
+    "extra": {
+      "eas": {
+        "projectId": "SET_AFTER_EAS_PROJECT_CREATION"
+      }
+    }
+  }
+}
