@@ -1033,3 +1033,44 @@ body{
    linear-gradient(180deg,#342137 0%,#ead9e6 17%,#ccebe1 42%,#d8e6f6 68%,#3a2945 100%)!important;
  }
 }
+
+
+/* Squad admin readability fix: make team identity the strongest text in each card. */
+#squads .item{
+ background:linear-gradient(145deg,#fffdf8 0%,#f1f7fb 58%,#e8f5f0 100%)!important;
+ border:1px solid #b9d4d5!important;
+ color:#25384a!important;
+ box-shadow:0 9px 22px #29465b18!important;
+}
+#squads .item>strong{
+ display:block!important;
+ color:#075e58!important;
+ font-size:19px!important;
+ font-weight:800!important;
+ line-height:1.35!important;
+ letter-spacing:.2px!important;
+ margin:0 0 5px!important;
+ overflow-wrap:anywhere!important;
+}
+#squads .item .muted{
+ color:#405568!important;
+ font-size:14px!important;
+ line-height:1.55!important;
+}
+#squads .item .members{
+ background:linear-gradient(145deg,#e6f4ef,#edf4fb)!important;
+ color:#263d4c!important;border:1px solid #c6ded8!important;
+}
+#squads .item .members strong{color:#075e58!important}
+#squads .item .members li{color:#344d5b!important}
+#squads .item button.secondary{
+ background:linear-gradient(135deg,#64748b,#475569)!important;color:#fff!important;
+}
+#squads .item button:not(.secondary){
+ background:linear-gradient(135deg,#f04455,#bd1833)!important;color:#fff!important;
+}
+@media(max-width:600px){
+ #squads .item{padding:15px!important}
+ #squads .item>strong{font-size:20px!important;margin-bottom:7px!important}
+ #squads .item .muted{font-size:14px!important}
+}
