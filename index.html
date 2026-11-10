@@ -380,6 +380,16 @@ main section .card:after,
 /* IMRO wordmark: always metallic gold across every page */
 .imro-gold-word{color:#f0c56d!important;background:linear-gradient(180deg,#fff0b8 0%,#f0c56d 48%,#b98228 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent!important;text-shadow:0 2px 16px #e8b84d35!important}
 .imro-intro-brand{color:#f0c56d!important}
+
+/* Official Instagram follow section */
+.imro-social-follow{margin:38px 0 24px;padding:1px;border-radius:18px;background:linear-gradient(125deg,#f0c56d,#ff3548 48%,#7a4d9c);box-shadow:0 18px 48px #0006}
+.imro-social-inner{padding:clamp(24px,5vw,42px);border-radius:17px;text-align:center;background:radial-gradient(ellipse at 15% 0%,#f0c56d2a,transparent 48%),radial-gradient(ellipse at 100% 100%,#ff35482a,transparent 52%),linear-gradient(145deg,#17131b,#101116 68%,#21121b)}
+.imro-social-inner h2{max-width:720px;margin:12px auto;color:#fff;font-size:clamp(23px,5vw,36px);line-height:1.12}
+.imro-social-inner p{max-width:680px;margin:14px auto 22px;color:#e7e0df;font-size:16px;line-height:1.65}
+.imro-social-inner p strong{color:#f0c56d}
+.imro-instagram-button{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:15px 24px;border-radius:10px;background:linear-gradient(115deg,#f0c56d,#ff8b55 45%,#d62976 78%,#8134af);border:1px solid #ffe0a0;color:#171018;font-weight:950;letter-spacing:.7px;text-decoration:none;box-shadow:0 10px 28px #d6297650}
+.imro-instagram-button:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.imro-social-note{margin-top:16px;color:#d9c38c;font-size:11px;letter-spacing:1.2px}
 </style>
   <link rel="stylesheet" href="/journey-colors.css?v=8">
 </head>
@@ -484,6 +494,15 @@ main section .card:after,
 <section id="aboutImro"><h2 class="section-title">About IMRO ESPORTS</h2><div class="card"><p>IMRO ESPORTS is a community-run Free Fire tournament initiative built to bring local players together through fair competition, organized brackets and transparent results.</p><p class="muted">Follow the tournament announcements, check tier availability and view published leaderboards here. Match results are published by the organizer.</p><a class="btn" href="/about.html">Learn about IMRO ESPORTS</a></div></section>
 <section id="partnerImro"><h2 class="section-title">Partner with our community</h2><div class="card"><div class="tier">SPONSORSHIP OPPORTUNITIES</div><h3>Support the next generation of community gaming</h3><p class="muted">We welcome relevant local businesses and gaming brands interested in supporting community tournaments. Sponsorship placements are subject to agreement and clear disclosure.</p><a class="btn" href="/sponsors.html">Explore sponsorships</a></div></section>
 <section id="rulesImro"><h2 class="section-title">Tournament rules</h2><div class="card"><ul><li>Pure gameplay.</li><li>No gun attributes.</li><li>No character skills.</li><li>No player substitution.</li><li>Draws are generated manually by the organizer after registration closes.</li><li>Pairings are separated by tier and are shown publicly only after the organizer publishes them.</li></ul></div></section>
+<section id="instagramUpdates" class="imro-social-follow" aria-labelledby="instagramUpdatesTitle">
+<div class="imro-social-inner">
+<div class="tier">📣 OFFICIAL IMRO ESPORTS UPDATES</div>
+<h2 id="instagramUpdatesTitle">FOLLOW THE BATTLE. NEVER MISS AN ANNOUNCEMENT.</h2>
+<p>Follow <strong>@imro_esports_tournament</strong> on Instagram for tournament announcements, registration updates, match schedules, winners and prize announcements.</p>
+<a class="imro-instagram-button" href="https://www.instagram.com/imro_esports_tournament/" target="_blank" rel="noopener noreferrer" aria-label="Follow IMRO ESPORTS on Instagram">◎ FOLLOW US ON INSTAGRAM</a>
+<div class="imro-social-note">Official updates • Tournament news • Winners & prize announcements</div>
+</div>
+</section>
 </main><footer>IMRO ESPORTS • Community tournament • Not affiliated with Garena<br><div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:12px"><a href="/about.html" style="color:#bbb">About</a><a href="/privacy.html" style="color:#bbb">Privacy</a><a href="/terms.html" style="color:#bbb">Terms</a><a href="/sponsors.html" style="color:#bbb">Sponsors</a></div></footer>
 <script>
 const SUPABASE_URL = "https://gjjhuultiezaybvoykra.supabase.co";
