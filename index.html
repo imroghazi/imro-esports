@@ -565,6 +565,7 @@ async function loadTierAvailability(){
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  result.classList.remove("is-success");
 
   const button = form.querySelector('button[type="submit"]');
   const termsAccepted = form.elements.terms_accept.checked;
@@ -646,6 +647,7 @@ form.addEventListener("submit", async (e) => {
       throw new Error(data.error || "Registration failed. Please try again.");
     }
 
+    result.classList.add("is-success");
     result.textContent =
       "REGISTRATION SUCCESSFUL! Your player token: " +
       data.token +
