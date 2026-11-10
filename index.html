@@ -273,8 +273,15 @@ footer{margin-top:45px}
 <button class="btn" type="submit">Submit registration</button>
 </form><div id="result"></div>
 </div></section>
-<section id="liveScores"><h2 class="section-title">Live match scores</h2><div class="broadcast-header"><div><span class="broadcast-kicker">IMRO ESPORTS · OFFICIAL MATCH FEED</span><h2 class="section-title">THE BATTLE DESK</h2><p class="muted">Published matchups and verified results, refreshed automatically.</p></div><div class="broadcast-live-badge"><i></i><span id="broadcastSummary">CONNECTING TO ARENA</span></div></div><div class="broadcast-toolbar"><span id="liveScoresUpdated" class="muted" aria-live="polite">Connecting to live data…</span><button class="btn" type="button" id="refreshLiveScores">↻ REFRESH</button></div><div id="publicLiveScores" class="broadcast-grid"><div class="broadcast-empty">Loading official match feed…</div></div></section>
-<section id="leaderboards"><div class="broadcast-header"><div><span class="broadcast-kicker">OFFICIAL STANDINGS</span><h2 class="section-title">FINAL LEADERBOARDS</h2><p class="muted">Only finalized and published tier standings are displayed.</p></div></div><div id="publicLeaderboards" class="broadcast-grid"><div class="broadcast-empty">Loading official standings…</div></div></section><section id="champions"><div class="broadcast-header"><div><span class="broadcast-kicker">THE ONES WHO ROSE ABOVE</span><h2 class="section-title">HALL OF CHAMPIONS</h2><p class="muted">Top finishers appear here only after the organizer publishes a tier final.</p></div></div><div id="championsWall" class="champions-grid"><div class="broadcast-empty">Waiting for official champions…</div></div></section>
+<section id="scoreboardTeaser" class="card" style="position:relative;overflow:hidden;padding:24px;border:1px solid #78423a;background:linear-gradient(120deg,#210d13,#0c0d12 72%);">
+  <div style="color:#f0c56d;font-size:11px;font-weight:900;letter-spacing:3px;">IMRO ESPORTS · OFFICIAL TOURNAMENT CENTRE</div>
+  <h2 class="section-title" style="margin:12px 0;">THE BATTLE DESK</h2>
+  <p class="muted">Live match feed, player-versus-player results, official tier standings and the Hall of Champions — all on one dedicated scoreboard.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">
+    <a class="btn" href="/scoreboard.html">OPEN OFFICIAL SCOREBOARD ↗</a>
+    <a class="btn" href="/squads.html">SQUAD SCOREBOARD ↗</a>
+  </div>
+</section>
 <section><h2 class="section-title">About IMRO ESPORTS</h2><div class="card"><p>IMRO ESPORTS is a community-run Free Fire tournament initiative built to bring local players together through fair competition, organized brackets and transparent results.</p><p class="muted">Follow the tournament announcements, check tier availability and view published leaderboards here. Match results are published by the organizer.</p><a class="btn" href="/about.html">Learn about IMRO ESPORTS</a></div></section>
 <section><h2 class="section-title">Partner with our community</h2><div class="card"><div class="tier">SPONSORSHIP OPPORTUNITIES</div><h3>Support the next generation of community gaming</h3><p class="muted">We welcome relevant local businesses and gaming brands interested in supporting community tournaments. Sponsorship placements are subject to agreement and clear disclosure.</p><a class="btn" href="/sponsors.html">Explore sponsorships</a></div></section>
 <section><h2 class="section-title">Tournament rules</h2><div class="card"><ul><li>Pure gameplay.</li><li>No gun attributes.</li><li>No character skills.</li><li>No player substitution.</li><li>Draws are generated manually by the organizer after registration closes.</li><li>Pairings are separated by tier and are shown publicly only after the organizer publishes them.</li></ul></div></section>
@@ -563,70 +570,11 @@ async function loadPublicPrizePool() {
 }
 
 
-async function loadTierLeaderboards(){
-  const target=document.getElementById("publicLeaderboards");
-  const champions=document.getElementById("championsWall");
-  const url=SUPABASE_URL+"/rest/v1/rpc/leaderboard_for_tier";
-  try{
-    const tr=await fetch(SUPABASE_URL+"/rest/v1/tournaments?select=id&order=created_at.desc&limit=1",{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY}});
-    if(!tr.ok)throw new Error("Could not identify the current tournament");
-    const tournaments=await tr.json();
-    if(!tournaments.length){target.innerHTML="<div class='card muted'>No tournament is available.</div>";champions.innerHTML="<div class='card muted'>Champions will appear after a tier is finalized.</div>";return;}
-    const tournamentId=tournaments[0].id;
-    const tiers=await Promise.all([1,2,3].map(async tier=>{
-      const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({p_tournament_id:tournamentId,p_tier:tier})});
-      if(!response.ok)throw new Error("Leaderboard request failed");
-      return {tier,rows:await response.json()};
-    }));
-    target.innerHTML=tiers.map(({tier,rows})=>{
-      if(!rows.length)return "<article class='broadcast-card leaderboard-card'><div class='broadcast-kicker'>TIER "+tier+"</div><h3>Awaiting the final</h3><p class='muted'>This leaderboard is not published yet.</p></article>";
-      return "<article class='broadcast-card leaderboard-card'><div class='broadcast-kicker'>OFFICIAL FINAL · TIER "+tier+"</div><h3>Player standings</h3><div class='standings-list'>"+rows.map((row,index)=>"<div class='standing-row'><span class='standing-rank'>"+(row.rank_position||index+1)+"</span><strong>"+escapeLeaderboard(row.player_name)+"</strong><span class='standing-wins'>"+Number(row.wins||0)+" W</span></div>").join("")+"</div></article>";
-    }).join("");
-    const podium=tiers.flatMap(({tier,rows})=>rows.slice(0,3).map(row=>({tier,row}))).sort((a,b)=>Number(a.row.rank_position)-Number(b.row.rank_position));
-    champions.innerHTML=podium.length?podium.map(({tier,row},index)=>"<article class='champion-card "+(Number(row.rank_position)===1?"champion-first":"")+"'><span class='champion-medal'>"+(Number(row.rank_position)===1?"♛":Number(row.rank_position)===2?"🥈":"🥉")+"</span><div class='broadcast-kicker'>TIER "+tier+" · RANK "+escapeLeaderboard(row.rank_position)+"</div><h3>"+escapeLeaderboard(row.player_name)+"</h3><p>"+Number(row.wins||0)+" match wins</p></article>").join(""):"<div class='card muted'>The champions wall unlocks when the organizer finalizes a tier. No unconfirmed winners are shown.</div>";
-  }catch(error){
-    target.innerHTML="<div class='card muted'>Final leaderboards will appear when a tier is finalized.</div>";
-    champions.innerHTML="<div class='card muted'>Champions wall is waiting for published final standings.</div>";
-  }
-}
-async function loadPublicMatchScores(){
- const target=document.getElementById("publicLiveScores");
- const updated=document.getElementById("liveScoresUpdated");
- const summary=document.getElementById("broadcastSummary");
- try{
-  const tr=await fetch(SUPABASE_URL+"/rest/v1/tournaments?select=id&order=created_at.desc&limit=1",{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY}});
-  if(!tr.ok)throw new Error("Tournament lookup failed");
-  const tournaments=await tr.json();
-  if(!tournaments.length){target.innerHTML="<div class='broadcast-empty'>No tournament is available.</div>";summary.textContent="TOURNAMENT NOT STARTED";return;}
-  const response=await fetch(SUPABASE_URL+"/rest/v1/rpc/get_live_match_scores",{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({p_tournament_id:tournaments[0].id})});
-  if(!response.ok)throw new Error("Could not load match scores");
-  const rows=await response.json();
-  const active=rows.filter(row=>row.status==="in_progress");
-  const completed=rows.filter(row=>row.status==="completed");
-  summary.textContent=active.length?active.length+" MATCH"+(active.length===1?"":"ES")+" IN PROGRESS":completed.length?completed.length+" PUBLISHED RESULT"+(completed.length===1?"":"S"):"MATCH CENTRE READY";
-  if(!rows.length){target.innerHTML="<div class='broadcast-empty'><span class='broadcast-empty-icon'>◈</span><strong>THE ARENA IS WAITING</strong><p>No match results have been published yet. Published matches will appear here automatically.</p></div>";}
-  else{
-   const sorted=[...rows].sort((a,b)=>(a.status==="in_progress"?-1:0)-(b.status==="in_progress"?-1:0)||new Date(b.published_at||0)-new Date(a.published_at||0));
-   target.innerHTML=sorted.map(row=>{
-    const live=row.status==="in_progress";
-    const done=row.status==="completed";
-    const state=live?"LIVE NOW":done?"RESULT PUBLISHED":"MATCH ANNOUNCED";
-    return "<article class='broadcast-match "+(live?"match-live":"")+"'><div class='match-topline'><span class='broadcast-kicker'>TIER "+escapeLeaderboard(row.tier)+" · ROUND "+escapeLeaderboard(row.round_number)+"</span><span class='match-state "+(live?"state-live":"")+"'>"+(live?"● ":"")+state+"</span></div><div class='versus-grid'><div class='versus-player'><span class='player-emblem'>"+(done&&row.winner_name===row.player_one_name?"♛":"◈")+"</span><strong>"+escapeLeaderboard(row.player_one_name||"Player 1")+"</strong>"+(done&&row.winner_name===row.player_one_name?"<small>WINNER</small>":"")+"</div><span class='versus-mark'>VS</span><div class='versus-player'><span class='player-emblem'>"+(done&&row.winner_name===row.player_two_name?"♛":"◈")+"</span><strong>"+escapeLeaderboard(row.player_two_name||"Player 2")+"</strong>"+(done&&row.winner_name===row.player_two_name?"<small>WINNER</small>":"")+"</div></div><div class='match-bottomline'>"+(done?"🏆 "+escapeLeaderboard(row.winner_name||"Winner pending"):"<span>"+(live?"Match currently underway":"Matchup published by organizer")+"</span>")+"</div></article>";
-   }).join("");
-  }
-  updated.textContent="LIVE DATA · Last refreshed "+new Date().toLocaleTimeString("en-IN");
- }catch(error){target.innerHTML="<div class='broadcast-empty'>Live match centre is temporarily unavailable. Tap refresh to try again.</div>";summary.textContent="CONNECTION UNAVAILABLE";updated.textContent="Refresh unavailable";}
-}
-document.getElementById('refreshLiveScores').addEventListener('click',loadPublicMatchScores);
-function escapeLeaderboard(value){return String(value??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
 
 loadPublicPrizePool();
-loadTierLeaderboards();
-loadPublicMatchScores();
 loadTierAvailability();
 setInterval(loadPublicPrizePool,15000);
-setInterval(loadPublicMatchScores,5000);
-setInterval(loadTierLeaderboards,20000);
 setInterval(loadTierAvailability,15000);
   </script>
 </div>
