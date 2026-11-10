@@ -60,6 +60,34 @@ form{display:grid;gap:13px}label{display:grid;gap:6px;font-size:14px;color:#ddd}
 .notice{padding:14px;border:1px solid #6a5120;background:#211b0e;color:#f4d98e;border-radius:10px;font-size:13px}
 .status{color:#8de0a2;font-weight:800}footer{border-top:1px solid var(--line);padding:24px;text-align:center;color:#888;font-size:12px}
 #result{display:none;margin-top:12px;padding:14px;border-radius:9px;background:#102318;color:#a8efbd}
+
+/* IMRO ESPORTS premium broadcast visual system */
+:root{--bg:#07080c;--panel:#11131a;--line:#49302a;--red:#f12635;--gold:#d9aa4b;--muted:#a7a9b1}
+html{scroll-behavior:smooth;scroll-padding-top:18px}
+body{background:radial-gradient(ellipse at 50% -15%,#55151b 0,transparent 42%),radial-gradient(ellipse at 100% 55%,#241016 0,transparent 36%),#07080c;color:#f7f3ed}
+header{background:linear-gradient(100deg,#09090cdd,#1a0b10ee,#09090cdd);border-bottom:1px solid #6c302c;box-shadow:0 8px 30px #0008;backdrop-filter:blur(12px);position:sticky;top:0;z-index:20}
+.brand{font-size:clamp(24px,4vw,34px);text-shadow:0 2px 18px #ef233c55}.brand span{color:#ff3346}
+main{max-width:1120px}
+.hero{position:relative;isolation:isolate;padding:clamp(44px,8vw,100px) 0 42px}
+.hero:before{content:"";position:absolute;z-index:-1;inset:0 -18px;background:radial-gradient(ellipse at 78% 40%,#7c171e44,transparent 48%),linear-gradient(110deg,#08090dcc,#180b10aa 55%,transparent);border-bottom:1px solid #5b2927}
+.hero h1{font-size:clamp(48px,10vw,92px);text-shadow:0 6px 32px #000}
+.eyebrow,.tier{color:#e5bd68;letter-spacing:3px}
+.btn{background:linear-gradient(135deg,#ff3548,#a90d22);border:1px solid #ff6874;color:#fff;box-shadow:0 8px 22px #ef233c33, inset 0 1px #ffffff30;transition:transform .18s,filter .18s}
+.btn:hover{filter:brightness(1.14);transform:translateY(-2px)}
+.card{background:linear-gradient(145deg,#191a20f5,#0d0e13f5);border:1px solid #50302e;border-radius:15px;box-shadow:0 12px 34px #0006,inset 0 1px #ffffff0a}
+section{margin-top:36px}
+.section-title{font-size:clamp(23px,4vw,32px);letter-spacing:.4px;text-transform:uppercase}
+#registrationChoice .card{position:relative;overflow:hidden}
+#registrationChoice .card:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,#8c1524,#f0bd55,#8c1524)}
+#liveScores,#leaderboards{padding:20px;border:1px solid #63312d;border-radius:18px;background:linear-gradient(145deg,#170d11,#090a0e 70%);box-shadow:0 18px 50px #0008}
+#publicLiveScores .card,#publicLeaderboards .card{border-color:#69413a;background:linear-gradient(135deg,#202027,#101116);position:relative;overflow:hidden}
+#publicLiveScores .card:before,#publicLeaderboards .card:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(#ff3447,#e4b95c)}
+#publicLiveScores h3,#publicLeaderboards h3{color:#f4d58d}
+input,select,textarea{background:#0a0b10;border-color:#4b3b3a}
+.notice{background:linear-gradient(120deg,#241317,#151015);border-color:#85502f}
+footer{background:#08090d;border-color:#4a2929}
+@media(max-width:600px){header{padding:15px 16px}.hero{padding-top:48px}.card{padding:16px}#liveScores,#leaderboards{padding:14px}}
+
 </style>
 </head>
 <body>
