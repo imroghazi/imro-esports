@@ -166,3 +166,178 @@
   .prize-card p{font-size:11px!important;letter-spacing:1.4px!important;line-height:1.5!important;margin:10px 0!important}
   .prize-foot{font-size:10px!important;letter-spacing:2px!important;margin-top:13px!important}
 }
+
+
+/* IMRO journey zones: each purpose gets its own atmosphere, with soft transitions. */
+:root{
+ --zone-arena:#090a10;
+ --zone-teal:#0b3435;
+ --zone-teal-2:#0d5550;
+ --zone-navy:#0c2038;
+ --zone-blue:#153e60;
+ --zone-emerald:#0d3828;
+}
+/* Arena / competition: keep the signature black, crimson and gold. */
+#tierArena,#scoreboardTeaser,#arenaGallery{
+ position:relative;isolation:isolate;
+}
+#tierArena{
+ background:
+  linear-gradient(180deg,#08090d00 0%,#170b13 15%,#100b12 82%,#08090d00 100%),
+  radial-gradient(ellipse at 85% 35%,#8d1c2d44,transparent 55%),
+  linear-gradient(115deg,#100d12,#08090d 65%)!important;
+ border-block:1px solid #79434a!important;
+}
+#prizePool,#publicSquadPrizePool{
+ background:
+  radial-gradient(ellipse at 50% 0%,#a32b3d55,transparent 64%),
+  linear-gradient(135deg,#210d16,#100b12 62%,#090a10)!important;
+ border:1px solid #a45b4a!important;
+ box-shadow:0 22px 55px #0009,inset 0 1px #ffffff12!important;
+}
+#scoreboardTeaser{
+ background-image:
+  linear-gradient(110deg,#071827f2,#0b2137e8 58%,#0b1727d9),
+  url('/imro-score.jpg')!important;
+ border:1px solid #416b91!important;
+ box-shadow:0 22px 55px #0009,inset 0 1px #ffffff15!important;
+}
+#scoreboardTeaser h2,#scoreboardTeaser p{color:#eaf5ff!important}
+#scoreboardTeaser a{background:linear-gradient(135deg,#347eae,#174b73)!important;border-color:#80b8df!important}
+#arenaGallery{
+ padding:28px 18px!important;
+ border-block:1px solid #784b46!important;
+ background:
+  radial-gradient(ellipse at 100% 5%,#771c2c55,transparent 48%),
+  linear-gradient(180deg,#110c13,#0b0b11 85%,#101017)!important;
+}
+#aboutImro,#partnerImro,#rulesImro{
+ position:relative;isolation:isolate;
+ margin:34px 0!important;
+ padding:26px 20px!important;
+ border:1px solid #68433e!important;
+ border-radius:16px!important;
+ background:
+  radial-gradient(ellipse at 100% 0%,#6f1c2d44,transparent 58%),
+  linear-gradient(145deg,#171017,#0c0d13 70%)!important;
+ box-shadow:0 20px 45px #0007,inset 0 1px #ffffff0b!important;
+}
+#aboutImro .card,#partnerImro .card,#rulesImro .card{
+ border-radius:13px!important;
+ background:linear-gradient(145deg,#19171d,#0c0d13)!important;
+ border:1px solid #684c43!important;
+ box-shadow:0 14px 30px #0006,inset 0 1px #ffffff0a!important;
+}
+#aboutImro .card{border-left:4px solid #d6ad5a!important}
+#partnerImro .card{border-left:4px solid #b84a59!important}
+#rulesImro .card{border-left:4px solid #b38b48!important}
+
+/* Registration zone: the surrounding canvas itself turns teal, then fades back to arena. */
+#registrationChoice{
+ position:relative;isolation:isolate;overflow:hidden;
+ margin:34px -12px!important;padding:32px 20px!important;
+ border:0!important;border-block:1px solid #3ca99b!important;border-radius:0!important;
+ background:
+  radial-gradient(ellipse at 8% 48%,#19a99a55,transparent 58%),
+  radial-gradient(ellipse at 95% 5%,#d6b15a22,transparent 48%),
+  linear-gradient(115deg,#0c3538 0%,#0d4845 42%,#103b42 72%,#101a25 100%)!important;
+ box-shadow:inset 0 25px 35px -35px #b9fff0,inset 0 -25px 35px -35px #b9fff0!important;
+}
+#registrationChoice:before,#registrationChoice:after{
+ content:"";position:absolute;left:0;right:0;height:46px;pointer-events:none;z-index:-1;
+}
+#registrationChoice:before{top:0;background:linear-gradient(#08090d,#08090d00)}
+#registrationChoice:after{bottom:0;background:linear-gradient(#08090d00,#08090d)}
+#registrationChoice .section-title{color:#f5fff9!important;text-shadow:0 2px 18px #0008}
+#registrationChoice .card{
+ background:linear-gradient(145deg,#fbfaf2 0%,#e8f7f1 100%)!important;
+ border:1px solid #b5e0d5!important;
+ box-shadow:0 18px 36px #001a1c55,inset 0 1px #fff!important;
+}
+#registrationChoice .card h3{color:#08665e!important}
+#registrationChoice .card p{color:#526b68!important}
+#registrationChoice .card .btn{
+ background:linear-gradient(135deg,#078f83,#075f5a)!important;
+ border:1px solid #53c9b7!important;
+ box-shadow:0 9px 22px #087f7840!important;
+}
+/* Solo registration: a complete soft mint environment, not just a pale form card. */
+#register:not([hidden]){
+ position:relative;isolation:isolate;overflow:hidden;
+ margin:0 -12px 34px!important;padding:30px 20px!important;
+ border-block:1px solid #70c7b8!important;border-radius:0!important;
+ background:
+  radial-gradient(ellipse at 0 0,#a4e6d455,transparent 54%),
+  radial-gradient(ellipse at 100% 100%,#d9b45b22,transparent 48%),
+  linear-gradient(145deg,#d8f1e9 0%,#c5e8df 45%,#eaf4e9 100%)!important;
+ box-shadow:inset 0 24px 38px -38px #fff,inset 0 -24px 38px -38px #fff!important;
+}
+#register .section-title{color:#075e58!important}
+#register>.card{
+ background:linear-gradient(145deg,#fbfcf5,#edf8f1)!important;
+ border:1px solid #9bcfc2!important;border-radius:17px!important;
+ box-shadow:0 20px 44px #123c3430,inset 0 1px #fff!important;
+}
+#register #backToRegistrationChoices{
+ background:linear-gradient(135deg,#416e70,#274e53)!important;
+}
+#register #result:not(:empty){background:#e5f6eb!important;border-color:#9ed6b5!important}
+#register #result.is-success{background:linear-gradient(145deg,#e9faee,#d3f2dc)!important;border-color:#79c696!important;color:#125b3d!important}
+#result>div{
+ background:linear-gradient(145deg,#10243b,#173d5d)!important;
+ border:1px solid #6b9bc0!important;color:#f4faff!important;
+ box-shadow:0 15px 32px #0b284455!important;
+}
+#result>div h3{color:#d5ecff!important}
+#result>div p{color:#e1eff9!important}
+#result>div button{background:linear-gradient(135deg,#3987b8,#205779)!important;color:#fff!important}
+
+/* Payment instructions and verification get a navy-to-blue full section. */
+#paymentReceipts,#paymentVerification{
+ background:
+  radial-gradient(ellipse at 100% 0%,#327eae44,transparent 55%),
+  linear-gradient(145deg,#0b2038,#123958 55%,#0d2946)!important;
+ border:1px solid #4b83ae!important;
+ border-radius:16px!important;
+}
+#paymentReceipts h2,#paymentVerification h2{color:#d9edff!important}
+#paymentReceipts p,#paymentVerification p{color:#c5d9ea!important}
+#paymentReceipts .item,#paymentVerification .item{
+ background:linear-gradient(145deg,#173d5b,#102b45)!important;border-color:#4a789b!important;
+}
+
+/* Squad registration uses the same teal journey and payment screens use blue. */
+body:has(.registration-journey){
+ background:
+  radial-gradient(ellipse at 50% 30%,#0a696044,transparent 52%),
+  linear-gradient(180deg,#07171b,#091a20 40%,#080d14 100%)!important;
+}
+.registration-journey{
+ background:
+  radial-gradient(ellipse at 100% 0%,#b8eadc55,transparent 55%),
+  linear-gradient(145deg,#d9f2e9,#c4e8de 55%,#eff7ed)!important;
+ border:1px solid #9fd2c5!important;border-radius:18px!important;
+ box-shadow:0 20px 48px #0006!important;
+}
+.registration-journey h2,.registration-journey h3{color:#075f59!important}
+.registration-journey p,.registration-journey .muted{color:#526c68!important}
+.registration-journey label{color:#234b48!important}
+.registration-journey input:not([type=checkbox]):not([type=hidden]),
+.registration-journey select,.registration-journey textarea{
+ background:#fff!important;color:#183b3b!important;border-color:#a5d0c5!important;
+}
+.registration-journey .btn:not(.alt){
+ background:linear-gradient(135deg,#078f83,#075f5a)!important;
+}
+#squadPrizePool{
+ background:
+  radial-gradient(ellipse at 50% 0%,#9b263c66,transparent 66%),
+  linear-gradient(140deg,#250d18,#100b13 65%,#090a10)!important;
+ border-color:#aa6650!important;
+}
+@media(max-width:650px){
+ #registrationChoice{margin:26px -12px!important;padding:26px 15px!important}
+ #register:not([hidden]){margin:0 -12px 28px!important;padding:24px 14px!important}
+ #aboutImro,#partnerImro,#rulesImro{margin:24px 0!important;padding:20px 14px!important}
+ #arenaGallery{padding:22px 12px!important}
+}
