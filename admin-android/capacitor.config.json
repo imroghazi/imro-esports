@@ -1,0 +1,8 @@
+{
+  "appId": "com.imroesports.admin",
+  "appName": "IMRO Admin",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  }
+}
