@@ -171,6 +171,37 @@ main>section.card:not(.registration-journey) .muted{color:#dce7f2!important;opac
 .registration-journey #squadForm label:focus-within{
   color:#ffe19a!important;
 }
+
+/* Strong contrast for the squad form title, instructions and registration status */
+<style>
+.registration-journey h2,
+.registration-journey>h2{
+  color:#ffd978!important;
+  font-size:clamp(24px,5vw,30px)!important;
+  font-weight:900!important;
+  text-shadow:0 2px 8px #0009!important;
+}
+.registration-journey>p,
+.registration-journey>p.muted,
+.registration-journey #squadForm>p{
+  color:#f1f6ff!important;
+  opacity:1!important;
+  font-weight:500!important;
+  line-height:1.6!important;
+  text-shadow:0 1px 3px #0008!important;
+}
+.registration-journey #settings{
+  color:#ffffff!important;
+  background:linear-gradient(120deg,#075f59,#123f55)!important;
+  border:1px solid #65d8c5!important;
+  font-weight:800!important;
+  opacity:1!important;
+}
+.registration-journey #squadForm h3{
+  color:#ffd978!important;
+  text-shadow:0 1px 5px #0009!important;
+}
+</style>
 </style></head><body>
 
 <div id="imroCinematicIntro" role="status" aria-label="Entering IMRO ESPORTS">
