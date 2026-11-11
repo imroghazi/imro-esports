@@ -258,7 +258,7 @@ async function loadAll(){
   if(!id)return;
 
   const [p,r,m,rc] = await Promise.all([
-    db.from("players").select("*").eq("tournament_id",id).order("created_at"),
+    db.from("players").select("*").eq("tournament_id",id).is("archived_at",null).order("created_at"),
     db.from("registrations").select("*").eq("tournament_id",id).order("created_at"),
     db.from("matches").select("*").eq("tournament_id",id).order("created_at"),
     db.from("payment_receipts").select("*").eq("tournament_id",id).order("created_at",{ascending:false})
@@ -520,24 +520,38 @@ function renderPlayers(){
 async function deletePlayer(id){
   const p=players.find(item=>item.id===id);
   if(!p)return;
-  if(!confirm("Delete "+p.player_name+" from Player management? This cannot be undone. The registration/contact record will be retained. Players already used in matches or promotion history cannot be deleted."))return;
+  if(!confirm("Archive "+p.player_name+" and remove them from active Player Management? Match results, receipts and promotion history will be preserved."))return;
 
-  const [matchRefs,historyRefs]=await Promise.all([
-    db.from("matches").select("id").or("player_one.eq."+id+",player_two.eq."+id+",winner_id.eq."+id+",no_show_player_id.eq."+id).limit(1),
-    db.from("promotion_history").select("id").eq("player_id",id).limit(1)
-  ]);
-  if(matchRefs.error || historyRefs.error){
-    message("Could not check player history. Nothing was deleted: "+(matchRefs.error?.message||historyRefs.error?.message));
-    return;
-  }
-  if((matchRefs.data||[]).length || (historyRefs.data||[]).length){
-    message("This player is linked to match or promotion history, so deletion is blocked to protect tournament records. You can keep the player marked eliminated/rejected.");
-    return;
+  const archivedAt=new Date().toISOString();
+  const {data:archivedPlayer,error}=await db.from("players")
+    .update({archived_at:archivedAt})
+    .eq("id",id)
+    .is("archived_at",null)
+    .select("id")
+    .maybeSingle();
+
+  if(error){message("Could not archive player: "+error.message);return;}
+  if(!archivedPlayer){message("No player row was archived. The database did not confirm the change; check admin permissions and refresh.");return;}
+
+  if(p.registration_id){
+    const {data:archivedRegistration,error:registrationError}=await db.from("registrations")
+      .update({archived_at:archivedAt})
+      .eq("id",p.registration_id)
+      .is("archived_at",null)
+      .select("id")
+      .maybeSingle();
+    if(registrationError||!archivedRegistration){
+      await db.from("players").update({archived_at:null}).eq("id",id);
+      message("Archive was rolled back because the registration record was not confirmed: "+(registrationError?.message||"No registration row was updated. Check admin permissions."));
+      return;
+    }
   }
 
-  const {error}=await db.from("players").delete().eq("id",id);
-  if(error){message("Delete failed: "+error.message);return;}
-  message("Player removed from Player management. Registration and contact record retained for admin history.");
+  players=players.filter(player=>player.id!==id);
+  renderPlayers();
+  renderPlayerSelects();
+  renderReceipts();
+  message(p.player_name+" archived and removed from active Player Management. Match, payment and promotion history has been preserved.");
   await loadAll();
 }
 
