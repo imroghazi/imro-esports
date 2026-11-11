@@ -151,7 +151,27 @@ main>section.card:not(.registration-journey) .muted{color:#dce7f2!important;opac
 #settings{padding:9px 11px;border-radius:8px;background:#26364a;color:#fff!important;font-weight:700}
 #formResult{color:#f5f7fb!important}
 
-</style><link rel="stylesheet" href="/journey-colors.css?v=13"></head><body>
+</style><link rel="stylesheet" href="/journey-colors.css?v=13">
+<style>
+/* Squad form label contrast fix: clear white labels on the dark form panel */
+.registration-journey #squadForm label{
+  color:#ffffff!important;
+  font-size:16px!important;
+  font-weight:750!important;
+  letter-spacing:.15px!important;
+  text-shadow:0 1px 3px #000b!important;
+}
+.registration-journey #squadForm h3{
+  color:#ffd978!important;
+  font-weight:800!important;
+}
+.registration-journey #squadForm p{
+  color:#e7eef8!important;
+}
+.registration-journey #squadForm label:focus-within{
+  color:#ffe19a!important;
+}
+</style></head><body>
 
 <div id="imroCinematicIntro" role="status" aria-label="Entering IMRO ESPORTS">
  <div class="imro-intro-inner">
