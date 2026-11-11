@@ -127,7 +127,7 @@ dialog{background:#151116;border-color:#8a443b}
 <label for="playerSearch">Search players</label>
 <input id="playerSearch" type="search" placeholder="Search name, Free Fire UID or contact number">
 <p id="playerSearchCount" class="small" aria-live="polite">Showing all active players.</p>
-<label style="display:flex;align-items:center;gap:8px"><input id="showWithdrawnPlayers" type="checkbox" style="width:auto"> Show removed players (restore available)</label>
+<label style="display:flex;align-items:center;gap:8px"><input id="showWithdrawnPlayers" type="checkbox" style="width:auto"> Show archived players (restore available)</label>
 <div id="players"></div>
 </section>
 
@@ -573,65 +573,128 @@ function contactPhone(registration){
 
 function renderPlayers(){
   const query=($("playerSearch")?.value||"").trim().toLowerCase();
-  const showWithdrawn=$("showWithdrawnPlayers")?.checked||false;
+  const showArchived=$("showWithdrawnPlayers")?.checked||false;
   const filtered=players.filter(p=>{
-    if(p.status==="withdrawn"&&!showWithdrawn)return false;
+    const isArchived=Boolean(p.archived_at)||p.status==="withdrawn";
+    if(isArchived&&!showArchived)return false;
     const registration=registrations.find(r=>r.id===p.registration_id);
     const contact=String(registration?.contact_number||"");
     return [p.player_name,p.game_uid,contact,registration?.registration_token]
       .some(value=>String(value||"").toLowerCase().includes(query));
   });
+  const archivedCount=players.filter(p=>Boolean(p.archived_at)||p.status==="withdrawn").length;
+  const activeCount=players.length-archivedCount;
   $("playerSearchCount").textContent=query
-    ? "Showing "+filtered.length+" of "+players.length+" player(s)."
-    : "Showing active players (removed hidden).";
+    ? "Showing "+filtered.length+" matching player(s)."
+    : "Showing "+(showArchived?"active and archived players":"all "+activeCount+" active players")+(archivedCount&&!showArchived?"; "+archivedCount+" archived hidden.":".");
 
   $("players").innerHTML=filtered.map(p=>{
     const registration=registrations.find(r=>r.id===p.registration_id);
     const token=registration?.registration_token||"Not available";
     const contact=contactPhone(registration);
     const next=p.tier<3?p.tier+1:null;
+    const isArchived=Boolean(p.archived_at)||p.status==="withdrawn";
 
     return `<div class="item">
       <strong><span style="font-size:24px">${avatarBadge(p.avatar_id)}</span> ${safe(p.player_name)}</strong>
       <div class="small">UID: ${safe(p.game_uid)}</div>
-      <div class="small">Tier ${p.tier} · Status: ${safe(p.status)}</div>
+      <div class="small">Tier ${p.tier} · Status: ${safe(isArchived?"archived":p.status)}</div>
       <div class="small">Contact: ${contact?safe(contact.display):"Not provided"}</div>
       ${contact?`<a href="https://wa.me/${safe(contact.whatsapp)}" target="_blank" rel="noopener noreferrer" class="contact-action whatsapp-action">WhatsApp</a>
       <a href="tel:${safe(contact.call)}" class="contact-action call-action">Call</a>`:""}
       <div class="small">Token: ${safe(token)}</div>
-      ${p.status==="pending"?
+      ${!isArchived&&p.status==="pending"?
         `<button onclick="approvePlayer('${p.id}')">Approve</button>
          <button class="danger" onclick="rejectPlayer('${p.id}')">Reject</button>
          <div class="small">Redirect to another tier:</div>
          <select id="redirect-${p.id}"><option value="">Choose tier</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option></select>
          <button class="secondary" onclick="redirectPlayer('${p.id}')">Redirect player</button>`:""}
-      ${p.status==="rejected"?`<span class="small">Rejected by admin</span>`:""}
-      ${p.status==="approved" && next?
+      ${!isArchived&&p.status==="rejected"?`<span class="small">Rejected by admin</span>`:""}
+      ${!isArchived&&p.status==="approved" && next?
         `<button onclick="promotePlayer('${p.id}')">Promote to Tier ${next}</button>`:""}
-      ${p.status==="approved"?
+      ${!isArchived&&p.status==="approved"?
         `<button class="danger" onclick="eliminatePlayer('${p.id}')">Eliminate</button>`:""}
-      ${p.status==="reserve"?
+      ${!isArchived&&p.status==="reserve"?
         `<span class="small">Reserve player</span>`:""}
-      ${p.status==="eliminated"?
+      ${!isArchived&&p.status==="eliminated"?
         `<span class="small">Eliminated</span>`:""}
-      <button class="danger" onclick="deletePlayer('${p.id}')">🗑 Delete player</button>
+      <button class="danger" onclick="deletePlayer('${p.id}')">${isArchived?"↩ Restore player":"📦 Archive &amp; remove"}</button>
     </div>`;
-  }).join("") || (query?"<p>No players match your search.</p>":"<p>No players registered yet.</p>");
+  }).join("") || (query?"<p>No players match your search.</p>":(showArchived?"<p>No players found.</p>":"<p>No active players. Archived players are hidden.</p>"));
 }
 
 async function deletePlayer(id){
- const p=players.find(item=>item.id===id);if(!p)return;
- if(p.status==='withdrawn'){
-  if(!confirm('Restore '+p.player_name+' to the player list?'))return;
-  const {error}=await db.from('players').update({status:'pending'}).eq('id',id);
-  if(error){message('Could not restore player: '+error.message);return;}
-  message(p.player_name+' restored as pending approval.');await loadAll();return;
- }
- if(!confirm('Remove '+p.player_name+' from active Player management? Match results and promotion history will be preserved. You can show and restore removed players later.'))return;
- const {error}=await db.from('players').update({status:'withdrawn'}).eq('id',id);
- if(error){message('Could not remove player: '+error.message);return;}
- message(p.player_name+' removed from the active player list. Historical match records are preserved.');
- await loadAll();
+  const p=players.find(item=>item.id===id);
+  if(!p)return;
+  const isArchived=Boolean(p.archived_at)||p.status==="withdrawn";
+
+  if(isArchived){
+    if(!confirm("Restore "+p.player_name+" to Player Management as pending approval?"))return;
+    const {data:restoredPlayer,error}=await db.from("players")
+      .update({archived_at:null,status:"pending"})
+      .eq("id",id)
+      .select("id")
+      .maybeSingle();
+    if(error){message("Could not restore player: "+error.message);return;}
+    if(!restoredPlayer){message("No player row was restored. Your admin permission may not allow this update.");return;}
+
+    if(p.registration_id){
+      const registration=registrations.find(r=>r.id===p.registration_id);
+      if(registration?.archived_at){
+        const {data:restoredRegistration,error:registrationError}=await db.from("registrations")
+          .update({archived_at:null})
+          .eq("id",p.registration_id)
+          .select("id")
+          .maybeSingle();
+        if(registrationError||!restoredRegistration){
+          await db.from("players").update({archived_at:p.archived_at||new Date().toISOString(),status:p.status}).eq("id",id);
+          message("Player restore was rolled back because the registration could not be restored: "+(registrationError?.message||"No registration row was updated."));
+          return;
+        }
+      }
+    }
+    message(p.player_name+" restored as pending approval.");
+    await loadAll();
+    return;
+  }
+
+  if(!confirm("Archive "+p.player_name+" and remove them from active Player Management? Match results, receipts and promotion history will be preserved. You can restore this player later."))return;
+
+  const archivedAt=new Date().toISOString();
+  const {data:archivedPlayer,error}=await db.from("players")
+    .update({archived_at:archivedAt})
+    .eq("id",id)
+    .is("archived_at",null)
+    .select("id")
+    .maybeSingle();
+
+  if(error){message("Could not archive player: "+error.message);return;}
+  if(!archivedPlayer){message("No player row was archived. The database did not confirm the change; check admin permissions and refresh.");return;}
+
+  if(p.registration_id){
+    const registration=registrations.find(r=>r.id===p.registration_id);
+    if(registration&&!registration.archived_at){
+      const {data:archivedRegistration,error:registrationError}=await db.from("registrations")
+        .update({archived_at:archivedAt})
+        .eq("id",p.registration_id)
+        .is("archived_at",null)
+        .select("id")
+        .maybeSingle();
+      if(registrationError||!archivedRegistration){
+        await db.from("players").update({archived_at:null}).eq("id",id);
+        message("Archive was rolled back because the registration could not be archived: "+(registrationError?.message||"No registration row was updated."));
+        return;
+      }
+    }
+  }
+
+  players=players.map(item=>item.id===id?{...item,archived_at:archivedAt}:item);
+  if(p.registration_id)registrations=registrations.map(item=>item.id===p.registration_id?{...item,archived_at:archivedAt}:item);
+  renderPlayers();
+  renderPlayerSelects();
+  renderReceipts();
+  message(p.player_name+" archived and removed from the active list. Match and payment history remain preserved.");
+  await loadAll();
 }
 function renderPlayerSelects(){
   const tier=Number($("matchTier").value);
