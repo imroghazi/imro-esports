@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">IMRO ESPORTS</string>
+    <string name="title_activity_main">IMRO ESPORTS</string>
+    <string name="package_name">com.imroesports.app</string>
+    <string name="custom_url_scheme">com.imroesports.app</string>
+</resources>

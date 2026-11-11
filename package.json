@@ -1,0 +1,26 @@
+{
+  "name": "imro-esports",
+  "version": "1.0.0",
+  "description": "IMRO ESPORTS TOURNAMENT WEBSITE",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imroghazi/imro-esports.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/imroghazi/imro-esports/issues"
+  },
+  "homepage": "https://github.com/imroghazi/imro-esports#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/core": "^8.6.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.0"
+  }
+}

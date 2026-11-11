@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IMRO ESPORTS | Official Tournament Scoreboard</title>
+<meta name="description" content="Official IMRO ESPORTS Free Fire scoreboard: live match results, tier standings and champions.">
+<meta name="theme-color" content="#08090d">
+<link rel="canonical" href="https://imro-esports.vercel.app/scoreboard.html">
+<style>
+:root{--bg:#08090d;--panel:#11131a;--panel2:#171922;--red:#ff3045;--gold:#efc66d;--muted:#a7a8b2;--line:#493139;--green:#7be0a1}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -12%,#6b182255,transparent 43%),radial-gradient(ellipse at 95% 45%,#42121d33,transparent 35%),var(--bg);color:#f7f4ef;font:15px/1.5 system-ui,Arial,sans-serif}
+a{color:inherit;text-decoration:none}.topbar{position:sticky;top:0;z-index:10;background:#090a0eef;backdrop-filter:blur(14px);border-bottom:1px solid #653337;padding:13px 18px}.nav{max-width:1180px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:clamp(20px,4vw,28px);font-weight:1000;letter-spacing:1.8px}.brand span{color:var(--red)}.tag{display:block;color:#d5b66f;font-size:9px;letter-spacing:3px}.navlinks{display:flex;gap:8px;flex-wrap:wrap}.navlinks a,.action{border:1px solid #5b3939;padding:9px 13px;border-radius:4px;font-weight:800;font-size:11px;letter-spacing:1px}.navlinks a.primary,.action{background:linear-gradient(120deg,#ff3548,#a80f23);border-color:#ff6572}
+main{max-width:1180px;margin:auto;padding:22px 18px 60px}.hero{position:relative;overflow:hidden;padding:28px;border:1px solid #70413c;background:linear-gradient(110deg,#241016,#111219 65%,#241016);box-shadow:0 18px 50px #0009}.hero:after{content:"";position:absolute;right:-60px;top:-120px;width:360px;height:360px;border:1px solid #e9bd6544;border-radius:50%;box-shadow:0 0 0 30px #e9bd6509,0 0 0 70px #e9bd6507;pointer-events:none}.eyebrow,.kicker{color:var(--gold);font-weight:950;letter-spacing:3px;font-size:10px}.hero h1{font-size:clamp(34px,7vw,68px);line-height:.98;letter-spacing:-1.5px;margin:12px 0}.hero h1 span{color:var(--red)}.hero p{color:#c4c1c6;max-width:620px;margin:0}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 28px}.stat{padding:15px;border:1px solid #3c3036;background:linear-gradient(145deg,#191a22,#0e1015)}.stat strong{display:block;color:var(--gold);font-size:clamp(20px,4vw,30px);line-height:1.2}.stat span{color:#aaa;font-size:9px;letter-spacing:1.5px;font-weight:900}
+.section{margin-top:30px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:14px;margin-bottom:13px}.section-head h2{margin:4px 0 0;font-size:clamp(23px,4vw,32px);letter-spacing:.7px}.section-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.live-indicator{display:inline-flex;align-items:center;gap:7px;color:#ff8992;font-size:10px;font-weight:950;letter-spacing:1.5px;border:1px solid #74333b;padding:7px 10px}.live-indicator i{width:7px;height:7px;border-radius:50%;background:#ff4052;box-shadow:0 0 12px #ff4052}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid #34272e;border-bottom:1px solid #34272e;margin-bottom:13px}.toolbar small{color:var(--muted)}.filters{display:flex;gap:6px;flex-wrap:wrap}.filter{border:1px solid #51373a;background:#12131a;color:#d4c7c3;padding:8px 12px;border-radius:3px;font-size:10px;font-weight:900;letter-spacing:1px;cursor:pointer}.filter.active{background:linear-gradient(120deg,#a90e24,#f13247);border-color:#ff6773;color:white}
+.matches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.match{position:relative;overflow:hidden;padding:16px;border:1px solid #59403d;background:linear-gradient(135deg,#1a171d,#0d0f15 75%)}.match:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--red),var(--gold))}.match.live{border-color:#9c343f;box-shadow:0 0 20px #e9273b20}.match-top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:11px;border-bottom:1px solid #3c2d32}.match-label{font-size:10px;letter-spacing:2px;color:var(--gold);font-weight:950}.status{font-size:9px;letter-spacing:1px;color:#d7c6a2;border:1px solid #715a3e;padding:5px 7px;font-weight:900}.status.live{color:#ff8b94;border-color:#943b44}.versus{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);align-items:center;gap:6px;padding:16px 0 12px}.player{text-align:center;min-width:0}.emblem{width:46px;height:46px;display:grid;place-items:center;margin:0 auto 7px;border:1px solid #9b7647;background:radial-gradient(circle,#5b3b25,#17131a);color:var(--gold);font-size:23px}.player strong{display:block;font-size:13px;overflow-wrap:anywhere}.player small{display:block;margin-top:4px;color:var(--gold);font-size:9px;font-weight:950;letter-spacing:2px}.vs{text-align:center;color:var(--red);font-weight:1000;font-size:13px}.match-bottom{border-top:1px solid #3b2d32;padding-top:10px;color:#e6c47a;font-weight:800;font-size:12px}.match-bottom span{color:var(--muted);font-weight:500}
+.empty{padding:25px;text-align:center;background:#111219;border:1px dashed #604044;color:var(--gold)}.empty p{color:var(--muted);margin:5px 0 0}
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.tier-card{padding:17px;border:1px solid #5a403c;background:linear-gradient(145deg,#191a21,#0d0f14)}.tier-head{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #3d3032;padding-bottom:10px}.tier-head b{color:var(--gold);font-size:11px;letter-spacing:2px}.tier-head span{font-size:9px;color:#a6a0a2}.standings{margin-top:8px}.standing{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 2px;border-bottom:1px solid #30282e;font-size:12px}.rank{color:var(--gold);font-weight:1000}.wins{color:#e8c878;font-weight:900}.await{padding:15px 0;color:var(--muted);font-size:12px}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.champ{padding:17px;text-align:center;border:1px solid #77533e;background:radial-gradient(ellipse at 50% 0,#5c321e66,transparent 70%),#111219}.champ:first-child{border-color:#c99a50}.medal{font-size:27px}.champ h3{font-size:15px;margin:8px 0;color:#f5d99c;overflow-wrap:anywhere}.champ p{margin:0;color:var(--muted);font-size:11px}.foot{text-align:center;color:#777;font-size:10px;letter-spacing:2px;margin-top:40px;padding-top:18px;border-top:1px solid #33252b}
+@media(max-width:700px){main{padding:14px 12px 45px}.hero{padding:21px 17px}.stats{grid-template-columns:repeat(2,1fr);gap:8px}.matches{grid-template-columns:1fr}.tiers{grid-template-columns:1fr}.podium{grid-template-columns:1fr}.section-head{align-items:flex-start;flex-direction:column}.toolbar{align-items:flex-start;flex-direction:column}.navlinks a{padding:8px 9px;font-size:9px}.match{padding:14px}}
+.hero{background-image:linear-gradient(90deg,#08090df2 0%,#08090dbd 52%,#08090d66 100%),url("https://images.pexels.com/photos/7915267/pexels-photo-7915267.jpeg?auto=compress&cs=tinysrgb&w=1600");background-size:cover;background-position:center 42%}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#090a0e66,transparent 55%);pointer-events:none}.hero>*{position:relative;z-index:1}.score-quote{margin:16px 0 28px;padding:19px 16px;border:1px solid #79513d;text-align:center;background:linear-gradient(110deg,#241017,#101116);color:#f3d18b;font-size:clamp(18px,3vw,26px);font-weight:850}.score-quote small{display:block;margin-top:7px;color:#aaa;font-size:9px;letter-spacing:3px}
+/* IMRO cinematic public experience */
+#imroCinematicIntro{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#4a101d 0%,#170b12 42%,#050609 78%);opacity:1;visibility:visible;transition:opacity .65s ease,visibility .65s ease}
+#imroCinematicIntro.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
+#imroCinematicIntro:before,#imroCinematicIntro:after{content:"";position:absolute;width:min(78vw,620px);aspect-ratio:1;border:1px solid #d7a74a44;border-radius:50%;box-shadow:0 0 0 22px #d7a74a08,0 0 0 55px #d7a74a06;animation:imroOrbit 14s linear infinite}
+#imroCinematicIntro:after{width:min(58vw,440px);animation-direction:reverse;animation-duration:19s;border-color:#f23a4b44}
+.imro-intro-inner{position:relative;z-index:1;width:min(90vw,620px);text-align:center;padding:28px 18px;animation:imroRise .9s cubic-bezier(.2,.8,.2,1) both}
+.imro-intro-crown{font-size:clamp(34px,8vw,60px);filter:drop-shadow(0 0 18px #e7b64d77);animation:imroFloat 2.6s ease-in-out infinite}
+.imro-intro-brand{font-size:clamp(32px,9vw,66px);font-weight:1000;letter-spacing:2px;line-height:1.02;text-shadow:0 5px 28px #ff263b55}.imro-intro-brand span{color:#ff354b}
+.imro-intro-sub{margin-top:9px;color:#e8c778;font-size:10px;letter-spacing:5px;font-weight:900}
+.imro-intro-quote{margin:28px auto 24px;max-width:440px;color:#eee0cf;font-family:Georgia,serif;font-size:clamp(18px,4vw,25px);font-style:italic}
+.imro-intro-track{width:min(68vw,300px);height:3px;margin:0 auto;background:#ffffff20;overflow:hidden}
+.imro-intro-track i{display:block;width:42%;height:100%;background:linear-gradient(90deg,#ff3045,#f4ca72);box-shadow:0 0 15px #ff3045;animation:imroLoad 1.45s ease-in-out forwards}
+.imro-intro-enter{margin-top:17px;border:0;background:transparent;color:#e9c777;font-size:10px;font-weight:900;letter-spacing:3px;cursor:pointer;padding:10px 16px}
+.imro-reveal{opacity:0;transform:translateY(24px);transition:opacity .75s ease,transform .75s cubic-bezier(.2,.75,.2,1)}
+.imro-reveal.imro-visible{opacity:1;transform:none}
+.imro-touch{position:relative;overflow:hidden;transform:translateZ(0);transition:transform .18s ease,filter .18s ease}
+.imro-touch:active{transform:scale(.975);filter:brightness(1.18)}
+.imro-touch:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--tap-x,50%) var(--tap-y,50%),#ffffff38,transparent 42%);opacity:0;transition:opacity .35s;pointer-events:none}
+.imro-touch.imro-tapped:after{opacity:1}
+@keyframes imroLoad{from{transform:translateX(-110%)}to{transform:translateX(250%)}}
+@keyframes imroOrbit{to{transform:rotate(360deg)}}
+@keyframes imroRise{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes imroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@media(prefers-reduced-motion:reduce){#imroCinematicIntro:before,#imroCinematicIntro:after,.imro-intro-crown,.imro-intro-track i{animation:none!important}.imro-reveal{opacity:1;transform:none;transition:none}#imroCinematicIntro{transition:none}}
+
+
+/* IMRO OFFICIAL BROADCAST BACKDROP — readable over action imagery */
+body{background-image:linear-gradient(rgba(5,6,10,.88),rgba(5,6,10,.94)),url("/imro-score.jpg"),radial-gradient(ellipse at 50% -12%,#6b182255,transparent 43%);background-size:cover,cover,auto;background-position:center,center top,center;background-attachment:fixed}
+.hero{background-image:linear-gradient(105deg,rgba(24,8,14,.96),rgba(9,10,16,.88) 65%,rgba(24,8,14,.82)),url("/imro-score.jpg");background-size:cover;background-position:center 38%;border-color:#9b5146}
+.hero:after{background:radial-gradient(circle at 82% 30%,#e6b75b22,transparent 45%)}
+@media(max-width:700px){body{background-attachment:scroll}}
+
+
+/* Uploaded IMRO combat artwork for the official broadcast scoreboard */
+body{background-image:linear-gradient(rgba(5,6,10,.88),rgba(5,6,10,.94)),url('/imro-score.jpg'),radial-gradient(ellipse at 50% -12%,#6b182255,transparent 43%)!important;background-size:cover,cover,auto!important;background-position:center,center top,center!important;background-attachment:fixed}
+.hero{background-image:linear-gradient(105deg,rgba(24,8,14,.94),rgba(9,10,16,.76) 65%,rgba(24,8,14,.52)),url('/imro-score.jpg')!important;background-size:cover!important;background-position:center 42%!important}
+@media(max-width:700px){body{background-attachment:scroll!important}}
+
+
+/* IMRO wordmark: always metallic gold across every page */
+.imro-gold-word{color:#f0c56d!important;background:linear-gradient(180deg,#fff0b8 0%,#f0c56d 48%,#b98228 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent!important;text-shadow:0 2px 16px #e8b84d35!important}
+.imro-intro-brand{color:#f0c56d!important}
+</style>
+</head>
+<body>
+
+<div id="imroCinematicIntro" role="status" aria-label="Entering IMRO ESPORTS">
+ <div class="imro-intro-inner">
+  <div class="imro-intro-crown" aria-hidden="true">♛</div>
+  <div class="imro-intro-brand"><span class="imro-gold-word">IMRO</span> <span>ESPORTS</span></div>
+  <div class="imro-intro-sub">COMMUNITY TOURNAMENT</div>
+  <div class="imro-intro-quote">“Your next match could become your greatest story.”</div>
+  <div class="imro-intro-track"><i></i></div>
+  <button class="imro-intro-enter" id="imroEnterNow" type="button">ENTER THE ARENA ↗</button>
+ </div>
+</div>
+
+<header class="topbar"><div class="nav"><a href="/" aria-label="IMRO ESPORTS home"><div class="brand">IMRO <span>ESPORTS</span><small class="tag">OFFICIAL TOURNAMENT SCOREBOARD</small></div></a><nav class="navlinks"><a href="/">HOME</a><a href="/squads.html">SQUAD RESULTS</a><a class="primary" href="/#registrationChoice">REGISTER</a></nav></div></header>
+<main>
+<section class="hero"><div class="eyebrow">IMRO ESPORTS · FREE FIRE COMMUNITY TOURNAMENT</div><h1>THE <span>BATTLE</span> DESK</h1><p>Every matchup. Every published result. Every champion. Follow the official tournament action with live updates from the IMRO ESPORTS arena.</p><div class="hero-actions"><a class="action" href="#matchFeed">VIEW MATCH FEED ↓</a><a class="action" href="#finalStandings">OFFICIAL STANDINGS</a></div></section>
+<div class="score-quote">“Your next match could become your greatest story.”<small>IMRO ESPORTS · PLAY WITH PURPOSE</small></div>
+<div class="stats"><div class="stat"><strong id="statLive">—</strong><span>LIVE MATCHES</span></div><div class="stat"><strong id="statResults">—</strong><span>PUBLISHED RESULTS</span></div><div class="stat"><strong id="statPlayers">—</strong><span>PLAYERS IN FEED</span></div><div class="stat"><strong id="statUpdated">—</strong><span>LAST UPDATED</span></div></div>
+<section class="section" id="matchFeed"><div class="section-head"><div><div class="kicker">OFFICIAL MATCH FEED</div><h2>LIVE MATCHES & RESULTS</h2><p>Only organizer-published matchups and verified outcomes are shown.</p></div><div class="live-indicator"><i></i><span id="feedStatus">CONNECTING</span></div></div>
+<div class="toolbar"><small id="updatedText">Connecting to official match data…</small><div class="filters"><button class="filter active" data-tier="all">ALL TIERS</button><button class="filter" data-tier="1">TIER 1</button><button class="filter" data-tier="2">TIER 2</button><button class="filter" data-tier="3">TIER 3</button><button class="filter" id="refreshButton">↻ REFRESH</button></div></div>
+<div id="matchList" class="matches"><div class="empty">LOADING OFFICIAL MATCH FEED</div></div></section>
+<section class="section" id="finalStandings"><div class="section-head"><div><div class="kicker">OFFICIAL STANDINGS</div><h2>FINAL LEADERBOARDS</h2><p>Standings appear only after the organizer finalizes and publishes a tier.</p></div></div><div id="tierBoards" class="tiers"><div class="empty">LOADING FINAL STANDINGS</div></div></section>
+<section class="section" id="championsWall"><div class="section-head"><div><div class="kicker">THE ONES WHO ROSE ABOVE</div><h2>HALL OF CHAMPIONS</h2><p>Top finishers from officially published tier finals.</p></div></div><div id="champions" class="podium"><div class="empty">WAITING FOR OFFICIAL CHAMPIONS</div></div></section>
+<div class="foot">IMRO ESPORTS · COMPETE · SURVIVE · DOMINATE</div>
+</main>
+<script>
+const SUPABASE_URL="https://gjjhuultiezaybvoykra.supabase.co",SUPABASE_ANON_KEY="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+let currentTier="all",matchRows=[];
+const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const headers={apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY};
+async function latestTournament(){const r=await fetch(SUPABASE_URL+"/rest/v1/tournaments?select=id&order=created_at.desc&limit=1",{headers,cache:"no-store"});if(!r.ok)throw new Error("Tournament lookup failed");const rows=await r.json();return rows[0]?.id||null;}
+function renderMatches(){
+ const rows=currentTier==="all"?matchRows:matchRows.filter(x=>String(x.tier)===currentTier);
+ const target=document.getElementById("matchList");
+ if(!rows.length){target.innerHTML='<div class="empty">NO MATCHES IN THIS VIEW<p>Published matches will appear here automatically.</p></div>';return;}
+ target.innerHTML=rows.map(row=>{const live=row.status==="in_progress",done=row.status==="completed",winnerOne=done&&row.winner_name===row.player_one_name,winnerTwo=done&&row.winner_name===row.player_two_name;return '<article class="match '+(live?"live":"")+'"><div class="match-top"><span class="match-label">TIER '+esc(row.tier)+' · ROUND '+esc(row.round_number)+'</span><span class="status '+(live?"live":"")+'">'+(live?"● LIVE NOW":done?"RESULT PUBLISHED":"MATCH ANNOUNCED")+'</span></div><div class="versus"><div class="player"><span class="emblem">'+(winnerOne?"♛":"◈")+'</span><strong>'+esc(row.player_one_name||"Player 1")+'</strong>'+(winnerOne?'<small>WINNER</small>':"")+'</div><span class="vs">VS</span><div class="player"><span class="emblem">'+(winnerTwo?"♛":"◈")+'</span><strong>'+esc(row.player_two_name||"Player 2")+'</strong>'+(winnerTwo?'<small>WINNER</small>':"")+'</div></div><div class="match-bottom">'+(done?"🏆 "+esc(row.winner_name||"Winner pending"):'<span>'+(live?"Match currently underway":"Matchup published by organizer")+'</span>')+'</div></article>';}).join("");
+}
+async function loadMatches(){
+ const target=document.getElementById("matchList"),status=document.getElementById("feedStatus");
+ try{const id=await latestTournament();if(!id){target.innerHTML='<div class="empty">NO ACTIVE TOURNAMENT</div>';status.textContent="NOT STARTED";return;}
+ const r=await fetch(SUPABASE_URL+"/rest/v1/rpc/get_live_match_scores",{method:"POST",headers:{...headers,"Content-Type":"application/json"},body:JSON.stringify({p_tournament_id:id}),cache:"no-store"});if(!r.ok)throw new Error("Could not load match feed");matchRows=await r.json();const live=matchRows.filter(x=>x.status==="in_progress"),done=matchRows.filter(x=>x.status==="completed");
+ document.getElementById("statLive").textContent=live.length;document.getElementById("statResults").textContent=done.length;document.getElementById("statPlayers").textContent=new Set(matchRows.flatMap(x=>[x.player_one_name,x.player_two_name]).filter(Boolean)).size;document.getElementById("statUpdated").textContent=new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
+ status.textContent=live.length?"LIVE ACTION":done.length?"RESULTS PUBLISHED":"ARENA READY";document.getElementById("updatedText").textContent="LIVE DATA · Last refreshed "+new Date().toLocaleTimeString("en-IN");
+ matchRows.sort((a,b)=>(a.status==="in_progress"?-1:0)-(b.status==="in_progress"?-1:0)||new Date(b.published_at||0)-new Date(a.published_at||0));renderMatches();
+ }catch(e){target.innerHTML='<div class="empty">MATCH FEED TEMPORARILY UNAVAILABLE<p>Check your connection and refresh.</p></div>';status.textContent="CONNECTION ISSUE";document.getElementById("updatedText").textContent="Could not refresh official data.";}
+}
+async function loadStandings(){
+ const target=document.getElementById("tierBoards"),champ=document.getElementById("champions");
+ try{const id=await latestTournament();if(!id){target.innerHTML='<div class="empty">NO TOURNAMENT AVAILABLE</div>';return;}
+ const tiers=await Promise.all([1,2,3].map(async tier=>{const r=await fetch(SUPABASE_URL+"/rest/v1/rpc/leaderboard_for_tier",{method:"POST",headers:{...headers,"Content-Type":"application/json"},body:JSON.stringify({p_tournament_id:id,p_tier:tier}),cache:"no-store"});if(!r.ok)throw new Error("Standings unavailable");return {tier,rows:await r.json()};}));
+ target.innerHTML=tiers.map(({tier,rows})=>'<article class="tier-card"><div class="tier-head"><b>TIER '+tier+'</b><span>'+ (rows.length?"OFFICIAL FINAL":"NOT PUBLISHED")+'</span></div>'+(rows.length?'<div class="standings">'+rows.map((r,i)=>'<div class="standing"><span class="rank">#'+esc(r.rank_position||i+1)+'</span><strong>'+esc(r.player_name)+'</strong><span class="wins">'+Number(r.wins||0)+' W</span></div>').join("")+'</div>':'<div class="await">Awaiting the final. This leaderboard is not published yet.</div>')+'</article>').join("");
+ const podium=tiers.flatMap(({tier,rows})=>rows.slice(0,3).map(row=>({tier,row}))).sort((a,b)=>Number(a.row.rank_position)-Number(b.row.rank_position));
+ champ.innerHTML=podium.length?podium.map(({tier,row})=>'<article class="champ"><div class="medal">'+(Number(row.rank_position)===1?"👑":Number(row.rank_position)===2?"🥈":"🥉")+'</div><div class="kicker">TIER '+tier+' · RANK '+esc(row.rank_position)+'</div><h3>'+esc(row.player_name)+'</h3><p>'+Number(row.wins||0)+' match wins</p></article>').join(""):'<div class="empty">HALL OF CHAMPIONS IS WAITING<p>Champions appear after a tier final is published.</p></div>';
+ }catch(e){target.innerHTML='<div class="empty">OFFICIAL STANDINGS WILL APPEAR AFTER FINALIZATION</div>';champ.innerHTML='<div class="empty">WAITING FOR PUBLISHED CHAMPIONS</div>';}
+}
+document.querySelectorAll("[data-tier]").forEach(b=>b.addEventListener("click",()=>{currentTier=b.dataset.tier;document.querySelectorAll("[data-tier]").forEach(x=>x.classList.toggle("active",x===b));renderMatches();}));
+document.getElementById("refreshButton").addEventListener("click",()=>{loadMatches();loadStandings();});
+loadMatches();loadStandings();setInterval(loadMatches,5000);setInterval(loadStandings,20000);
+</script>
+<script>
+(()=>{
+ const intro=document.getElementById("imroCinematicIntro");
+ if(!intro)return;
+ const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ let seen=false;try{seen=sessionStorage.getItem("imro-arena-entered")==="1";}catch(e){}
+ const close=()=>{intro.classList.add("is-leaving");try{sessionStorage.setItem("imro-arena-entered","1");}catch(e){};setTimeout(()=>intro.remove(),reduce?0:700);};
+ document.getElementById("imroEnterNow")?.addEventListener("click",close);
+ if(seen||reduce){intro.remove();}else{setTimeout(close,2100);}
+ const revealTargets=document.querySelectorAll("main section,main .card,main .arena-gallery,main .hero,main .section");
+ if("IntersectionObserver"in window&&!reduce){
+  const io=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("imro-visible");io.unobserve(entry.target);}}),{threshold:.08});
+  revealTargets.forEach(el=>{el.classList.add("imro-reveal");io.observe(el);});
+ }else revealTargets.forEach(el=>el.classList.add("imro-visible"));
+ document.addEventListener("pointerdown",event=>{
+  const el=event.target.closest("button,.btn,.action,.navlinks a,.filter");
+  if(!el)return;
+  const rect=el.getBoundingClientRect();el.style.setProperty("--tap-x",((event.clientX-rect.left)/rect.width*100)+"%");el.style.setProperty("--tap-y",((event.clientY-rect.top)/rect.height*100)+"%");
+  el.classList.add("imro-touch","imro-tapped");setTimeout(()=>el.classList.remove("imro-tapped"),360);
+ },{passive:true});
+ document.documentElement.style.scrollBehavior=reduce?"auto":"smooth";
+})();
+</script>
+</body></html>

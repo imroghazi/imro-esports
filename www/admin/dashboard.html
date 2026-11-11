@@ -1,0 +1,1043 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IMRO ESPORTS | Control Room</title>
+  <meta name="theme-color" content="#080d15">
+  <meta name="description" content="Private IMRO ESPORTS tournament administration app">
+  <link rel="manifest" href="/admin/manifest.webmanifest">
+  <link rel="icon" href="/icons/imro-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/imro-icon.svg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080d15;color:#fff;font-family:Arial,sans-serif}
+header{background:#111b29;padding:20px;border-bottom:1px solid #344052}
+h1{color:#55e6a5;margin:0 0 8px}
+main{max-width:1000px;margin:auto;padding:16px}
+section{background:#141e2c;border:1px solid #344052;border-radius:12px;padding:16px;margin:16px 0}
+h2{color:#55e6a5;font-size:19px}
+label{display:block;margin:12px 0 6px;color:#bdc9d8}
+input,select{width:100%;padding:12px;background:#09111d;color:white;border:1px solid #46536a;border-radius:7px}
+button{padding:11px 14px;border:0;border-radius:7px;background:#55e6a5;color:#06130c;font-weight:bold;margin:6px 4px 6px 0}
+button.secondary{background:#34445b;color:white}
+button.danger{background:#a83d49;color:white}
+button:disabled{opacity:.5}
+.contact-action{display:inline-block;padding:10px 13px;border-radius:7px;font-weight:bold;text-decoration:none;margin:6px 6px 6px 0}
+.whatsapp-action{background:#25D366;color:#062b17}
+.call-action{background:#34445b;color:#fff}
+.item{border:1px solid #35445a;border-radius:8px;padding:12px;margin:10px 0;overflow-wrap:anywhere}
+.small{color:#aab8c9;font-size:13px}
+#message{padding:12px;overflow-wrap:anywhere}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+<h1>IMRO ESPORTS</h1>
+<div>ADMIN CONTROL ROOM</div>
+<button id="installApp" type="button" hidden style="margin-top:12px;background:#26364b;color:#fff">Install IMRO Admin App</button>
+<p class="small">Private tournament management</p>
+</header>
+
+<main>
+<div id="message">Checking admin access...</div>
+
+<div id="dashboard" class="hidden">
+
+<section>
+<h2>Squad Admin</h2>
+<p class="small">Manage squad registrations and squad administration from the control room.</p>
+<a href="/squad-admin.html" target="_blank" rel="noopener noreferrer" class="contact-action" style="background:#55e6a5;color:#06130c">Open Squad Admin ↗</a>
+</section>
+
+<section>
+<h2>Tournament</h2>
+<label>Select tournament</label>
+<select id="tournament"></select>
+<p id="regStatus" class="small"></p>
+<button id="toggleRegistration">Close registration</button>
+<button class="secondary" id="refresh">Refresh data</button>
+<button class="secondary" id="logout">Logout</button>
+</section>
+
+<section>
+<h2>Tier controls</h2>
+<p class="small">Each tier runs independently. Stop prevents new matches but lets running matches finish. Pause also blocks new matches. End publishes the final tier leaderboard only after every match is completed.</p>
+<div id="tierControls"></div>
+</section>
+
+<section>
+<h2>Player management</h2>
+<label for="playerSearch">Search players</label>
+<input id="playerSearch" type="search" placeholder="Search name, Free Fire UID or contact number">
+<p id="playerSearchCount" class="small" aria-live="polite">Showing all players.</p>
+<div id="players"></div>
+</section>
+
+<section>
+<h2>Random draft generator — demo mode</h2>
+<p class="small">Creates three separate tier drafts using fictional names only. It does not read real registrations, save matches, or publish a draw.</p>
+<div class="grid">
+  <div><label>Tier 1 demo players</label><input id="draftTier1Count" type="number" min="0" max="64" value="8"></div>
+  <div><label>Tier 2 demo players</label><input id="draftTier2Count" type="number" min="0" max="64" value="6"></div>
+  <div><label>Tier 3 demo players</label><input id="draftTier3Count" type="number" min="0" max="64" value="5"></div>
+</div>
+<button type="button" id="generateTierDrafts">Generate all tier drafts</button>
+<div id="tierDraftResults" aria-live="polite" class="small">No draft generated yet.</div>
+</section>
+
+<section>
+<h2>Manual 1v1 matchmaking</h2>
+<label>Tier</label>
+<select id="matchTier">
+<option value="1">Tier 1</option>
+<option value="2">Tier 2</option>
+<option value="3">Tier 3</option>
+</select>
+
+<label>Round number</label>
+<input id="roundNumber" type="number" min="1" value="1">
+
+<button id="createDraw">Create draft draw</button>
+<p id="drawStatus" class="small">No draft draw selected.</p>
+
+<div class="grid">
+<div>
+<label>Player one</label>
+<select id="playerOne"></select>
+</div>
+<div>
+<label>Player two</label>
+<select id="playerTwo"></select>
+</div>
+</div>
+
+<button id="addMatch">Add match</button>
+<button class="secondary" id="publishDraw">Publish this draw</button>
+<div id="matches"></div>
+</section>
+
+<section>
+<h2>Payment receipts</h2>
+<p class="small">Record payments manually. This does not collect money.</p>
+<label for="receiptPlayerSearch">Find registered player</label>
+<input id="receiptPlayerSearch" type="search" placeholder="Search player name, UID or contact number">
+<label>Registered player</label>
+<select id="receiptPlayer"></select>
+
+<label>Transaction ID</label>
+<input id="transactionId" maxlength="120" placeholder="Enter transaction ID">
+
+<label>Amount (₹)</label>
+<input id="amount" type="number" min="0" step="0.01" placeholder="Enter amount">
+
+<label>Receipt note</label>
+<input id="receiptNote" maxlength="250" placeholder="Optional note">
+
+<button id="createReceipt">Create receipt</button>
+<div id="receipts"></div>
+</section>
+<section>
+  <h2>🏆 Prize Pool Management</h2>
+
+  <h3>Total Prize Pool: <span id="totalPrize">₹0</span></h3>
+
+  <label>Tier 1 Prize (₹)</label>
+  <input id="prizeTier1" type="number" min="0" value="0">
+
+  <label>Tier 2 Prize (₹)</label>
+  <input id="prizeTier2" type="number" min="0" value="0">
+
+  <label>Tier 3 Prize (₹)</label>
+  <input id="prizeTier3" type="number" min="0" value="0">
+
+  <label>Prize announcement status</label>
+  <select id="prizeStatus">
+    <option value="to_be_confirmed">To be confirmed</option>
+    <option value="announced">Officially announced</option>
+  </select>
+
+  <button id="savePrizes">Save Prize Pool</button>
+  <p id="prizeMessage" class="small"></p>
+</section>
+
+<section>
+  <h2>📊 Player Statistics</h2>
+  <div id="playerStats"></div>
+</section>
+</div>
+</main>
+
+<script>
+const SUPABASE_URL = "https://gjjhuultiezaybvoykra.supabase.co";
+const SUPABASE_KEY = "sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+let currentUser = null;
+let tournaments = [];
+let players = [];
+let registrations = [];
+let receipts = [];
+let matches = [];
+let currentDrawId = null;
+
+function safe(value){
+  return String(value ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+function message(text){
+  $("message").textContent = text;
+}
+
+async function start(){
+  const {data:{session}} = await db.auth.getSession();
+
+  if(!session){
+    message("Please sign in through the Admin Login page.");
+    return;
+  }
+
+  currentUser = session.user;
+
+  const {data:admin,error} = await db
+    .from("admins")
+    .select("user_id")
+    .eq("user_id",currentUser.id)
+    .maybeSingle();
+
+  if(error || !admin){
+    await db.auth.signOut();
+    message("Access denied. Admin account required.");
+    return;
+  }
+
+  $("dashboard").classList.remove("hidden");
+  message("Admin verified.");
+  await loadTournaments();
+}
+
+async function loadTournaments(){
+  const {data,error} = await db
+    .from("tournaments")
+    .select("id,title,registration_open")
+    .order("created_at",{ascending:false});
+
+  if(error){message(error.message);return;}
+
+  tournaments = data || [];
+  $("tournament").innerHTML = tournaments.map(t=>
+    `<option value="${safe(t.id)}">${safe(t.title)}</option>`
+  ).join("");
+
+  if(!tournaments.length){
+    message("No tournament found.");
+    return;
+  }
+
+  currentDrawId = null;
+  await loadAll();
+}
+
+function tournamentId(){
+  return $("tournament").value;
+}
+
+function selectedTournament(){
+  return tournaments.find(t=>t.id===tournamentId());
+}
+
+async function loadAll(){
+  const id = tournamentId();
+  if(!id)return;
+
+  const [p,r,m,rc] = await Promise.all([
+    db.from("players").select("*").eq("tournament_id",id).order("created_at"),
+    db.from("registrations").select("*").eq("tournament_id",id).order("created_at"),
+    db.from("matches").select("*").eq("tournament_id",id).order("created_at"),
+    db.from("payment_receipts").select("*").eq("tournament_id",id).order("created_at",{ascending:false})
+  ]);
+
+  if(p.error || r.error || m.error || rc.error){
+    message("Could not load dashboard data. " +
+      (p.error?.message || r.error?.message || m.error?.message || rc.error?.message));
+    return;
+  }
+
+  players=p.data||[];
+  registrations=r.data||[];
+  matches=m.data||[];
+  receipts=rc.data||[];
+
+  renderPlayers();
+  renderPlayerSelects();
+  renderMatches();
+  await renderTierControls();
+  renderReceipts();
+  updateRegistrationStatus();
+  loadPrizeSettings();
+  renderPlayerStats();
+}
+  async function loadPrizeSettings(){
+  const {data,error}=await db
+    .from("prize_settings")
+    .select("*")
+    .eq("id",1)
+    .single();
+
+  if(error){
+    $("prizeMessage").textContent=error.message;
+    return;
+  }
+
+  $("prizeTier1").value=data.tier1_prize;
+  $("prizeTier2").value=data.tier2_prize;
+  $("prizeTier3").value=data.tier3_prize;
+  $("prizeStatus").value=data.prize_status;
+
+  updatePrizeTotal();
+}
+
+function updatePrizeTotal(){
+  const a=Number($("prizeTier1").value)||0;
+  const b=Number($("prizeTier2").value)||0;
+  const c=Number($("prizeTier3").value)||0;
+
+  $("totalPrize").textContent=
+    "₹"+(a+b+c).toLocaleString("en-IN");
+}
+
+async function savePrizeSettings(){
+  const button=$("savePrizes");
+  const messageNode=$("prizeMessage");
+  const tier1=Number($("prizeTier1").value);
+  const tier2=Number($("prizeTier2").value);
+  const tier3=Number($("prizeTier3").value);
+
+  if([tier1,tier2,tier3].some(n=>!Number.isFinite(n)||n<0)){
+    messageNode.textContent="Enter valid prize amounts.";
+    return;
+  }
+
+  button.disabled=true;
+  button.textContent="Saving…";
+  messageNode.textContent="Saving prize pool…";
+  try{
+    const payload={
+      id:1,
+      tier1_prize:tier1,
+      tier2_prize:tier2,
+      tier3_prize:tier3,
+      prize_status:$("prizeStatus").value,
+      updated_at:new Date().toISOString()
+    };
+    const {data,error}=await db.from("prize_settings").upsert(payload,{onConflict:"id"}).select().single();
+    if(error)throw error;
+    if(!data)throw new Error("The database did not confirm the saved prize pool.");
+    $("prizeTier1").value=data.tier1_prize;
+    $("prizeTier2").value=data.tier2_prize;
+    $("prizeTier3").value=data.tier3_prize;
+    $("prizeStatus").value=data.prize_status;
+    updatePrizeTotal();
+    messageNode.textContent="Prize pool saved and verified successfully.";
+  }catch(error){
+    messageNode.textContent="Save failed: "+(error.message||String(error));
+  }finally{
+    button.disabled=false;
+    button.textContent="Save Prize Pool";
+  }
+}
+
+function renderPlayerStats(){
+  const activeRegistrations=registrations.filter(r=>!r.archived_at);
+  const approved=players.filter(p=>p.status==="approved");
+  const pending=players.filter(p=>p.status==="pending");
+  const reserve=players.filter(p=>p.status==="reserve");
+  const eliminated=players.filter(p=>p.status==="eliminated");
+
+  $("playerStats").innerHTML=`
+    <div class="item"><strong>${activeRegistrations.length}</strong><div class="small">Active registrations</div></div>
+    <div class="item"><strong>${approved.length}</strong><div class="small">Approved players</div></div>
+    <div class="item"><strong>${pending.length}</strong><div class="small">Pending approval</div></div>
+    <div class="item"><strong>${reserve.length}</strong><div class="small">Reserve players</div></div>
+    <div class="item"><strong>${eliminated.length}</strong><div class="small">Eliminated players</div></div>
+    ${[1,2,3].map(tier=>`
+      <div class="item">
+        <strong>${players.filter(p=>Number(p.tier)===tier).length}</strong>
+        <div class="small">Tier ${tier} players</div>
+      </div>
+    `).join("")}
+  `;
+}
+
+function updateRegistrationStatus(){
+  const t=selectedTournament();
+  if(!t)return;
+  $("regStatus").textContent =
+    "Registration is "+(t.registration_open?"OPEN":"CLOSED");
+  $("toggleRegistration").textContent =
+    t.registration_open?"Close registration":"Open registration";
+}
+
+async function toggleRegistration(){
+  const t=selectedTournament();
+  if(!t)return;
+  const {error}=await db.from("tournaments")
+    .update({registration_open:!t.registration_open})
+    .eq("id",t.id);
+  if(error){message(error.message);return;}
+  message("Registration setting updated.");
+  await loadTournaments();
+}
+
+const AVATAR_EMOJI={
+"warrior-01":"⚔️",
+"warrior-02":"🛡️",
+"warrior-03":"🥷",
+"warrior-04":"🏹",
+"warrior-05":"🪓",
+"warrior-06":"🗡️",
+"warrior-07":"👑",
+"warrior-08":"🦸",
+"warrior-09":"🤺",
+"warrior-10":"🥋",
+"warrior-11":"🧙",
+"warrior-12":"🧝",
+"warrior-13":"🦹",
+"mythic-01":"🐉",
+"mythic-02":"🦄",
+"mythic-03":"🧚",
+"mythic-04":"🧜",
+"mythic-05":"🧞",
+"mythic-06":"🧛",
+"mythic-07":"🧟",
+"mythic-08":"👻",
+"mythic-09":"☠️",
+"mythic-10":"🔥",
+"mythic-11":"🌙",
+"mythic-12":"⚡",
+"mythic-13":"❄️",
+"cyber-01":"🤖",
+"cyber-02":"👾",
+"cyber-03":"👽",
+"cyber-04":"🦾",
+"cyber-05":"💀",
+"cyber-06":"🕶️",
+"cyber-07":"🎭",
+"cyber-08":"🔮",
+"cyber-09":"💎",
+"cyber-10":"🚀",
+"cyber-11":"🛸",
+"cyber-12":"📡",
+"cyber-13":"🧬",
+"beast-01":"🐺",
+"beast-02":"🦁",
+"beast-03":"🐯",
+"beast-04":"🦊",
+"beast-05":"🐼",
+"beast-06":"🦅",
+"beast-07":"🦈",
+"beast-08":"🐍",
+"beast-09":"🦂",
+"beast-10":"🐻",
+"beast-11":"🦍",
+"beast-12":"🐲",
+"legend-01":"🏴‍☠️",
+"legend-02":"🤠",
+"legend-03":"🧑‍🚀",
+"legend-04":"🧑‍🎤",
+"legend-05":"🥽",
+"legend-06":"🧑‍🚒",
+"legend-07":"🧑‍✈️",
+"legend-08":"🧑‍🔬",
+"legend-09":"🧑‍🎨",
+"legend-10":"🧑‍🚀",
+"legend-11":"🧑‍⚖️",
+"legend-12":"🧑‍🌾","legend-13":"🧿"
+};
+function avatarBadge(id){return AVATAR_EMOJI[id]||"👤";}
+function contactPhone(registration){
+  const raw=String(registration?.contact_number||"").trim();
+  const digits=raw.replace(/\\D/g,"");
+  if(!digits)return null;
+  // Registration numbers are commonly entered as +91XXXXXXXXXX.
+  const international=digits.length===10?"91"+digits:digits;
+  return {display:raw,call:"+"+international,whatsapp:international};
+}
+
+function renderPlayers(){
+  const query=($("playerSearch")?.value||"").trim().toLowerCase();
+  const filtered=players.filter(p=>{
+    const registration=registrations.find(r=>r.id===p.registration_id);
+    const contact=String(registration?.contact_number||"");
+    return [p.player_name,p.game_uid,contact,registration?.registration_token]
+      .some(value=>String(value||"").toLowerCase().includes(query));
+  });
+  $("playerSearchCount").textContent=query
+    ? "Showing "+filtered.length+" of "+players.length+" player(s)."
+    : "Showing all "+players.length+" player(s).";
+
+  $("players").innerHTML=filtered.map(p=>{
+    const registration=registrations.find(r=>r.id===p.registration_id);
+    const token=registration?.registration_token||"Not available";
+    const contact=contactPhone(registration);
+    const next=p.tier<3?p.tier+1:null;
+
+    return `<div class="item">
+      <strong><span style="font-size:24px">${avatarBadge(p.avatar_id)}</span> ${safe(p.player_name)}</strong>
+      <div class="small">UID: ${safe(p.game_uid)}</div>
+      <div class="small">Tier ${p.tier} · Status: ${safe(p.status)}</div>
+      <div class="small">Contact: ${contact?safe(contact.display):"Not provided"}</div>
+      ${contact?`<a href="https://wa.me/${safe(contact.whatsapp)}" target="_blank" rel="noopener noreferrer" class="contact-action whatsapp-action">WhatsApp</a>
+      <a href="tel:${safe(contact.call)}" class="contact-action call-action">Call</a>`:""}
+      <div class="small">Token: ${safe(token)}</div>
+      ${p.status==="pending"?
+        `<button onclick="approvePlayer('${p.id}')">Approve</button>
+         <button class="danger" onclick="rejectPlayer('${p.id}')">Reject</button>
+         <div class="small">Redirect to another tier:</div>
+         <select id="redirect-${p.id}"><option value="">Choose tier</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option></select>
+         <button class="secondary" onclick="redirectPlayer('${p.id}')">Redirect player</button>`:""}
+      ${p.status==="rejected"?`<span class="small">Rejected by admin</span>`:""}
+      ${p.status==="approved" && next?
+        `<button onclick="promotePlayer('${p.id}')">Promote to Tier ${next}</button>`:""}
+      ${p.status==="approved"?
+        `<button class="danger" onclick="eliminatePlayer('${p.id}')">Eliminate</button>`:""}
+      ${p.status==="reserve"?
+        `<span class="small">Reserve player</span>`:""}
+      ${p.status==="eliminated"?
+        `<span class="small">Eliminated</span>`:""}
+      <button class="danger" onclick="deletePlayer('${p.id}')">🗑 Delete player</button>
+    </div>`;
+  }).join("") || (query?"<p>No players match your search.</p>":"<p>No players registered yet.</p>");
+}
+
+async function deletePlayer(id){
+  const p=players.find(item=>item.id===id);
+  if(!p)return;
+  if(!confirm("Delete "+p.player_name+" from Player management? This cannot be undone. The registration/contact record will be retained. Players already used in matches or promotion history cannot be deleted."))return;
+
+  const [matchRefs,historyRefs]=await Promise.all([
+    db.from("matches").select("id").or("player_one.eq."+id+",player_two.eq."+id+",winner_id.eq."+id+",no_show_player_id.eq."+id).limit(1),
+    db.from("promotion_history").select("id").eq("player_id",id).limit(1)
+  ]);
+  if(matchRefs.error || historyRefs.error){
+    message("Could not check player history. Nothing was deleted: "+(matchRefs.error?.message||historyRefs.error?.message));
+    return;
+  }
+  if((matchRefs.data||[]).length || (historyRefs.data||[]).length){
+    message("This player is linked to match or promotion history, so deletion is blocked to protect tournament records. You can keep the player marked eliminated/rejected.");
+    return;
+  }
+
+  const {error}=await db.from("players").delete().eq("id",id);
+  if(error){message("Delete failed: "+error.message);return;}
+  message("Player removed from Player management. Registration and contact record retained for admin history.");
+  await loadAll();
+}
+
+function renderPlayerSelects(){
+  const tier=Number($("matchTier").value);
+  const eligible=players.filter(p=>p.status==="approved" && p.tier===tier);
+
+  const options=eligible.map(p=>
+    `<option value="${p.id}">${safe(p.player_name)} (${safe(p.game_uid)})</option>`
+  ).join("");
+
+  $("playerOne").innerHTML=options;
+  $("playerTwo").innerHTML=options;
+  renderReceiptPlayerOptions();
+}
+
+async function approvePlayer(id){
+  const {error}=await db.from("players")
+    .update({status:"approved"}).eq("id",id);
+  if(error){message(error.message);return;}
+  message("Player approved.");
+  await loadAll();
+}
+
+async function promotePlayer(id){
+  const p=players.find(x=>x.id===id);
+  if(!p || p.tier>=3)return;
+
+  const next=p.tier+1;
+  if(!confirm("Promote "+p.player_name+" to Tier "+next+"?"))return;
+
+  const {error:historyError}=await db.from("promotion_history").insert({
+    tournament_id:p.tournament_id,
+    player_id:p.id,
+    from_tier:p.tier,
+    to_tier:next,
+    note:"Admin promotion",
+    promoted_by:currentUser.id
+  });
+
+  if(historyError){message(historyError.message);return;}
+
+  const {error}=await db.from("players")
+    .update({tier:next}).eq("id",id);
+
+  if(error){
+    message("Promotion record saved, but player update failed: "+error.message);
+    return;
+  }
+
+  message("Player promoted to Tier "+next+".");
+  await loadAll();
+}
+
+async function eliminatePlayer(id){
+  const p=players.find(x=>x.id===id);
+  if(!p)return;
+  const reason=prompt("Reason for elimination:");
+  if(reason===null || !reason.trim())return;
+
+  const {error}=await db.from("players").update({
+    status:"eliminated",
+    eliminated_at:new Date().toISOString(),
+    elimination_reason:reason.trim()
+  }).eq("id",id);
+
+  if(error){message(error.message);return;}
+  message("Player eliminated.");
+  await loadAll();
+}
+
+async function createDraw(){
+  const {data,error}=await db.from("draws").insert({
+    tournament_id:tournamentId(),
+    status:"draft"
+  }).select("id").single();
+
+  if(error){message(error.message);return;}
+
+  currentDrawId=data.id;
+  $("drawStatus").textContent="Draft draw created. ID: "+data.id;
+  message("Draft draw created.");
+}
+
+async function addMatch(){
+  if(!currentDrawId){
+    message("Create a draft draw first.");
+    return;
+  }
+
+  const one=$("playerOne").value;
+  const two=$("playerTwo").value;
+  const tier=Number($("matchTier").value);
+  const round=Number($("roundNumber").value);
+
+  if(!one || !two || one===two){
+    message("Select two different players.");
+    return;
+  }
+
+  const p1=players.find(p=>p.id===one);
+  const p2=players.find(p=>p.id===two);
+
+  if(!p1 || !p2 || p1.tier!==tier || p2.tier!==tier){
+    message("Both players must be approved and in the selected tier.");
+    return;
+  }
+
+  const {error}=await db.from("matches").insert({
+    tournament_id:tournamentId(),
+    draw_id:currentDrawId,
+    tier,
+    round_number:round,
+    player_one:one,
+    player_two:two,
+    status:"pending",
+    published:false
+  });
+
+  if(error){message(error.message);return;}
+  message("Match added to draft.");
+  await loadAll();
+}
+
+function playerName(id){
+  return players.find(p=>p.id===id)?.player_name || "Unknown player";
+}
+
+function renderMatches(){
+  $("matches").innerHTML=matches.map(m=>`
+    <div class="item">
+      <strong>Tier ${m.tier} · Round ${m.round_number}</strong>
+      <p>${avatarBadge(players.find(p=>p.id===m.player_one)?.avatar_id)} ${safe(playerName(m.player_one))} vs ${avatarBadge(players.find(p=>p.id===m.player_two)?.avatar_id)} ${safe(playerName(m.player_two))}</p>
+      <div class="small">Status: ${safe(m.status)} · ${m.published?"Published":"Unpublished"}</div>
+      ${m.status==="pending" && m.published? `<button onclick="setMatchState('${m.id}','in_progress')">Start match</button>`: ""}
+      ${m.status==="paused" && m.published? `<button onclick="setMatchState('${m.id}','in_progress')">Resume match</button>`: ""}
+      ${m.status==="in_progress"? `<button class="secondary" onclick="setMatchState('${m.id}','paused')">Pause match</button>`: ""}
+      ${m.status==="in_progress" && m.published && m.player_one && m.player_two? `
+        <div class="small">Confirm the winner:</div>
+        <button onclick="recordMatchWinner('${m.id}','${m.player_one}')">${safe(playerName(m.player_one))} won</button>
+        <button onclick="recordMatchWinner('${m.id}','${m.player_two}')">${safe(playerName(m.player_two))} won</button>`: ""}
+      ${m.status==="pending"?
+        `<label>Mark absent player</label>
+        <select id="absent-${m.id}">
+          <option value="">Choose player</option>
+          <option value="${m.player_one}">${safe(playerName(m.player_one))}</option>
+          <option value="${m.player_two}">${safe(playerName(m.player_two))}</option>
+        </select>
+        <button class="secondary" onclick="markAbsent('${m.id}')">Mark absent</button>`:""}
+      ${m.status==="no_show_pending"?
+        `<button onclick="advanceOpponent('${m.id}')">Advance opponent</button>
+        <button class="secondary" onclick="rescheduleMatch('${m.id}')">Reschedule</button>`:""}
+      ${m.status==="rescheduled"?
+        `<span class="small">Awaiting new match time and confirmation</span>`:""}
+    </div>
+  `).join("") || "<p>No matches created yet.</p>";
+}
+
+
+async function renderTierControls(){
+  const {data,error}=await db.from("tournament_tier_controls")
+    .select("*").eq("tournament_id",tournamentId()).order("tier");
+  if(error){$("tierControls").textContent="Could not load tier controls: "+error.message;return;}
+  const controls=data||[];
+  $("tierControls").innerHTML=[1,2,3].map(tier=>{
+    const c=controls.find(x=>Number(x.tier)===tier)||{state:"stopped",leaderboard_published:false};
+    const counts=matches.filter(m=>Number(m.tier)===tier);
+    const running=counts.filter(m=>m.status==="in_progress").length;
+    const unresolved=counts.filter(m=>m.status!=="completed").length;
+    const ended=c.state==="ended";
+    return `<div class="item">
+      <strong>Tier ${tier}</strong>
+      <div class="small">Registration: ${c.registration_open?"OPEN":"CLOSED"} · Matches: ${counts.length} · Running: ${running} · Unresolved: ${unresolved}</div>
+      <button class="${c.registration_open?"danger":"secondary"}" onclick="changeTierRegistration(${tier},${!c.registration_open})">${c.registration_open?"Close registration":"Open registration"}</button>
+      <div class="small">Match state: ${safe(c.state)}</div>
+      <button ${ended?"disabled":""} onclick="changeTierState(${tier},'running')">Start / Resume tier</button>
+      <button class="secondary" ${ended?"disabled":""} onclick="changeTierState(${tier},'stopped')">Stop tier</button>
+      <button class="secondary" ${ended?"disabled":""} onclick="changeTierState(${tier},'paused')">Pause tier</button>
+      <button class="danger" ${ended?"disabled":""} onclick="endTier(${tier})">End tier & publish leaderboard</button>
+      ${ended?"<div class='small'>Final leaderboard published.</div>":""}
+    </div>`;
+  }).join("");
+}
+
+async function changeTierRegistration(tier,open){
+  if(!confirm((open?'Open':'Close')+' registration for Tier '+tier+' only? Other tiers will not change.'))return;
+  const {error}=await db.rpc('set_tier_registration',{p_tournament_id:tournamentId(),p_tier:tier,p_open:open});
+  if(error){message(error.message);return;} message('Tier '+tier+' registration '+(open?'opened':'closed')+'.'); await loadAll();
+}
+async function rejectPlayer(id){
+  const p=players.find(x=>x.id===id); if(!p || p.status!=='pending')return;
+  if(!confirm('Reject '+p.player_name+'? The record will be retained.'))return;
+  const {error}=await db.from('players').update({status:'rejected'}).eq('id',id).eq('status','pending');
+  if(error){message(error.message);return;} message('Player rejected.'); await loadAll();
+}
+async function redirectPlayer(id){
+  const p=players.find(x=>x.id===id), target=Number($('redirect-'+id)?.value);
+  if(!p || p.status!=='pending' || ![1,2,3].includes(target))return message('Choose a destination tier first.');
+  if(target===Number(p.tier))return message('Player is already in that tier.');
+  if(!confirm('Redirect '+p.player_name+' to Tier '+target+' and approve the player?'))return;
+  const {error:historyError}=await db.from('promotion_history').insert({tournament_id:p.tournament_id,player_id:p.id,from_tier:p.tier,to_tier:target,note:'Admin registration redirect',promoted_by:currentUser.id});
+  if(historyError){message(historyError.message);return;}
+  const {error}=await db.from('players').update({tier:target,status:'approved'}).eq('id',id).eq('status','pending');
+  if(error){message('Redirect history saved, but player update failed: '+error.message);return;} message('Player redirected to Tier '+target+' and approved.'); await loadAll();
+}
+async function changeTierState(tier,state){
+  const labels={running:"start / resume",stopped:"stop",paused:"pause"};
+  const warning=state==="stopped"
+    ?"Stop Tier "+tier+"? New matches will not start. Already-running matches may finish."
+    :state==="paused"
+      ?"Pause Tier "+tier+"? New matches cannot start. Already-running matches may finish."
+      :"Start / resume Tier "+tier+"? New matches may now start.";
+  if(!confirm(warning))return;
+  const {error}=await db.rpc("set_tier_state",{p_tournament_id:tournamentId(),p_tier:tier,p_state:state});
+  if(error){message(error.message);return;}
+  message("Tier "+tier+" "+labels[state]+".");
+  await loadAll();
+}
+
+async function setMatchState(matchId,state){
+  const m=matches.find(x=>x.id===matchId);
+  if(!m)return;
+  const action=state==="paused"?"Pause":"Start / resume";
+  if(!confirm(action+" this match?"))return;
+  const {error}=await db.rpc("set_match_state",{p_match_id:matchId,p_state:state});
+  if(error){message(error.message);return;}
+  message(state==="paused"?"Match paused.":"Match started.");
+  await loadAll();
+}
+
+async function endTier(tier){
+  const count=matches.filter(m=>Number(m.tier)===tier).length;
+  const unresolved=matches.filter(m=>Number(m.tier)===tier && m.status!=="completed").length;
+  if(!count){message("Create and publish matches before ending this tier.");return;}
+  const warning="FINAL CONFIRMATION — END TIER "+tier+"? This permanently closes this tier and publishes its final leaderboard. "+unresolved+" unresolved match(es) remain. The database will reject ending until every match is completed. Continue?";
+  if(!confirm(warning))return;
+  const second=prompt("Type END TIER "+tier+" to confirm publication:");
+  if(second!=="END TIER "+tier){message("Tier end cancelled.");return;}
+  const {error}=await db.rpc("finalize_tier",{p_tournament_id:tournamentId(),p_tier:tier});
+  if(error){message(error.message);return;}
+  message("Tier "+tier+" ended. Its final leaderboard is now public.");
+  await loadAll();
+}
+
+async function recordMatchWinner(matchId,winnerId){
+  const match=matches.find(item=>item.id===matchId);
+  if(!match || !match.published || match.status!=="in_progress")return;
+  const winner=playerName(winnerId);
+  const loserId=match.player_one===winnerId?match.player_two:match.player_one;
+  const loser=playerName(loserId);
+  if(!confirm("Confirm result? Winner: "+winner+". Eliminated: "+loser+". The winner will advance automatically."))return;
+  const {data,error}=await db.rpc("record_match_winner",{
+    p_match_id:matchId,
+    p_winner_id:winnerId
+  });
+  if(error){message(error.message);return;}
+  message("Result saved. Loser eliminated and winner advanced. Leaderboard becomes public when the tier is ended.");
+  await loadAll();
+}
+
+async function markAbsent(id){
+  const m=matches.find(x=>x.id===id);
+  const absent=$("absent-"+id)?.value;
+  if(!m || !absent)return message("Select the absent player.");
+
+  const reason=prompt("Reason for absence:");
+  if(reason===null)return;
+
+  const {error}=await db.from("matches").update({
+    no_show_player_id:absent,
+    no_show_reason:reason||"Failed to join",
+    status:"no_show_pending"
+  }).eq("id",id);
+
+  if(error){message(error.message);return;}
+  message("Absent player recorded. Choose the admin decision.");
+  await loadAll();
+}
+
+async function advanceOpponent(id){
+  const m=matches.find(x=>x.id===id);
+  if(!m || !m.no_show_player_id)return;
+
+  const opponent=m.player_one===m.no_show_player_id?m.player_two:m.player_one;
+
+  if(!confirm("Eliminate absent player and advance opponent?"))return;
+
+  const {error:playerError}=await db.from("players").update({
+    status:"eliminated",
+    eliminated_at:new Date().toISOString(),
+    elimination_reason:"No-show"
+  }).eq("id",m.no_show_player_id);
+
+  if(playerError){message(playerError.message);return;}
+
+  const {error}=await db.from("matches").update({
+    winner_id:opponent,
+    status:"completed",
+    admin_decision:"advance_opponent",
+    decision_at:new Date().toISOString()
+  }).eq("id",id);
+
+  if(error){message("Player eliminated but match update failed: "+error.message);return;}
+  message("Opponent advanced.");
+  await loadAll();
+}
+
+async function rescheduleMatch(id){
+  if(!confirm("Keep both players in the tournament and mark this match for rescheduling?"))return;
+
+  const {error}=await db.from("matches").update({
+    status:"rescheduled",
+    admin_decision:"reschedule",
+    decision_at:new Date().toISOString()
+  }).eq("id",id);
+
+  if(error){message(error.message);return;}
+  message("Match marked for rescheduling.");
+  await loadAll();
+}
+
+async function publishDraw(){
+  if(!currentDrawId)return message("Create a draft draw first.");
+
+  const {error:matchError}=await db.from("matches")
+    .update({published:true})
+    .eq("draw_id",currentDrawId);
+
+  if(matchError){message(matchError.message);return;}
+
+  const {error}=await db.from("draws")
+    .update({status:"published",published_at:new Date().toISOString()})
+    .eq("id",currentDrawId);
+
+  if(error){message(error.message);return;}
+
+  message("Draw and matches published.");
+  await loadAll();
+}
+
+async function createReceipt(){
+  const registrationId=$("receiptPlayer").value;
+  const transactionId=$("transactionId").value.trim();
+  const amount=Number($("amount").value);
+  const note=$("receiptNote").value.trim();
+
+  if(!registrationId || !transactionId || !Number.isFinite(amount) || amount<0){
+    message("Enter a player, transaction ID and valid amount.");
+    return;
+  }
+
+  const {error}=await db.from("payment_receipts").insert({
+    tournament_id:tournamentId(),
+    registration_id:registrationId,
+    transaction_id:transactionId,
+    amount,
+    note:note||null,
+    created_by:currentUser.id
+  });
+
+  if(error){message(error.message);return;}
+
+  $("transactionId").value="";
+  $("amount").value="";
+  $("receiptNote").value="";
+  message("Receipt record created.");
+  await loadAll();
+}
+
+function renderReceiptPlayerOptions(){
+  const query=($("receiptPlayerSearch")?.value||"").trim().toLowerCase();
+  const select=$("receiptPlayer");
+  const previous=select.value;
+  const filtered=registrations.filter(r=>!r.archived_at).filter(r=>{
+    const player=players.find(p=>p.registration_id===r.id);
+    return [r.ign,r.player_uid,r.contact_number,player?.player_name]
+      .some(value=>String(value||"").toLowerCase().includes(query));
+  });
+  select.innerHTML=filtered.map(r=>
+    `<option value="${safe(r.id)}">${safe(r.ign)} — ${safe(r.player_uid)} — ${safe(r.contact_number)}</option>`
+  ).join("");
+  if(filtered.some(r=>r.id===previous))select.value=previous;
+  else if(!filtered.length)select.innerHTML='<option value="">No matching players</option>';
+}
+
+function renderReceipts(){
+  $("receipts").innerHTML=receipts.length ? receipts.map(receipt=>{
+    const registration=registrations.find(r=>r.id===receipt.registration_id);
+    const player=players.find(p=>p.registration_id===receipt.registration_id);
+    const name=registration?.ign||player?.player_name||"Unknown player";
+    const uid=registration?.player_uid||player?.game_uid||"";
+    return `<div class="item">
+      <strong>${safe(receipt.receipt_number||"Payment receipt")} · ${safe(name)}</strong>
+      <div class="small">UID: ${safe(uid)}</div>
+      <div class="small">Transaction ID: ${safe(receipt.transaction_id)}</div>
+      <div class="small">Amount: ₹${Number(receipt.amount).toLocaleString("en-IN")} · Status: ${safe(receipt.payment_status||"recorded")}</div>
+      ${receipt.note?`<div class="small">Note: ${safe(receipt.note)}</div>`:""}
+      <button class="danger" onclick="deleteReceipt('${receipt.id}')">🗑 Delete receipt</button>
+    </div>`;
+  }).join("") : "<p>No payment receipts recorded yet.</p>";
+}
+
+async function deleteReceipt(id){
+  const receipt=receipts.find(item=>item.id===id);
+  if(!receipt)return;
+  if(!confirm("Delete receipt "+(receipt.receipt_number||"")+" for transaction "+receipt.transaction_id+"? This permanently removes this receipt record."))return;
+  const {error}=await db.from("payment_receipts").delete().eq("id",id);
+  if(error){message("Receipt deletion failed: "+error.message);return;}
+  message("Payment receipt deleted.");
+  await loadAll();
+}
+
+$("tournament").addEventListener("change",async()=>{
+  currentDrawId=null;
+  await loadAll();
+});
+$("matchTier").addEventListener("change",renderPlayerSelects);
+$("playerSearch").addEventListener("input",renderPlayers);
+$("receiptPlayerSearch").addEventListener("input",renderReceiptPlayerOptions);
+$("toggleRegistration").onclick=toggleRegistration;
+$("refresh").onclick=loadAll;
+$("createDraw").onclick=createDraw;
+$("addMatch").onclick=addMatch;
+$("publishDraw").onclick=publishDraw;
+$("createReceipt").onclick=createReceipt;
+$("savePrizes").onclick=savePrizeSettings;
+$("logout").onclick=async()=>{
+  await db.auth.signOut();
+  location.href="/admin/";
+};
+
+start();
+
+let installPrompt=null;
+const installButton=document.getElementById("installApp");
+window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();installPrompt=event;installButton.hidden=false;});
+installButton.addEventListener("click",async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installButton.hidden=true;});
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/admin/sw.js").catch(()=>{}));
+</script>
+<script type="module">
+import { buildSingleEliminationBracket } from "/supabase/functions/_shared/bracket-engine.js";
+
+const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+  "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+})[char]);
+
+function renderTierDraft(tier, count) {
+  const target = document.getElementById("tierDraftResults");
+  const demoPlayers = Array.from({length: count}, (_, index) => ({
+    id: "demo-tier-" + tier + "-" + (index + 1),
+    name: "Tier " + tier + " Demo Player " + (index + 1)
+  }));
+  const bracket = buildSingleEliminationBracket(demoPlayers);
+  let html = "<div class='item'><h3>Tier " + tier + "</h3>";
+  html += "<p>Registered in demo: " + count + " · Active: " + bracket.players.length +
+    " · Reserve: " + bracket.reserves.length + " · Byes: " + bracket.byeCount +
+    " · Matches: " + bracket.matchCount + "</p>";
+  if (bracket.reserves.length) {
+    html += "<p><strong>Reserve:</strong> " +
+      escapeHtml(bracket.reserves.map(player => player.name).join(", ")) + "</p>";
+  }
+  if (count < 2) {
+    html += "<p class='small'>Not enough active players to create a match.</p>";
+  }
+  for (const round of bracket.rounds) {
+    html += "<div class='item'><strong>Round " + round.number + "</strong>";
+    if (round.byes.length) {
+      html += "<p class='small'>Automatic byes: " +
+        round.byes.map(entry => escapeHtml(entry.player.name)).join(", ") + "</p>";
+    }
+    round.matches.forEach((match, index) => {
+      const p1 = match.playerOne?.name || "Winner of earlier match";
+      const p2 = match.playerTwo?.name || "Winner of earlier match";
+      html += "<p>Match " + (index + 1) + ": " + escapeHtml(p1) +
+        " vs " + escapeHtml(p2) + "</p>";
+    });
+    html += "</div>";
+  }
+  html += "</div>";
+  return html;
+}
+
+document.getElementById("generateTierDrafts").addEventListener("click", () => {
+  const counts = [1, 2, 3].map(tier =>
+    Number(document.getElementById("draftTier" + tier + "Count").value)
+  );
+  if (counts.some(count => !Number.isInteger(count) || count < 0 || count > 64)) {
+    document.getElementById("tierDraftResults").textContent =
+      "Enter whole numbers from 0 to 64 for each tier.";
+    return;
+  }
+  try {
+    document.getElementById("tierDraftResults").innerHTML =
+      "<p><strong>DEMO DRAFT — NOT SAVED OR PUBLISHED</strong></p>" +
+      counts.map((count, index) => renderTierDraft(index + 1, count)).join("");
+  } catch (error) {
+    document.getElementById("tierDraftResults").textContent =
+      "Could not generate preview: " + error.message;
+  }
+});
+</script>
+</body>
+</html>

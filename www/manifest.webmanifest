@@ -1,0 +1,33 @@
+{
+  "id": "/",
+  "name": "IMRO ESPORTS Player",
+  "short_name": "IMRO Player",
+  "description": "Register and follow IMRO ESPORTS community tournaments.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090909",
+  "theme_color": "#090909",
+  "icons": [
+    {
+      "src": "/icons/imro-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Register for tournament",
+      "url": "/#register",
+      "icons": [
+        {
+          "src": "/icons/imro-icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

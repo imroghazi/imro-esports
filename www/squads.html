@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IMRO ESPORTS | Squad Tournament</title><meta name="description" content="Register your four-player Free Fire squad for IMRO ESPORTS Battle Royale tournaments.">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080b10;color:#f4f7fb;font:16px Arial,sans-serif}header{padding:26px 18px;text-align:center;background:linear-gradient(130deg,#10251d,#111827);border-bottom:1px solid #29483b}h1,h2{color:#63e6a4}main{max-width:900px;margin:auto;padding:18px}.card{background:#121a24;border:1px solid #2b3b4c;border-radius:14px;padding:18px;margin:16px 0}.muted{color:#aab8c7;font-size:14px}label{display:block;margin:12px 0 6px;color:#c8d4df}input,select{width:100%;padding:12px;border:1px solid #45576b;border-radius:8px;background:#08111c;color:white}.btn{display:inline-block;border:0;border-radius:9px;background:#55e6a5;color:#07130d;font-weight:bold;padding:12px 16px;text-decoration:none;cursor:pointer;margin-top:12px}.btn.alt{background:#26394b;color:#fff}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.avatar{padding:12px;border:1px solid #435468;border-radius:10px;background:#0c1520;color:white;font-size:24px;cursor:pointer}.avatar.selected{border:2px solid #55e6a5;background:#173528}.team{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #283747}.team .emoji{font-size:25px}.pill{font-size:12px;color:#b6f5d5;border:1px solid #347958;border-radius:20px;padding:4px 8px}.result{white-space:pre-wrap;padding:12px;border-radius:8px;background:#0b1721;margin-top:12px}a{color:#70e6ae}
+
+/* IMRO ESPORTS premium squad tournament theme */
+:root{--bg:#07080c;--panel:#12131a;--line:#57312f;--red:#f12635;--gold:#dfb65e}
+body{background:radial-gradient(ellipse at 50% -10%,#5a151b 0,transparent 42%),#07080c;color:#f7f3ed;font-family:system-ui,Arial,sans-serif}
+header{background:linear-gradient(120deg,#10090d,#281015,#0a0b10);border-bottom:1px solid #773a34;box-shadow:0 12px 35px #0008}
+header h1{color:#f0c46b;text-shadow:0 4px 20px #e52b3b55;letter-spacing:2px}
+header a.btn{margin-top:12px}
+main{max-width:1050px}
+.card{background:linear-gradient(145deg,#1b1b22,#0e0f14);border:1px solid #553331;border-radius:16px;box-shadow:0 12px 32px #0007,inset 0 1px #ffffff0b}
+h2{color:#e9bd68;text-transform:uppercase;letter-spacing:.5px}
+.btn{background:linear-gradient(135deg,#ff3548,#a90d22);color:#fff;border:1px solid #ff6874;box-shadow:0 7px 20px #ef233c33}
+input,select,textarea{background:#090a0f;border:1px solid #59413e;color:#fff;border-radius:9px}
+label{color:#e5d9d0}
+.muted{color:#aaaab3}
+#teams .card{border-left:3px solid #d8ad56}
+.prize-card{margin:20px auto;padding:30px 18px;text-align:center;border:1px solid #b75b45;border-radius:18px;background:radial-gradient(ellipse at 50% 0,#65202a 0,transparent 65%),linear-gradient(140deg,#210b10,#090a0e);box-shadow:0 0 32px #ef233c30;max-width:1050px}.prize-kicker{color:#e6bd65;font-weight:900;letter-spacing:3px}.prize-card h2{color:#fff;margin:18px 0 4px;font-size:clamp(22px,5vw,32px)}.prize-amount{font-size:clamp(42px,10vw,64px);font-weight:950;color:#f0c66e;text-shadow:0 5px 22px #e9a83b55}.prize-card p{color:#d8c4c2;letter-spacing:2px;font-weight:800}.prize-foot{color:#e6bd65;font-size:12px;letter-spacing:3px;margin-top:22px}@media(max-width:600px){header{padding:22px 16px}.card{padding:15px}}
+
+
+/* Unified IMRO cinematic tournament identity */
+:root{--imro-red:#ff3045;--imro-gold:#f0c56d;--imro-bg:#07080c}
+body{background:radial-gradient(ellipse at 50% -12%,#68182066,transparent 43%),radial-gradient(ellipse at 100% 52%,#3b111b33,transparent 35%),#07080c;color:#f8f2ec;font-family:system-ui,Arial,sans-serif}
+header{position:relative;overflow:hidden;padding:46px 18px 40px;text-align:center;background:linear-gradient(110deg,#09090d,#291016 52%,#090a0e);border-bottom:1px solid #8a443b;box-shadow:0 18px 45px #0009}
+header:before{content:"";position:absolute;width:320px;height:320px;right:8%;top:-190px;border:1px solid #e7b75b77;border-radius:50%;box-shadow:0 0 0 24px #e7b75b0c,0 0 0 55px #e7b75b08}
+header:after{content:"SQUAD BATTLE • FOUR PLAYERS • ONE LEGACY";display:block;margin-top:10px;font-size:10px;letter-spacing:3px;color:#eac477}
+header h1{position:relative;color:#f1c66d!important;font-size:clamp(34px,7vw,58px);font-weight:1000;letter-spacing:2px;text-shadow:0 4px 28px #ff304555}
+header p{position:relative;color:#d2c2bd}
+main{max-width:1080px;padding:24px 18px 70px}
+.card{border-radius:5px;background:linear-gradient(145deg,#1b171c,#0c0d12);border:1px solid #68403b;box-shadow:0 15px 36px #0008}
+h2{color:#f0c56d;letter-spacing:1px}
+.btn{border-radius:3px;background:linear-gradient(120deg,#ff3548,#a50d22);border:1px solid #ff6874;box-shadow:0 7px 20px #ef233c33}
+.btn.alt{background:linear-gradient(120deg,#37343a,#171920);border-color:#66504c}
+input,select,textarea{background:#090a0f;border:1px solid #59413e;border-radius:4px;color:#fff}
+.avatar{background:#111117;border-color:#65413b;border-radius:5px}
+.avatar.selected{border-color:#f0c56d;background:#382116;box-shadow:0 0 0 2px #f0c56d33}
+.pill{color:#f0d28e;border-color:#9a713b}
+.result{background:#151016;border:1px solid #553632}
+.team{border-color:#49302e}
+.prize-card{border-radius:5px!important;background:radial-gradient(ellipse at 50% 0,#78232b 0,transparent 62%),linear-gradient(120deg,#1c0a10,#090a0e)!important;border-color:#a34d3e!important;box-shadow:0 18px 48px #0009,0 0 30px #e82a3b22!important}
+@media(max-width:600px){header{padding:36px 15px 30px}main{padding:18px 13px 55px}.card{padding:15px}}
+
+
+/* Squad broadcast results presentation */
+#liveResults,#winners{display:grid;gap:14px}
+.squad-scoreboard{position:relative;overflow:hidden;padding:18px;border:1px solid #75423a;background:linear-gradient(135deg,#211419,#0c0e13 72%);box-shadow:0 13px 32px #0007}
+.squad-scoreboard:before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#ff3045,#f0c56d,transparent)}
+.squad-scoreboard-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:13px;border-bottom:1px solid #4a3030}
+.squad-scoreboard-head h3{margin:6px 0;color:#f2d49a;font-size:clamp(17px,3vw,23px)}
+.squad-scoreboard-head p{margin:0;color:#aaa;font-size:11px;letter-spacing:1.5px}
+.squad-kicker{font-size:9px;letter-spacing:2px;font-weight:950;color:#e9bd68}
+.squad-published{font-size:8px;letter-spacing:1px;font-weight:900;color:#d9c18c;border:1px solid #755c3b;padding:6px 8px;white-space:nowrap}
+.squad-result-list{display:grid;gap:6px;padding:12px 0}
+.squad-result-row{display:grid;grid-template-columns:32px minmax(0,1fr) 58px 65px;align-items:center;gap:9px;padding:10px;background:#0b0d12;border:1px solid #33272b}
+.squad-result-first{border-color:#9a713e;background:linear-gradient(90deg,#2b1e14,#0b0d12)}
+.squad-place{font-weight:950;color:#f0c56d;text-align:center}
+.squad-team-identity{display:flex;align-items:center;gap:8px;min-width:0}
+.squad-team-identity b{font-size:20px}.squad-team-identity strong{font-size:13px;overflow-wrap:anywhere}
+.squad-stat{text-align:center;display:grid}.squad-stat b{font-size:16px;color:#f2d49a}.squad-stat small{font-size:8px;letter-spacing:1px;color:#a9a0a0}
+.squad-top-fragger{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:11px 12px;background:linear-gradient(90deg,#2a1718,#151116);border-left:3px solid #ff394a}
+.squad-top-fragger span{font-size:9px;letter-spacing:1.3px;color:#f0c56d;font-weight:950}
+.squad-top-fragger strong{font-size:12px;color:#f5e7cf}.squad-top-fragger b{margin-left:auto;font-size:11px;color:#ff8790}
+.squad-broadcast-empty{padding:25px;text-align:center;border:1px dashed #75423a;color:#e8c779;background:#110e13;font-weight:950;letter-spacing:2px}
+.squad-broadcast-empty p{font-weight:400;letter-spacing:0;color:#aaa;font-size:13px;margin-bottom:0}
+@media(max-width:480px){.squad-scoreboard{padding:13px}.squad-result-row{grid-template-columns:25px minmax(0,1fr) 44px 50px;gap:5px;padding:8px}.squad-team-identity strong{font-size:11px}.squad-stat b{font-size:14px}.squad-scoreboard-head{flex-direction:column}}
+
+
+/* IMRO cinematic public experience */
+#imroCinematicIntro{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#4a101d 0%,#170b12 42%,#050609 78%);opacity:1;visibility:visible;transition:opacity .65s ease,visibility .65s ease}
+#imroCinematicIntro.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
+#imroCinematicIntro:before,#imroCinematicIntro:after{content:"";position:absolute;width:min(78vw,620px);aspect-ratio:1;border:1px solid #d7a74a44;border-radius:50%;box-shadow:0 0 0 22px #d7a74a08,0 0 0 55px #d7a74a06;animation:imroOrbit 14s linear infinite}
+#imroCinematicIntro:after{width:min(58vw,440px);animation-direction:reverse;animation-duration:19s;border-color:#f23a4b44}
+.imro-intro-inner{position:relative;z-index:1;width:min(90vw,620px);text-align:center;padding:28px 18px;animation:imroRise .9s cubic-bezier(.2,.8,.2,1) both}
+.imro-intro-crown{font-size:clamp(34px,8vw,60px);filter:drop-shadow(0 0 18px #e7b64d77);animation:imroFloat 2.6s ease-in-out infinite}
+.imro-intro-brand{font-size:clamp(32px,9vw,66px);font-weight:1000;letter-spacing:2px;line-height:1.02;text-shadow:0 5px 28px #ff263b55}.imro-intro-brand span{color:#ff354b}
+.imro-intro-sub{margin-top:9px;color:#e8c778;font-size:10px;letter-spacing:5px;font-weight:900}
+.imro-intro-quote{margin:28px auto 24px;max-width:440px;color:#eee0cf;font-family:Georgia,serif;font-size:clamp(18px,4vw,25px);font-style:italic}
+.imro-intro-track{width:min(68vw,300px);height:3px;margin:0 auto;background:#ffffff20;overflow:hidden}
+.imro-intro-track i{display:block;width:42%;height:100%;background:linear-gradient(90deg,#ff3045,#f4ca72);box-shadow:0 0 15px #ff3045;animation:imroLoad 1.45s ease-in-out forwards}
+.imro-intro-enter{margin-top:17px;border:0;background:transparent;color:#e9c777;font-size:10px;font-weight:900;letter-spacing:3px;cursor:pointer;padding:10px 16px}
+.imro-reveal{opacity:0;transform:translateY(24px);transition:opacity .75s ease,transform .75s cubic-bezier(.2,.75,.2,1)}
+.imro-reveal.imro-visible{opacity:1;transform:none}
+.imro-touch{position:relative;overflow:hidden;transform:translateZ(0);transition:transform .18s ease,filter .18s ease}
+.imro-touch:active{transform:scale(.975);filter:brightness(1.18)}
+.imro-touch:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--tap-x,50%) var(--tap-y,50%),#ffffff38,transparent 42%);opacity:0;transition:opacity .35s;pointer-events:none}
+.imro-touch.imro-tapped:after{opacity:1}
+@keyframes imroLoad{from{transform:translateX(-110%)}to{transform:translateX(250%)}}
+@keyframes imroOrbit{to{transform:rotate(360deg)}}
+@keyframes imroRise{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes imroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@media(prefers-reduced-motion:reduce){#imroCinematicIntro:before,#imroCinematicIntro:after,.imro-intro-crown,.imro-intro-track i{animation:none!important}.imro-reveal{opacity:1;transform:none;transition:none}#imroCinematicIntro{transition:none}}
+
+
+/* IMRO SQUAD BATTLE BACKDROP — preserve red/gold identity */
+body{background-image:radial-gradient(ellipse at 50% -8%,#761c25aa 0,transparent 44%),linear-gradient(180deg,#07080c 0%,#08090d 62%,#050609 100%)}
+header{position:relative;overflow:hidden;background:linear-gradient(105deg,rgba(8,8,12,.96),rgba(38,10,17,.82)),url("https://images.pexels.com/photos/7862617/pexels-photo-7862617.jpeg?auto=compress&cs=tinysrgb&w=1600") center 38%/cover;border-bottom:1px solid #a14b42}
+header:after{content:"";position:absolute;inset:auto 0 0;height:2px;background:linear-gradient(90deg,transparent,#ff3448,#f1c66b,transparent)}
+.card{box-shadow:0 14px 38px #0008,inset 0 1px #ffffff0b}
+
+
+/* Uploaded IMRO squad battle scene, blended with the established crimson/gold theme */
+.squad-visual{background-image:linear-gradient(90deg,rgba(7,8,12,.94) 0%,rgba(8,8,13,.72) 48%,rgba(8,8,13,.20) 100%),linear-gradient(0deg,rgba(8,8,12,.55),transparent 70%),url('/imro-squad.jpg')!important;background-size:cover!important;background-position:center 44%!important;min-height:260px!important;box-shadow:0 18px 42px #0009}
+header{background-image:linear-gradient(110deg,rgba(8,8,12,.96),rgba(30,9,16,.78)),url('/imro-squad.jpg')!important;background-size:cover!important;background-position:center 35%!important;border-bottom:1px solid #9d493e!important}
+h1,h2{color:#f0c56d!important}
+.btn{background:linear-gradient(130deg,#ff3548,#a70e25)!important;color:#fff!important;border:1px solid #ff6874!important;box-shadow:0 8px 24px #ef233c33}
+
+
+/* IMRO wordmark: always metallic gold across every page */
+.imro-gold-word{color:#f0c56d!important;background:linear-gradient(180deg,#fff0b8 0%,#f0c56d 48%,#b98228 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent!important;text-shadow:0 2px 16px #e8b84d35!important}
+.imro-intro-brand{color:#f0c56d!important}
+
+/* Squad page contrast and form usability repair */
+body{color:#f5f7fb!important}
+.registration-journey{
+ color:#f5f7fb!important;
+ background:linear-gradient(145deg,#101a2a 0%,#172b43 58%,#241a30 100%)!important;
+ border:1px solid #7896b5!important;
+ box-shadow:0 18px 42px #0008!important;
+}
+.registration-journey h2,.registration-journey h3,
+.registration-journey>h2,.registration-journey>h3{color:#f2c96f!important;text-shadow:0 1px 10px #0008!important}
+.registration-journey p,.registration-journey .muted,
+.registration-journey #settings{color:#dce7f2!important;opacity:1!important}
+.registration-journey label{color:#f4f7fb!important;font-weight:700!important}
+.registration-journey input:not([type=checkbox]):not([type=hidden]),
+.registration-journey select,.registration-journey textarea{
+ background:#fff!important;color:#172638!important;border:1px solid #9db6d0!important;
+}
+.registration-journey input::placeholder,.registration-journey textarea::placeholder{color:#68798b!important;opacity:1!important}
+.registration-journey .avatar{
+ background:linear-gradient(145deg,#101722,#1b2637)!important;color:#fff!important;
+ border:1px solid #8297b1!important;
+}
+.registration-journey .avatar.selected{background:#284b45!important;border:2px solid #f2c96f!important}
+.registration-journey .btn:not(.alt){background:linear-gradient(135deg,#12a58e,#087366)!important;color:#fff!important;border:1px solid #6de0c7!important}
+main>section.card:not(.registration-journey){
+ background:linear-gradient(145deg,#111c2d 0%,#1a2c43 65%,#241b30 100%)!important;
+ color:#f5f7fb!important;border:1px solid #7896b5!important;
+}
+main>section.card:not(.registration-journey) h2{color:#f2c96f!important}
+main>section.card:not(.registration-journey) p,
+main>section.card:not(.registration-journey) .muted{color:#dce7f2!important;opacity:1!important}
+#teams{color:#f5f7fb!important}
+#teams .team{color:#f5f7fb!important;border-bottom:1px solid #52677f!important}
+#teams .team strong,#teams .team b{color:#ffe09a!important}
+#teams .team small,#teams .team .muted{color:#dce7f2!important}
+#teams .pill,.pill{color:#baf6d8!important;border-color:#55bd91!important}
+#settings{padding:9px 11px;border-radius:8px;background:#26364a;color:#fff!important;font-weight:700}
+#formResult{color:#f5f7fb!important}
+
+</style><link rel="stylesheet" href="/journey-colors.css?v=13">
+<style>
+/* Squad form label contrast fix: clear white labels on the dark form panel */
+.registration-journey #squadForm label{
+  color:#ffffff!important;
+  font-size:16px!important;
+  font-weight:750!important;
+  letter-spacing:.15px!important;
+  text-shadow:0 1px 3px #000b!important;
+}
+.registration-journey #squadForm h3{
+  color:#ffd978!important;
+  font-weight:800!important;
+}
+.registration-journey #squadForm p{
+  color:#e7eef8!important;
+}
+.registration-journey #squadForm label:focus-within{
+  color:#ffe19a!important;
+}
+
+/* Strong contrast for the squad form title, instructions and registration status */
+<style>
+.registration-journey h2,
+.registration-journey>h2{
+  color:#ffd978!important;
+  font-size:clamp(24px,5vw,30px)!important;
+  font-weight:900!important;
+  text-shadow:0 2px 8px #0009!important;
+}
+.registration-journey>p,
+.registration-journey>p.muted,
+.registration-journey #squadForm>p{
+  color:#f1f6ff!important;
+  opacity:1!important;
+  font-weight:500!important;
+  line-height:1.6!important;
+  text-shadow:0 1px 3px #0008!important;
+}
+.registration-journey #settings{
+  color:#ffffff!important;
+  background:linear-gradient(120deg,#075f59,#123f55)!important;
+  border:1px solid #65d8c5!important;
+  font-weight:800!important;
+  opacity:1!important;
+}
+.registration-journey #squadForm h3{
+  color:#ffd978!important;
+  text-shadow:0 1px 5px #0009!important;
+}
+</style>
+</style></head><body>
+
+<div id="imroCinematicIntro" role="status" aria-label="Entering IMRO ESPORTS">
+ <div class="imro-intro-inner">
+  <div class="imro-intro-crown" aria-hidden="true">♛</div>
+  <div class="imro-intro-brand"><span class="imro-gold-word">IMRO</span> <span>ESPORTS</span></div>
+  <div class="imro-intro-sub">COMMUNITY TOURNAMENT</div>
+  <div class="imro-intro-quote">“Your next match could become your greatest story.”</div>
+  <div class="imro-intro-track"><i></i></div>
+  <button class="imro-intro-enter" id="imroEnterNow" type="button">ENTER THE ARENA ↗</button>
+ </div>
+</div>
+
+<header><div style="margin-bottom:10px"><a href="/verify.html" style="display:inline-block;padding:7px 12px;border:1px solid #d7b66c;border-radius:30px;color:#ffe2a0;text-decoration:none;font-size:12px;font-weight:800;letter-spacing:1px">♛ OFFICIAL IMRO SITE · VERIFY</a></div><h1><span class="imro-gold-word">♛ IMRO</span> ESPORTS</h1><div>FOUR-PLAYER SQUAD REGISTRATION</div><p class="muted">Register your team • Track approval • View live results</p><a class="btn alt" href="/">← Back to registration choices</a></header>
+<section id="squadPrizePool" class="prize-card" hidden><div class="prize-kicker">🏆 IMRO ESPORTS · SQUAD CHAMPIONSHIP</div><h2>WINNING SQUAD PRIZE POOL</h2><div id="publicSquadPrizeAmount" class="prize-amount">₹0</div><p>ONE WINNING SQUAD TAKES IT ALL</p><div class="prize-foot">COMPETE • SURVIVE • DOMINATE</div></section>
+<main>
+<section class="squad-visual" style="margin:18px 0 22px;position:relative;min-height:190px;overflow:hidden;border:1px solid #75453d;background:linear-gradient(90deg,#09090dc9,#09090d22),url('/imro-squad.jpg') center 42%/cover;"><div style="padding:25px 20px;max-width:560px;"><div style="color:#f0c56d;font-size:10px;font-weight:900;letter-spacing:3px;">FOUR PLAYERS. ONE LEGACY.</div><h1 style="font-size:clamp(27px,6vw,42px);line-height:1.05;margin:8px 0;">SQUAD UP. TAKE THE CROWN.</h1><p style="color:#eee;margin:0;">“Play together. Lift each other. Win together.”</p></div></section>
+
+<section class="card registration-journey"><h2>Squad registration form</h2><p class="muted">Register one team with exactly four players. Include the squad leader among the four player names. Only the leader's Free Fire UID is required. Your registration stays pending until the organizer approves it.</p>
+<div id="settings" class="muted">Checking registration status…</div>
+<section id="imroPlayerAlerts" hidden style="margin:18px auto;padding:18px;border:1px solid #4d8392;border-radius:14px;background:linear-gradient(135deg,#102b38,#0d1723);color:#f5fbff"><div style="font-size:11px;letter-spacing:3px;color:#8ee0d2;font-weight:900">IMRO PLAYER ALERTS</div><h2 style="margin:8px 0;color:#fff">🔔 Match calls & tournament updates</h2><div id="imroPlayerAlertList"></div></section>
+<form id="squadForm">
+<label>Team name *</label><input name="team_name" maxlength="40" required placeholder="Your squad name">
+<label>Choose team avatar *</label><div id="avatars" class="grid"></div><input type="hidden" name="team_avatar" required>
+<label>Squad leader name / in-game name *</label><input name="leader_name" maxlength="40" required>
+<label>Squad leader Free Fire UID *</label><input name="leader_uid" maxlength="24" inputmode="numeric" pattern="[0-9]{3,24}" required placeholder="Numeric UID">
+<label>Squad leader contact number *</label><input name="contact_number" maxlength="20" required placeholder="+91...">
+<h3>Four squad members</h3><p class="muted">Enter all four player names. Player 1 can be the squad leader.</p>
+<label>Player 1 name *</label><input name="player1" maxlength="40" required>
+<label>Player 2 name *</label><input name="player2" maxlength="40" required>
+<label>Player 3 name *</label><input name="player3" maxlength="40" required>
+<label>Player 4 name *</label><input name="player4" maxlength="40" required>
+<button class="btn" id="submitSquad" type="submit">Register squad</button>
+</form><div id="formResult" class="result" hidden aria-live="polite"></div></section>
+<section class="card"><h2>Registered squads <span id="squadCount" class="pill">0 teams</span></h2><p class="muted">Team names appear here after registration. Refreshes automatically.</p><div id="teams">Loading teams…</div></section>
+<section class="card"><h2>Live tournament results</h2><div id="liveResults">No published results yet.</div></section>
+<section class="card"><h2>Winner announcements</h2><div id="winners">No winners announced yet.</div></section>
+<p><a href="/">← Back to IMRO ESPORTS home</a></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script><script>
+const SUPABASE_URL="https://gjjhuultiezaybvoykra.supabase.co";const SUPABASE_ANON_KEY="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";let db=null;try{if(!/^https:\/\/[^\s/]+\.supabase\.co$/.test(SUPABASE_URL))throw new Error("The tournament connection address is invalid. Please contact the organizer.");if(!window.supabase||typeof window.supabase.createClient!=="function")throw new Error("The connection library did not load. Please refresh or open in Chrome.");db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}catch(initError){document.getElementById("settings").textContent="Connection error: "+initError.message;console.error("IMRO Supabase initialization failed:",initError);}
+const WA="917676811098",icons=["⚔️","🐉","🔥","👑","🦅","☠️","🤖","🌙","⚡","🛡️","🐺","🎯"];
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const form=document.getElementById("squadForm"),res=document.getElementById("formResult");
+document.getElementById("avatars").innerHTML=icons.map((x,i)=>'<button class="avatar" type="button" data-avatar="'+esc(x)+'" aria-label="Team avatar '+(i+1)+'">'+x+'</button>').join("");
+document.querySelectorAll(".avatar").forEach(b=>b.onclick=()=>{document.querySelectorAll(".avatar").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");form.elements.team_avatar.value=b.dataset.avatar;});
+async function loadSquadPrizePool(){if(!db)return;const panel=document.getElementById("squadPrizePool");try{const {data,error}=await db.from("squad_tournament_settings").select("prize_pool_amount,prize_pool_active").eq("id",1).maybeSingle();if(error)throw error;if(data&&data.prize_pool_active&&Number(data.prize_pool_amount)>0){document.getElementById("publicSquadPrizeAmount").textContent="₹"+Number(data.prize_pool_amount).toLocaleString("en-IN");panel.hidden=false;}else panel.hidden=true;}catch(error){console.error("Squad prize pool:",error);panel.hidden=true;}}
+async function loadSettings(){if(!db){form.querySelector("button").disabled=false;return;}const {data}=await db.from("squad_tournament_settings").select("registration_open,entry_mode").eq("id",1).maybeSingle();document.getElementById("settings").textContent=!data?"Registration settings unavailable":!data.registration_open?"Squad registration is currently closed.":data.entry_mode==="paid"?"Registration is open. Contact the organizer for payment instructions.":"Registration is OPEN — free entry for now." ;form.querySelector("button").disabled=!data||!data.registration_open;}
+form.addEventListener("submit",async e=>{e.preventDefault();res.classList.remove("is-success");const b=document.getElementById("submitSquad");const v=form.elements;if(!v.team_avatar.value){res.hidden=false;res.textContent="Please choose a team avatar.";return;}b.disabled=true;b.textContent="Submitting…";res.hidden=false;res.textContent="Saving your squad…";
+try{const payload={team_name:v.team_name.value.trim(),team_avatar:v.team_avatar.value,leader_name:v.leader_name.value.trim(),leader_uid:v.leader_uid.value.trim(),contact_number:v.contact_number.value.trim(),players:[v.player1.value,v.player2.value,v.player3.value,v.player4.value].map(x=>x.trim())};
+const response=await fetch(SUPABASE_URL+"/functions/v1/register-squad",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY},body:JSON.stringify(payload)});const raw=await response.text();let data;try{data=JSON.parse(raw);}catch{throw new Error("Server returned an unreadable response (HTTP "+response.status+"). Please screenshot this message.");}if(!response.ok||!data.success)throw new Error((data.error||"Registration failed.")+" (HTTP "+response.status+")");
+res.classList.add("is-success");res.textContent="SQUAD REGISTERED!\nTeam: "+data.team_name+"\nYour token: "+data.token+"\nStatus: Pending admin approval.\n\nTap below to message IMRO ESPORTS on WhatsApp.";
+const msg="IMRO ESPORTS SQUAD REGISTRATION%0ATeam: "+encodeURIComponent(data.team_name)+"%0AToken: "+encodeURIComponent(data.token)+"%0ALeader: "+encodeURIComponent(payload.leader_name)+"%0AUID: "+encodeURIComponent(payload.leader_uid)+"%0AContact: "+encodeURIComponent(payload.contact_number)+"%0APlayers: "+encodeURIComponent(payload.players.join(", "));
+const a=document.createElement("a");a.className="btn";a.target="_blank";a.rel="noopener";a.href="https://wa.me/"+WA+"?text="+msg;a.textContent="Continue to WhatsApp";res.appendChild(document.createElement("br"));res.appendChild(a);form.reset();document.querySelectorAll(".avatar").forEach(x=>x.classList.remove("selected"));await loadTeams();
+}catch(err){console.error("Squad registration failed:",err);res.textContent="REGISTRATION NOT CONFIRMED\n"+(err?.message||String(err))+"\n\nNo token has been issued. Please send this message to the organizer."; }finally{b.disabled=false;b.textContent="Register squad";}});form.addEventListener("invalid",e=>{res.hidden=false;res.textContent="Please complete the highlighted required field"+(e.target?.name?" ("+e.target.name+")":"")+" before registering.";},true);
+async function loadTeams(){
+ const host=document.getElementById('teams'),count=document.getElementById('squadCount');
+ try{
+  const key='sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM';
+  const endpoint='https://gjjhuultiezaybvoykra.supabase.co/rest/v1/squad_public_teams?select=id,team_name,team_avatar,status,created_at&order=created_at.asc';
+  const response=await fetch(endpoint,{headers:{apikey:key,Authorization:'Bearer '+key}});
+  if(!response.ok)throw new Error('Supabase returned '+response.status);
+  const data=await response.json();
+  const approved=(data||[]).filter(t=>t.status==='approved');
+  count.textContent=approved.length+' teams';
+  host.innerHTML=approved.length?approved.map(t=>'<div class="team"><span class="emoji">'+esc(t.team_avatar||'⚔️')+'</span><div><strong>'+esc(t.team_name)+'</strong><div class="muted">Approved</div></div></div>').join(''):'No approved squads yet.';
+ }catch(error){console.error('Public squad list:',error);host.textContent='Squad list temporarily unavailable. Please refresh in a moment.';}
+}
+async function loadResults(){
+ if(!db)return;
+ const {data:matches,error:matchError}=await db.from("squad_matches").select("id,round_number,room_name,map_name,created_at").eq("published",true).order("created_at",{ascending:false});
+ const out=document.getElementById("liveResults");
+ if(matchError){out.innerHTML='<div class="muted">Published match feed is temporarily unavailable.</div>';return;}
+ if(!matches?.length){out.innerHTML='<div class="squad-broadcast-empty">THE BATTLE DESK IS READY<p>Published squad match results will appear here.</p></div>';return;}
+ let html="";
+ for(const m of matches){
+  const {data:rows,error}=await db.from("squad_match_results").select("placement,kills,total_points,is_winner,squad_public_teams(team_name,team_avatar)").eq("match_id",m.id).eq("published",true).order("total_points",{ascending:false});
+  if(error)continue;
+  const sorted=rows||[];
+  const topFragger=[...sorted].sort((a,b)=>Number(b.kills||0)-Number(a.kills||0))[0];
+  html+='<article class="squad-scoreboard"><div class="squad-scoreboard-head"><div><span class="squad-kicker">OFFICIAL MATCH RESULT</span><h3>ROUND '+esc(m.round_number)+' · '+esc(m.room_name||"BATTLE ROYALE")+'</h3><p>MAP · '+esc(m.map_name||"Not specified")+'</p></div><span class="squad-published">RESULT PUBLISHED</span></div><div class="squad-result-list">'+sorted.map((r,index)=>'<div class="squad-result-row '+(index===0?"squad-result-first":"")+'"><span class="squad-place">'+(r.is_winner?"♛":("#"+esc(r.placement??"—")) )+'</span><span class="squad-team-identity"><b>'+(r.squad_public_teams?.team_avatar||"⚔️")+'</b><strong>'+esc(r.squad_public_teams?.team_name||"Squad")+'</strong></span><span class="squad-stat"><b>'+Number(r.kills||0)+'</b><small>KILLS</small></span><span class="squad-stat"><b>'+Number(r.total_points||0)+'</b><small>POINTS</small></span></div>').join("")+'</div>'+(topFragger?'<div class="squad-top-fragger"><span>⚡ ROUND TOP FRAGGER</span><strong>'+(topFragger.squad_public_teams?.team_avatar||"⚔️")+' '+esc(topFragger.squad_public_teams?.team_name||"Squad")+'</strong><b>'+Number(topFragger.kills||0)+' KILLS</b></div>':"")+'</article>';
+ }
+ out.innerHTML=html||'<div class="squad-broadcast-empty">No published results available yet.</div>';
+}
+async function loadWinners(){if(!db)return;const {data}=await db.from("squad_winner_announcements").select("id,title,message,published_at").eq("published",true).order("published_at",{ascending:false});let html="";for(const a of data||[]){const {data:w}=await db.from("squad_announcement_winners").select("award_label,squad_public_teams(team_name,team_avatar)").eq("announcement_id",a.id);html+='<div class="card"><h3>'+esc(a.title)+'</h3><p>'+esc(a.message)+'</p>'+(w||[]).map(x=>'<div class="team">🏆 '+esc(x.squad_public_teams?.team_name||"Team")+' — '+esc(x.award_label)+'</div>').join("")+'</div>';}document.getElementById("winners").innerHTML=html||"No winners announced yet.";}
+async function refresh(){await Promise.all([loadSettings(),loadTeams(),loadResults(),loadWinners()]);}
+refresh();loadSquadPrizePool();setInterval(refresh,8000);setInterval(loadSquadPrizePool,15000);
+</script><script>
+(()=>{
+ const intro=document.getElementById("imroCinematicIntro");
+ if(!intro)return;
+ const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ let seen=false;try{seen=sessionStorage.getItem("imro-arena-entered")==="1";}catch(e){}
+ const close=()=>{intro.classList.add("is-leaving");try{sessionStorage.setItem("imro-arena-entered","1");}catch(e){};setTimeout(()=>intro.remove(),reduce?0:700);};
+ document.getElementById("imroEnterNow")?.addEventListener("click",close);
+ if(seen||reduce){intro.remove();}else{setTimeout(close,2100);}
+ const revealTargets=document.querySelectorAll("main section,main .card,main .arena-gallery,main .hero,main .section");
+ if("IntersectionObserver"in window&&!reduce){
+  const io=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("imro-visible");io.unobserve(entry.target);}}),{threshold:.08});
+  revealTargets.forEach(el=>{el.classList.add("imro-reveal");io.observe(el);});
+ }else revealTargets.forEach(el=>el.classList.add("imro-visible"));
+ document.addEventListener("pointerdown",event=>{
+  const el=event.target.closest("button,.btn,.action,.navlinks a,.filter");
+  if(!el)return;
+  const rect=el.getBoundingClientRect();el.style.setProperty("--tap-x",((event.clientX-rect.left)/rect.width*100)+"%");el.style.setProperty("--tap-y",((event.clientY-rect.top)/rect.height*100)+"%");
+  el.classList.add("imro-touch","imro-tapped");setTimeout(()=>el.classList.remove("imro-tapped"),360);
+ },{passive:true});
+ document.documentElement.style.scrollBehavior=reduce?"auto":"smooth";
+})();
+
+async function loadImroPlayerAlerts(){
+ const host=document.getElementById("imroPlayerAlerts"),list=document.getElementById("imroPlayerAlertList");
+ if(!host||!list)return;
+ try{
+  const key="sb_publishable_aYSCSju7xstznD0OAkD2gQ_9znIBwAM";
+  const base="https://gjjhuultiezaybvoykra.supabase.co/rest/v1/player_match_alerts?select=id,title,message,target_type,target_value,alert_kind,created_at,expires_at&active=eq.true&or=(target_type.eq.all,target_type.eq.squad)&order=created_at.desc&limit=6";
+  const res=await fetch(base,{headers:{apikey:key,Authorization:"Bearer "+key}});
+  if(!res.ok)throw new Error("Alerts unavailable");
+  const rows=await res.json(),visible=rows.filter(a=>!a.expires_at||new Date(a.expires_at)>new Date());
+  if(!visible.length){host.hidden=true;return;} host.hidden=false;
+  list.innerHTML=visible.map(a=>{
+   const audience=a.target_type==="all"?"ALL PLAYERS":a.target_type==="tier"?"SOLO TIER "+a.target_value:"SQUAD PLAYERS";
+   const esc=v=>String(v||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+   return '<article style="padding:13px;margin:10px 0;border-radius:10px;background:#ffffff0b;border-left:3px solid #75cbbb"><small style="color:#8ee0d2;font-weight:900;letter-spacing:1px">'+audience+' · '+new Date(a.created_at).toLocaleString()+'</small><h3 style="color:#fff;margin:7px 0">'+esc(a.title)+'</h3><p style="color:#e5edf2;margin:0;line-height:1.55">'+esc(a.message).replace(/\n/g,"<br>")+'</p></article>';
+  }).join("");
+ }catch(e){host.hidden=true;console.warn("IMRO alerts:",e.message);}
+}
+loadImroPlayerAlerts();setInterval(loadImroPlayerAlerts,30000);
+
+</script>
+</body></html>

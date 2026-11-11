@@ -1,0 +1,18 @@
+{
+  "id": "/admin/",
+  "name": "IMRO ESPORTS Admin",
+  "short_name": "IMRO Admin",
+  "description": "Private tournament administration only",
+  "start_url": "/admin/",
+  "scope": "/admin/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080d15",
+  "theme_color": "#080d15",
+  "icons": [
+    {"src": "/icons/imro-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ],
+  "shortcuts": [
+    {"name": "Admin Dashboard", "url": "/admin/dashboard.html", "icons": [{"src": "/icons/imro-icon.svg", "sizes": "any", "type": "image/svg+xml"}]}
+  ]
+}
