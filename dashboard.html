@@ -198,28 +198,39 @@ dialog{background:#151116;border-color:#8a443b}
 <button id="createReceipt">Create receipt</button>
 <div id="receipts"></div>
 </section>
-<section>
-  <h2>🏆 Prize Pool Management</h2>
-
-  <h3>Total Prize Pool: <span id="totalPrize">₹0</span></h3>
-
-  <label>Tier 1 Prize (₹)</label>
-  <input id="prizeTier1" type="number" min="0" value="0">
-
-  <label>Tier 2 Prize (₹)</label>
-  <input id="prizeTier2" type="number" min="0" value="0">
-
-  <label>Tier 3 Prize (₹)</label>
-  <input id="prizeTier3" type="number" min="0" value="0">
-
-  <label>Prize announcement status</label>
-  <select id="prizeStatus">
-    <option value="to_be_confirmed">To be confirmed</option>
-    <option value="announced">Officially announced</option>
-  </select>
-
-  <button id="savePrizes">Save Prize Pool</button>
-  <p id="prizeMessage" class="small"></p>
+<section id="announcementManager">
+<h2>📣 Announcement Manager</h2>
+<p class="small">Publish the homepage announcement poster and official prize breakdown. Only published details appear publicly.</p>
+<label for="announcementPoster">Tournament poster (JPG, PNG or WEBP · max 10 MB)</label>
+<input id="announcementPoster" type="file" accept="image/jpeg,image/png,image/webp">
+<img id="announcementPosterPreview" alt="Announcement poster preview" hidden style="display:none;max-width:100%;max-height:420px;object-fit:contain;margin:12px auto;border:1px solid #765044">
+<div class="grid">
+<div><label for="prizeTier1">🥇 1st Prize (₹)</label><input id="prizeTier1" type="number" min="0" step="1" value="0"></div>
+<div><label for="prizeTier2">🥈 2nd Prize (₹)</label><input id="prizeTier2" type="number" min="0" step="1" value="0"></div>
+<div><label for="prizeTier3">🥉 3rd Prize (₹)</label><input id="prizeTier3" type="number" min="0" step="1" value="0"></div>
+</div>
+<h3>Overall Prize Pool: <span id="totalPrize">₹0</span></h3>
+<label for="prizeStatus">Announcement status</label>
+<select id="prizeStatus"><option value="to_be_confirmed">Draft / not announced</option><option value="announced">Publish announcement</option></select>
+<button id="savePrizes" type="button">Save Announcement</button>
+<p id="prizeMessage" class="small" aria-live="polite"></p>
+</section>
+<section id="timetableManager">
+<h2>🗓️ Match Timetable Manager</h2>
+<p class="small">Add match dates and times. Only published matches appear on the homepage.</p>
+<label for="scheduleDate">Match date</label><input id="scheduleDate" type="date">
+<label for="scheduleTime">Match time</label><input id="scheduleTime" type="time">
+<label for="scheduleType">Type of match</label>
+<select id="scheduleType">
+<option value="BR - RANK POINTS SQUAD">BR - RANK POINTS SQUAD</option>
+<option value="BR - RANK POINTS SOLO">BR - RANK POINTS SOLO</option>
+<option value="ONE-TAP SQUAD CUSTOM">ONE-TAP SQUAD CUSTOM</option>
+<option value="ONE-TAP SOLO CUSTOM">ONE-TAP SOLO CUSTOM</option>
+</select>
+<button id="saveSchedule" type="button">Add Match to Timetable</button>
+<button id="cancelScheduleEdit" type="button" class="secondary" hidden>Cancel Edit</button>
+<p id="scheduleMessage" class="small" aria-live="polite"></p>
+<div id="adminTimetable"></div>
 </section>
 
 <section>
@@ -243,6 +254,8 @@ let receipts = [];
 let matches = [];
 let currentDrawId = null;
 let pendingWinnerMatchId = null;
+let currentAnnouncementPosterUrl = null;
+let editingScheduleId = null;
 
 function safe(value){
   return String(value ?? "").replace(/[&<>"']/g,c=>({
@@ -381,7 +394,8 @@ async function loadAll(){
   await renderTierControls();
   renderReceipts();
   updateRegistrationStatus();
-  loadPrizeSettings();
+  await loadPrizeSettings();
+  await loadTimetable();
   renderPlayerStats();
 }
   async function loadPrizeSettings(){
@@ -400,8 +414,48 @@ async function loadAll(){
   $("prizeTier2").value=data.tier2_prize;
   $("prizeTier3").value=data.tier3_prize;
   $("prizeStatus").value=data.prize_status;
-
+  currentAnnouncementPosterUrl=data.poster_url||null;
+  const preview=$("announcementPosterPreview");
+  if(currentAnnouncementPosterUrl){preview.src=currentAnnouncementPosterUrl;preview.hidden=false;preview.style.display="block";}
+  else{preview.removeAttribute("src");preview.hidden=true;preview.style.display="none";}
   updatePrizeTotal();
+}
+
+
+const MATCH_TYPES=["BR - RANK POINTS SQUAD","BR - RANK POINTS SOLO","ONE-TAP SQUAD CUSTOM","ONE-TAP SOLO CUSTOM"];
+function resetScheduleForm(){editingScheduleId=null;$("scheduleDate").value="";$("scheduleTime").value="";$("scheduleType").value=MATCH_TYPES[0];$("saveSchedule").textContent="Add Match to Timetable";$("cancelScheduleEdit").hidden=true;}
+async function loadTimetable(){
+ const target=$("adminTimetable");
+ const {data,error}=await db.from("match_timetable").select("*").order("match_date",{ascending:true}).order("match_time",{ascending:true});
+ if(error){target.textContent="Could not load timetable: "+error.message;return;}
+ target.innerHTML=(data||[]).map(row=>'<div class="item"><strong>'+safe(row.match_type)+'</strong><p class="small">'+safe(row.match_date)+' · '+safe(String(row.match_time).slice(0,5))+' · '+(row.published?"PUBLISHED":"DRAFT")+'</p><button type="button" class="secondary" data-schedule-edit="'+safe(row.id)+'">Edit</button><button type="button" data-schedule-publish="'+safe(row.id)+'" data-published="'+(!row.published)+'">'+(row.published?"Unpublish":"Publish")+'</button><button type="button" class="danger" data-schedule-delete="'+safe(row.id)+'">Delete</button></div>').join("")||'<p class="small">No matches added yet.</p>';
+}
+async function saveSchedule(){
+ const date=$("scheduleDate").value,time=$("scheduleTime").value,type=$("scheduleType").value,status=$("scheduleMessage");
+ if(!date||!time||!MATCH_TYPES.includes(type)){status.textContent="Enter a date, time and valid match type.";return;}
+ const payload={match_date:date,match_time:time,match_type:type,updated_at:new Date().toISOString()},button=$("saveSchedule");button.disabled=true;
+ try{
+  const result=editingScheduleId?await db.from("match_timetable").update(payload).eq("id",editingScheduleId).select().single():await db.from("match_timetable").insert(payload).select().single();
+  if(result.error)throw result.error;if(!result.data)throw new Error("The database did not confirm this match.");
+  status.textContent=editingScheduleId?"Match updated.":"Match added as a draft. Publish it when ready.";resetScheduleForm();await loadTimetable();
+ }catch(error){status.textContent="Save failed: "+(error.message||String(error));}finally{button.disabled=false;}
+}
+async function handleTimetableAction(event){
+ const edit=event.target.closest("[data-schedule-edit]"),publish=event.target.closest("[data-schedule-publish]"),remove=event.target.closest("[data-schedule-delete]");
+ if(edit){
+  const {data,error}=await db.from("match_timetable").select("*").eq("id",edit.dataset.scheduleEdit).single();if(error){$("scheduleMessage").textContent=error.message;return;}
+  editingScheduleId=data.id;$("scheduleDate").value=data.match_date;$("scheduleTime").value=String(data.match_time).slice(0,5);$("scheduleType").value=data.match_type;$("saveSchedule").textContent="Save Match Changes";$("cancelScheduleEdit").hidden=false;$("timetableManager").scrollIntoView({behavior:"smooth",block:"start"});return;
+ }
+ if(publish){
+  const {error}=await db.from("match_timetable").update({published:publish.dataset.published==="true",updated_at:new Date().toISOString()}).eq("id",publish.dataset.schedulePublish);
+  if(error){$("scheduleMessage").textContent=error.message;return;}
+  $("scheduleMessage").textContent=publish.dataset.published==="true"?"Match published on homepage.":"Match unpublished.";await loadTimetable();return;
+ }
+ if(remove){
+  if(!confirm("Delete this timetable entry?"))return;
+  const {error}=await db.from("match_timetable").delete().eq("id",remove.dataset.scheduleDelete);if(error){$("scheduleMessage").textContent=error.message;return;}
+  $("scheduleMessage").textContent="Match deleted.";await loadTimetable();
+ }
 }
 
 function updatePrizeTotal(){
@@ -414,46 +468,32 @@ function updatePrizeTotal(){
 }
 
 async function savePrizeSettings(){
-  const button=$("savePrizes");
-  const messageNode=$("prizeMessage");
-  const tier1=Number($("prizeTier1").value);
-  const tier2=Number($("prizeTier2").value);
-  const tier3=Number($("prizeTier3").value);
-
-  if([tier1,tier2,tier3].some(n=>!Number.isFinite(n)||n<0)){
-    messageNode.textContent="Enter valid prize amounts.";
-    return;
-  }
-
-  button.disabled=true;
-  button.textContent="Saving…";
-  messageNode.textContent="Saving prize pool…";
+  const button=$("savePrizes"),messageNode=$("prizeMessage");
+  const tier1=Number($("prizeTier1").value),tier2=Number($("prizeTier2").value),tier3=Number($("prizeTier3").value);
+  const file=$("announcementPoster").files[0];
+  if([tier1,tier2,tier3].some(n=>!Number.isFinite(n)||n<0)){messageNode.textContent="Enter valid prize amounts.";return;}
+  if(file&&(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>10*1024*1024)){messageNode.textContent="Choose a JPG, PNG or WEBP poster smaller than 10 MB.";return;}
+  button.disabled=true;button.textContent="Saving…";messageNode.textContent="Saving announcement…";
   try{
-    const payload={
-      id:1,
-      tier1_prize:tier1,
-      tier2_prize:tier2,
-      tier3_prize:tier3,
-      prize_status:$("prizeStatus").value,
-      updated_at:new Date().toISOString()
-    };
+    let posterUrl=currentAnnouncementPosterUrl;
+    if(file){
+      const ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+      const path="posters/announcement-"+Date.now()+"."+ext;
+      const {data:uploaded,error:uploadError}=await db.storage.from("imro-announcements").upload(path,file,{contentType:file.type,cacheControl:"3600",upsert:false});
+      if(uploadError)throw uploadError;
+      posterUrl=db.storage.from("imro-announcements").getPublicUrl(uploaded.path).data.publicUrl;
+    }
+    const payload={id:1,tier1_prize:tier1,tier2_prize:tier2,tier3_prize:tier3,prize_status:$("prizeStatus").value,poster_url:posterUrl,updated_at:new Date().toISOString()};
     const {data,error}=await db.from("prize_settings").upsert(payload,{onConflict:"id"}).select().single();
-    if(error)throw error;
-    if(!data)throw new Error("The database did not confirm the saved prize pool.");
-    $("prizeTier1").value=data.tier1_prize;
-    $("prizeTier2").value=data.tier2_prize;
-    $("prizeTier3").value=data.tier3_prize;
-    $("prizeStatus").value=data.prize_status;
-    updatePrizeTotal();
-    messageNode.textContent="Prize pool saved and verified successfully.";
-  }catch(error){
-    messageNode.textContent="Save failed: "+(error.message||String(error));
-  }finally{
-    button.disabled=false;
-    button.textContent="Save Prize Pool";
-  }
+    if(error)throw error;if(!data)throw new Error("The database did not confirm the saved announcement.");
+    currentAnnouncementPosterUrl=data.poster_url||null;$("announcementPoster").value="";
+    const preview=$("announcementPosterPreview");
+    if(currentAnnouncementPosterUrl){preview.src=currentAnnouncementPosterUrl;preview.hidden=false;preview.style.display="block";}else{preview.removeAttribute("src");preview.hidden=true;preview.style.display="none";}
+    $("prizeTier1").value=data.tier1_prize;$("prizeTier2").value=data.tier2_prize;$("prizeTier3").value=data.tier3_prize;$("prizeStatus").value=data.prize_status;updatePrizeTotal();
+    messageNode.textContent="Announcement saved and verified. "+(data.prize_status==="announced"?"It is published on the homepage.":"It is saved as a draft.");
+  }catch(error){messageNode.textContent="Save failed: "+(error.message||String(error));}
+  finally{button.disabled=false;button.textContent="Save Announcement";}
 }
-
 function renderPlayerStats(){
   const activeRegistrations=registrations.filter(r=>!r.archived_at);
   const approved=players.filter(p=>p.status==="approved");
@@ -1254,6 +1294,15 @@ $("addMatch").onclick=addMatch;
 $("publishDraw").onclick=publishDraw;
 $("createReceipt").onclick=createReceipt;
 $("savePrizes").onclick=savePrizeSettings;
+$("announcementPoster").addEventListener("change",()=>{
+ const file=$("announcementPoster").files[0],preview=$("announcementPosterPreview");
+ if(!file){if(currentAnnouncementPosterUrl){preview.src=currentAnnouncementPosterUrl;preview.hidden=false;preview.style.display="block";}else{preview.hidden=true;preview.style.display="none";}return;}
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>10*1024*1024){$("prizeMessage").textContent="Choose a JPG, PNG or WEBP poster smaller than 10 MB.";$("announcementPoster").value="";return;}
+ preview.src=URL.createObjectURL(file);preview.hidden=false;preview.style.display="block";
+});
+["prizeTier1","prizeTier2","prizeTier3"].forEach(id=>$(id).addEventListener("input",updatePrizeTotal));
+$("saveSchedule").onclick=saveSchedule;$("cancelScheduleEdit").onclick=resetScheduleForm;$("adminTimetable").addEventListener("click",handleTimetableAction);
+
 $("logout").onclick=async()=>{
   await db.auth.signOut();
   location.href="/admin.html";
