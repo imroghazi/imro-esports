@@ -227,6 +227,9 @@ dialog{background:#151116;border-color:#8a443b}
 <option value="ONE-TAP SQUAD CUSTOM">ONE-TAP SQUAD CUSTOM</option>
 <option value="ONE-TAP SOLO CUSTOM">ONE-TAP SOLO CUSTOM</option>
 </select>
+<label for="schedulePoster">Match poster (optional · JPG, PNG or WEBP · max 10 MB)</label>
+<input id="schedulePoster" type="file" accept="image/jpeg,image/png,image/webp">
+<img id="schedulePosterPreview" alt="Match timetable poster preview" hidden style="display:none;max-width:100%;max-height:360px;object-fit:contain;margin:12px auto;border:1px solid #765044">
 <button id="saveSchedule" type="button">Add Match to Timetable</button>
 <button id="cancelScheduleEdit" type="button" class="secondary" hidden>Cancel Edit</button>
 <p id="scheduleMessage" class="small" aria-live="polite"></p>
@@ -256,6 +259,7 @@ let currentDrawId = null;
 let pendingWinnerMatchId = null;
 let currentAnnouncementPosterUrl = null;
 let editingScheduleId = null;
+let currentSchedulePosterUrl = null;
 
 function safe(value){
   return String(value ?? "").replace(/[&<>"']/g,c=>({
@@ -423,28 +427,47 @@ async function loadAll(){
 
 
 const MATCH_TYPES=["BR - RANK POINTS SQUAD","BR - RANK POINTS SOLO","ONE-TAP SQUAD CUSTOM","ONE-TAP SOLO CUSTOM"];
-function resetScheduleForm(){editingScheduleId=null;$("scheduleDate").value="";$("scheduleTime").value="";$("scheduleType").value=MATCH_TYPES[0];$("saveSchedule").textContent="Add Match to Timetable";$("cancelScheduleEdit").hidden=true;}
+function resetScheduleForm(){
+ editingScheduleId=null;currentSchedulePosterUrl=null;
+ $("scheduleDate").value="";$("scheduleTime").value="";$("scheduleType").value=MATCH_TYPES[0];
+ $("schedulePoster").value="";$("schedulePosterPreview").removeAttribute("src");$("schedulePosterPreview").hidden=true;$("schedulePosterPreview").style.display="none";
+ $("saveSchedule").textContent="Add Match to Timetable";$("cancelScheduleEdit").hidden=true;
+}
 async function loadTimetable(){
  const target=$("adminTimetable");
  const {data,error}=await db.from("match_timetable").select("*").order("match_date",{ascending:true}).order("match_time",{ascending:true});
  if(error){target.textContent="Could not load timetable: "+error.message;return;}
- target.innerHTML=(data||[]).map(row=>'<div class="item"><strong>'+safe(row.match_type)+'</strong><p class="small">'+safe(row.match_date)+' · '+safe(String(row.match_time).slice(0,5))+' · '+(row.published?"PUBLISHED":"DRAFT")+'</p><button type="button" class="secondary" data-schedule-edit="'+safe(row.id)+'">Edit</button><button type="button" data-schedule-publish="'+safe(row.id)+'" data-published="'+(!row.published)+'">'+(row.published?"Unpublish":"Publish")+'</button><button type="button" class="danger" data-schedule-delete="'+safe(row.id)+'">Delete</button></div>').join("")||'<p class="small">No matches added yet.</p>';
+ target.innerHTML=(data||[]).map(row=>'<div class="item"><strong>'+safe(row.match_type)+'</strong><p class="small">'+safe(row.match_date)+' · '+safe(String(row.match_time).slice(0,5))+' · '+(row.published?"PUBLISHED":"DRAFT")+'</p>'+(row.poster_url?'<img src="'+safe(row.poster_url)+'" alt="Match poster" style="display:block;max-width:100%;max-height:220px;object-fit:contain;margin:10px 0">':'<p class="small">No poster attached</p>')+'<button type="button" class="secondary" data-schedule-edit="'+safe(row.id)+'">Edit</button><button type="button" data-schedule-publish="'+safe(row.id)+'" data-published="'+(!row.published)+'">'+(row.published?"Unpublish":"Publish")+'</button><button type="button" class="danger" data-schedule-delete="'+safe(row.id)+'">Delete</button></div>').join("")||'<p class="small">No matches added yet.</p>';
 }
 async function saveSchedule(){
- const date=$("scheduleDate").value,time=$("scheduleTime").value,type=$("scheduleType").value,status=$("scheduleMessage");
+ const date=$("scheduleDate").value,time=$("scheduleTime").value,type=$("scheduleType").value,status=$("scheduleMessage"),file=$("schedulePoster").files[0];
  if(!date||!time||!MATCH_TYPES.includes(type)){status.textContent="Enter a date, time and valid match type.";return;}
- const payload={match_date:date,match_time:time,match_type:type,updated_at:new Date().toISOString()},button=$("saveSchedule");button.disabled=true;
+ if(file&&(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>10*1024*1024)){status.textContent="Choose a JPG, PNG or WEBP poster smaller than 10 MB.";return;}
+ const button=$("saveSchedule");button.disabled=true;button.textContent="Saving…";
  try{
+  let posterUrl=currentSchedulePosterUrl;
+  if(file){
+   const ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+   const path="timetable/match-"+Date.now()+"-"+Math.random().toString(36).slice(2,8)+"."+ext;
+   const {data:uploaded,error:uploadError}=await db.storage.from("imro-announcements").upload(path,file,{contentType:file.type,cacheControl:"3600",upsert:false});
+   if(uploadError)throw uploadError;
+   posterUrl=db.storage.from("imro-announcements").getPublicUrl(uploaded.path).data.publicUrl;
+  }
+  const payload={match_date:date,match_time:time,match_type:type,poster_url:posterUrl,updated_at:new Date().toISOString()};
   const result=editingScheduleId?await db.from("match_timetable").update(payload).eq("id",editingScheduleId).select().single():await db.from("match_timetable").insert(payload).select().single();
   if(result.error)throw result.error;if(!result.data)throw new Error("The database did not confirm this match.");
-  status.textContent=editingScheduleId?"Match updated.":"Match added as a draft. Publish it when ready.";resetScheduleForm();await loadTimetable();
- }catch(error){status.textContent="Save failed: "+(error.message||String(error));}finally{button.disabled=false;}
+  status.textContent=editingScheduleId?"Match and poster updated.":"Match added as a draft. Publish it when ready.";resetScheduleForm();await loadTimetable();
+ }catch(error){status.textContent="Save failed: "+(error.message||String(error));}finally{button.disabled=false;button.textContent=editingScheduleId?"Save Match Changes":"Add Match to Timetable";}
 }
 async function handleTimetableAction(event){
  const edit=event.target.closest("[data-schedule-edit]"),publish=event.target.closest("[data-schedule-publish]"),remove=event.target.closest("[data-schedule-delete]");
  if(edit){
   const {data,error}=await db.from("match_timetable").select("*").eq("id",edit.dataset.scheduleEdit).single();if(error){$("scheduleMessage").textContent=error.message;return;}
-  editingScheduleId=data.id;$("scheduleDate").value=data.match_date;$("scheduleTime").value=String(data.match_time).slice(0,5);$("scheduleType").value=data.match_type;$("saveSchedule").textContent="Save Match Changes";$("cancelScheduleEdit").hidden=false;$("timetableManager").scrollIntoView({behavior:"smooth",block:"start"});return;
+  editingScheduleId=data.id;currentSchedulePosterUrl=data.poster_url||null;
+  $("scheduleDate").value=data.match_date;$("scheduleTime").value=String(data.match_time).slice(0,5);$("scheduleType").value=data.match_type;
+  $("schedulePoster").value="";
+  const preview=$("schedulePosterPreview");if(currentSchedulePosterUrl){preview.src=currentSchedulePosterUrl;preview.hidden=false;preview.style.display="block";}else{preview.removeAttribute("src");preview.hidden=true;preview.style.display="none";}
+  $("saveSchedule").textContent="Save Match Changes";$("cancelScheduleEdit").hidden=false;$("timetableManager").scrollIntoView({behavior:"smooth",block:"start"});return;
  }
  if(publish){
   const {error}=await db.from("match_timetable").update({published:publish.dataset.published==="true",updated_at:new Date().toISOString()}).eq("id",publish.dataset.schedulePublish);
@@ -1302,6 +1325,12 @@ $("announcementPoster").addEventListener("change",()=>{
 });
 ["prizeTier1","prizeTier2","prizeTier3"].forEach(id=>$(id).addEventListener("input",updatePrizeTotal));
 $("saveSchedule").onclick=saveSchedule;$("cancelScheduleEdit").onclick=resetScheduleForm;$("adminTimetable").addEventListener("click",handleTimetableAction);
+$("schedulePoster").addEventListener("change",()=>{
+ const file=$("schedulePoster").files[0],preview=$("schedulePosterPreview");
+ if(!file){if(currentSchedulePosterUrl){preview.src=currentSchedulePosterUrl;preview.hidden=false;preview.style.display="block";}else{preview.removeAttribute("src");preview.hidden=true;preview.style.display="none";}return;}
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>10*1024*1024){$("scheduleMessage").textContent="Choose a JPG, PNG or WEBP poster smaller than 10 MB.";$("schedulePoster").value="";return;}
+ preview.src=URL.createObjectURL(file);preview.hidden=false;preview.style.display="block";
+});
 
 $("logout").onclick=async()=>{
   await db.auth.signOut();
