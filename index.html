@@ -479,18 +479,19 @@ main section .card:after,
   <div class="strip-stat"><b>SQUAD</b><span>FOUR PLAYER BATTLE</span></div>
   <div class="strip-stat"><b>LIVE</b><span>PUBLISHED MATCH UPDATES</span></div>
 </div>
-  <section id="prizePool" style="margin:18px auto;padding:22px 16px;text-align:center;background:linear-gradient(135deg,#190909,#321010,#090909);border:1px solid #ed6b55;border-radius:16px;box-shadow:0 0 20px #ed233c33;">
-  <div style="color:#ed6b55;font-weight:900;letter-spacing:4px;">🏆 IMRO ESPORTS</div>
-  <h2 style="font-size:26px;margin:10px 0;color:#fff;">PRIZE POOL</h2>
-  <div id="publicTotalPrize" style="font-size:38px;font-weight:900;color:#edb655;">₹0</div>
-  <p id="publicPrizeStatus" style="color:#aaa;">Prize pool to be confirmed</p>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;">
-    <div class="card"><strong>🥇 TIER 1</strong><h3 id="publicTier1">₹0</h3></div>
-    <div class="card"><strong>🥈 TIER 2</strong><h3 id="publicTier2">₹0</h3></div>
-    <div class="card"><strong>🥉 TIER 3</strong><h3 id="publicTier3">₹0</h3></div>
-  </div>
-  <p style="color:#edb655;font-style:italic;margin-top:18px;">"Your rank is temporary. Your legacy is forever."</p>
-  </section>
+  <section id="prizePool" aria-labelledby="announcementTitle" style="margin:18px auto;padding:22px 16px;text-align:center;background:linear-gradient(135deg,#190909,#321010,#090909);border:1px solid #ed6b55;border-radius:5px;box-shadow:0 0 20px #ed233c33;">
+<div style="color:#edb655;font-weight:900;letter-spacing:4px;">📣 IMRO ESPORTS OFFICIAL</div>
+<h2 id="announcementTitle" style="font-size:clamp(26px,5vw,38px);margin:10px 0;color:#fff;">ANNOUNCEMENTS</h2>
+<img id="publicAnnouncementPoster" alt="Official IMRO ESPORTS tournament announcement poster" hidden style="display:none;width:100%;max-width:850px;max-height:620px;object-fit:contain;margin:12px auto;border:1px solid #80503b;background:#090a0f">
+<div id="publicTotalPrize" style="font-size:clamp(42px,8vw,66px);font-weight:950;color:#edb655;">₹0</div>
+<p id="publicPrizeStatus" style="color:#aaa;">Prize pool to be confirmed</p>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;">
+<div class="card"><strong>🥇 1ST PRIZE</strong><h3 id="publicTier1">₹0</h3></div>
+<div class="card"><strong>🥈 2ND PRIZE</strong><h3 id="publicTier2">₹0</h3></div>
+<div class="card"><strong>🥉 3RD PRIZE</strong><h3 id="publicTier3">₹0</h3></div>
+</div>
+<p style="color:#edb655;font-style:italic;margin-top:18px;">"Your rank is temporary. Your legacy is forever."</p>
+</section>
   <section id="publicSquadPrizePool" hidden style="margin:18px auto;padding:24px 16px;text-align:center;background:radial-gradient(ellipse at 50% 0,#69202a,transparent 65%),linear-gradient(130deg,#210b10,#090a0e);border:1px solid #a34d3e;box-shadow:0 16px 42px #0009;">
     <div style="color:#f0c56d;font-weight:900;letter-spacing:4px;">🏆 IMRO ESPORTS · SQUAD CHAMPIONSHIP</div>
     <h2 style="font-size:clamp(24px,5vw,34px);margin:16px 0;color:#fff;">WINNING SQUAD PRIZE POOL</h2>
@@ -498,6 +499,11 @@ main section .card:after,
     <p style="color:#e4c9c2;font-weight:800;letter-spacing:2px;">ONE WINNING SQUAD TAKES IT ALL</p>
     <a class="btn" href="/squads.html">VIEW SQUAD TOURNAMENT</a>
   </section>
+<section id="publicMatchTimetable" aria-labelledby="publicTimetableTitle">
+<h2 class="section-title" id="publicTimetableTitle">MATCH TIMETABLE</h2>
+<p class="muted">Official match dates, timings and formats published by IMRO ESPORTS.</p>
+<div id="publicTimetableList" class="grid"><div class="card muted">Loading match timetable…</div></div>
+</section>
 <div class="notice">No payment is collected on this website. Choose only a tier marked OPEN below; registration availability is controlled live by the organizer.</div>
 <section id="tierArena"><h2 class="section-title">Choose your tier</h2><div class="grid">
 <div class="card"><div class="tier">TIER 01</div><h3>Rising Challengers</h3><div id="tierAvailability1" class="status">Checking availability…</div><div class="muted">4 winners • Organizer-announced prize reference subject to confirmation.</div></div>
@@ -813,6 +819,9 @@ async function loadPublicPrizePool() {
     const format = amount =>
       "₹" + Number(amount || 0).toLocaleString("en-IN");
 
+    const poster=document.getElementById("publicAnnouncementPoster");
+    if(prize.prize_status==="announced" && prize.poster_url){poster.src=prize.poster_url;poster.hidden=false;poster.style.display="block";}
+    else{poster.removeAttribute("src");poster.hidden=true;poster.style.display="none";}
     document.getElementById("publicTier1").textContent = format(prize.tier1_prize);
     document.getElementById("publicTier2").textContent = format(prize.tier2_prize);
     document.getElementById("publicTier3").textContent = format(prize.tier3_prize);
@@ -833,12 +842,29 @@ async function loadPublicPrizePool() {
   }
 }
 
+async function loadPublicMatchTimetable(){
+ const target=document.getElementById("publicTimetableList");if(!target)return;
+ try{
+  const response=await fetch(SUPABASE_URL+"/rest/v1/match_timetable?select=id,match_date,match_time,match_type&published=eq.true&order=match_date.asc,match_time.asc",{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY},cache:"no-store"});
+  if(!response.ok)throw new Error("Could not load match timetable");
+  const rows=await response.json();
+  target.innerHTML=rows.map(row=>{
+   const dateLabel=new Date(row.match_date+"T00:00:00").toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+   const timeLabel=new Date("1970-01-01T"+row.match_time+"Z").toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true,timeZone:"UTC"});
+   const type=String(row.match_type).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+   return '<article class="card"><div class="tier">📅 '+dateLabel+'</div><h3>'+type+'</h3><p class="muted">🕒 '+timeLabel+'</p></article>';
+  }).join("")||'<div class="card muted">No matches have been scheduled yet. Check back for updates.</div>';
+ }catch(error){console.error("Match timetable:",error);target.innerHTML='<div class="card muted">Match timetable is temporarily unavailable.</div>';}
+}
+
 
 
 
 loadPublicPrizePool();
+loadPublicMatchTimetable();
 loadTierAvailability();
 setInterval(loadPublicPrizePool,15000);
+setInterval(loadPublicMatchTimetable,15000);
 setInterval(loadTierAvailability,15000);
   </script>
 </div>
