@@ -84,6 +84,26 @@ dialog{background:#151116;border-color:#8a443b}
 
 <div id="dashboard" class="hidden">
 <section><h2>Squad Tournament</h2><p class="small">Manage four-player Battle Royale squads, approvals, room scores and live winner announcements separately from solo matches.</p><a href="/squad-admin.html" style="display:inline-block;padding:12px 16px;border-radius:8px;background:#55e6a5;color:#08130e;font-weight:bold;text-decoration:none">Open Squad Admin</a></section>
+<section id="timetableManager">
+<h2>🗓️ MATCH TIMETABLE & POSTER UPLOAD</h2><p class="small" style="font-size:14px;color:#f0c56d">ADD A MATCH · SET DATE & TIME · UPLOAD ITS POSTER · PUBLISH TO HOMEPAGE</p>
+<p class="small">Add match dates and times. Only published matches appear on the homepage.</p>
+<label for="scheduleDate">Match date</label><input id="scheduleDate" type="date">
+<label for="scheduleTime">Match time</label><input id="scheduleTime" type="time">
+<label for="scheduleType">Type of match</label>
+<select id="scheduleType">
+<option value="BR - RANK POINTS SQUAD">BR - RANK POINTS SQUAD</option>
+<option value="BR - RANK POINTS SOLO">BR - RANK POINTS SOLO</option>
+<option value="ONE-TAP SQUAD CUSTOM">ONE-TAP SQUAD CUSTOM</option>
+<option value="ONE-TAP SOLO CUSTOM">ONE-TAP SOLO CUSTOM</option>
+</select>
+<label for="schedulePoster">📤 UPLOAD POSTER FOR THIS MATCH (JPG, PNG or WEBP · max 10 MB)</label>
+<input id="schedulePoster" type="file" accept="image/jpeg,image/png,image/webp" style="display:block;width:100%;padding:14px;background:#211519;border:2px dashed #f0c56d;border-radius:8px;color:#fff">
+<img id="schedulePosterPreview" alt="Match timetable poster preview" hidden style="display:none;max-width:100%;max-height:360px;object-fit:contain;margin:12px auto;border:1px solid #765044">
+<button id="saveSchedule" type="button">Add Match to Timetable</button>
+<button id="cancelScheduleEdit" type="button" class="secondary" hidden>Cancel Edit</button>
+<p id="scheduleMessage" class="small" aria-live="polite"></p>
+<div id="adminTimetable"></div>
+</section>
 
 
 <section>
@@ -215,26 +235,7 @@ dialog{background:#151116;border-color:#8a443b}
 <button id="savePrizes" type="button">Save Announcement</button>
 <p id="prizeMessage" class="small" aria-live="polite"></p>
 </section>
-<section id="timetableManager">
-<h2>🗓️ Match Timetable Manager</h2>
-<p class="small">Add match dates and times. Only published matches appear on the homepage.</p>
-<label for="scheduleDate">Match date</label><input id="scheduleDate" type="date">
-<label for="scheduleTime">Match time</label><input id="scheduleTime" type="time">
-<label for="scheduleType">Type of match</label>
-<select id="scheduleType">
-<option value="BR - RANK POINTS SQUAD">BR - RANK POINTS SQUAD</option>
-<option value="BR - RANK POINTS SOLO">BR - RANK POINTS SOLO</option>
-<option value="ONE-TAP SQUAD CUSTOM">ONE-TAP SQUAD CUSTOM</option>
-<option value="ONE-TAP SOLO CUSTOM">ONE-TAP SOLO CUSTOM</option>
-</select>
-<label for="schedulePoster">Match poster (optional · JPG, PNG or WEBP · max 10 MB)</label>
-<input id="schedulePoster" type="file" accept="image/jpeg,image/png,image/webp">
-<img id="schedulePosterPreview" alt="Match timetable poster preview" hidden style="display:none;max-width:100%;max-height:360px;object-fit:contain;margin:12px auto;border:1px solid #765044">
-<button id="saveSchedule" type="button">Add Match to Timetable</button>
-<button id="cancelScheduleEdit" type="button" class="secondary" hidden>Cancel Edit</button>
-<p id="scheduleMessage" class="small" aria-live="polite"></p>
-<div id="adminTimetable"></div>
-</section>
+
 
 <section>
   <h2>📊 Player Statistics</h2>
