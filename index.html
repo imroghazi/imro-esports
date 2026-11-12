@@ -846,14 +846,14 @@ async function loadPublicPrizePool() {
 async function loadPublicMatchTimetable(){
  const target=document.getElementById("publicTimetableList");if(!target)return;
  try{
-  const response=await fetch(SUPABASE_URL+"/rest/v1/match_timetable?select=id,match_date,match_time,match_type&published=eq.true&order=match_date.asc,match_time.asc",{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY},cache:"no-store"});
+  const response=await fetch(SUPABASE_URL+"/rest/v1/match_timetable?select=id,match_date,match_time,match_type,poster_url&published=eq.true&order=match_date.asc,match_time.asc",{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY},cache:"no-store"});
   if(!response.ok)throw new Error("Could not load match timetable");
   const rows=await response.json();
   target.innerHTML=rows.map(row=>{
    const dateLabel=new Date(row.match_date+"T00:00:00").toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
    const timeLabel=new Date("1970-01-01T"+row.match_time+"Z").toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true,timeZone:"UTC"});
    const type=String(row.match_type).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-   return '<article class="card"><div class="tier">📅 '+dateLabel+'</div><h3>'+type+'</h3><p class="muted">🕒 '+timeLabel+'</p></article>';
+   return '<article class="card">'+(row.poster_url?'<img src="'+String(row.poster_url).replace(/["<>]/g,'')+'" alt="Match poster for '+type+'" loading="lazy" style="display:block;width:100%;max-height:320px;object-fit:contain;margin:0 auto 14px;border:1px solid #6b493b;background:#090a0f">':'')+'<div class="tier">📅 '+dateLabel+'</div><h3>'+type+'</h3><p class="muted">🕒 '+timeLabel+'</p></article>';
   }).join("")||'<div class="card muted">No matches have been scheduled yet. Check back for updates.</div>';
  }catch(error){console.error("Match timetable:",error);target.innerHTML='<div class="card muted">Match timetable is temporarily unavailable.</div>';}
 }
