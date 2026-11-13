@@ -420,6 +420,122 @@ main section .card:after,
 @media(max-width:480px){.imro-social-logo{flex-basis:34px!important;width:34px!important;height:34px!important}.imro-youtube-logo{flex-basis:39px!important;width:39px!important;height:31px!important}}
 
 
+
+/* NEON MATCH CENTRE — visual-only refresh; timetable data/loading remains unchanged */
+#publicMatchTimetable{
+  position:relative;isolation:isolate;overflow:hidden;
+  margin:30px auto!important;padding:clamp(20px,4vw,34px)!important;
+  border:1px solid #42eaff!important;border-radius:20px!important;
+  background:
+    radial-gradient(ellipse at 8% 0%,#00d9ff32,transparent 42%),
+    radial-gradient(ellipse at 100% 18%,#ff2da633,transparent 42%),
+    linear-gradient(145deg,#101b36 0%,#11142d 48%,#1d1030 100%)!important;
+  box-shadow:0 0 0 1px #42eaff22,0 0 28px #00d9ff2b,0 18px 48px #0009!important;
+}
+#publicMatchTimetable:before,#publicMatchPosters:before{
+  content:"";position:absolute;inset:0 0 auto;height:4px;z-index:0;
+  background:linear-gradient(90deg,#00eaff,#8b5cff,#ff38b8,#ffe45c,#00eaff);
+  background-size:220% 100%;animation:imroNeonSweep 8s linear infinite;
+}
+#publicMatchTimetable .section-title,#publicMatchPosters .section-title{
+  color:#f7fbff!important;font-weight:950!important;
+  text-shadow:0 0 8px #00d9ff99,0 0 22px #00d9ff66!important;
+  letter-spacing:1.5px!important;
+}
+#publicMatchTimetable .section-title:before,#publicMatchPosters .section-title:before{
+  background:linear-gradient(180deg,#00f0ff,#ff42c8,#ffe45c)!important;
+  box-shadow:0 0 14px #00eaff!important;
+}
+#publicMatchTimetable>p,#publicMatchPosters>p{
+  color:#d7e8ff!important;text-shadow:0 1px 8px #0008;
+}
+#publicTimetableList{
+  position:relative;z-index:1;gap:18px!important;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))!important;
+}
+#publicTimetableList>.card{
+  position:relative;overflow:hidden;padding:17px!important;
+  border:1px solid #3deaff!important;border-radius:15px!important;
+  background:linear-gradient(145deg,#152b49 0%,#171832 58%,#291332 100%)!important;
+  box-shadow:0 0 0 1px #00d9ff18,0 0 20px #00cfff24,0 12px 28px #0008!important;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+#publicTimetableList>.card:before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,#00efff,#a45bff,#ff43b8);
+  box-shadow:0 0 13px #00eaff;
+}
+#publicTimetableList>.card:hover{
+  transform:translateY(-3px);border-color:#ff55ce!important;
+  box-shadow:0 0 24px #ff39c755,0 14px 30px #0009!important;
+}
+#publicTimetableList .tier{
+  color:#ffe66b!important;font-size:13px!important;font-weight:950!important;
+  letter-spacing:2px;text-shadow:0 0 10px #ffcf3f88;
+}
+#publicTimetableList h3{
+  color:#ffffff!important;font-size:clamp(19px,3vw,24px)!important;
+  line-height:1.2;text-shadow:0 0 12px #00d9ff66!important;
+  overflow-wrap:anywhere;
+}
+#publicTimetableList .muted{
+  color:#cceaff!important;font-size:16px!important;font-weight:650;
+}
+#publicTimetableList img{
+  border:1px solid #ff55c9!important;border-radius:10px!important;
+  box-shadow:0 0 0 1px #00eaff44,0 0 18px #ff38b855!important;
+}
+#publicMatchPosters{
+  position:relative;isolation:isolate;overflow:hidden;
+  border:1px solid #ff4cc9!important;border-radius:20px!important;
+  background:
+    radial-gradient(ellipse at 0% 0%,#ff35bd2b,transparent 44%),
+    radial-gradient(ellipse at 100% 100%,#00d9ff26,transparent 48%),
+    linear-gradient(145deg,#211238,#101a36 58%,#17102b)!important;
+  box-shadow:0 0 0 1px #ff45c822,0 0 30px #ff35bd2b,0 18px 48px #0009!important;
+}
+#publicMatchPosters>*{position:relative;z-index:1}
+#publicMatchPosters>div:first-child{
+  color:#ffe66b!important;text-shadow:0 0 12px #ffcf3f99!important;
+}
+#publicMatchPosterGallery{
+  position:relative;z-index:1;
+}
+#publicMatchPosterGallery>.card{
+  overflow:hidden;border:1px solid #00eaff!important;border-radius:15px!important;
+  background:linear-gradient(145deg,#142b48,#17132e 70%,#29102c)!important;
+  box-shadow:0 0 18px #00d9ff22,0 12px 28px #0008!important;
+}
+#publicMatchPosterGallery img{
+  border:1px solid #ff55c9!important;border-radius:10px!important;
+  box-shadow:0 0 16px #ff38b844,0 0 22px #00d9ff22!important;
+}
+#publicMatchPosterGallery .tier{
+  color:#ffe66b!important;text-shadow:0 0 10px #ffcf3f77;
+}
+#publicMatchPosterGallery h3{
+  color:#fff!important;text-shadow:0 0 12px #00d9ff66!important;
+  overflow-wrap:anywhere;
+}
+#publicMatchPosterGallery .muted,#publicTimetableList>.card.muted,
+#publicMatchPosterGallery>.card.muted{
+  color:#d9eaff!important;
+}
+@keyframes imroNeonSweep{to{background-position:220% 0}}
+@media(hover:hover){
+ #publicMatchPosters .card:hover{transform:translateY(-3px);border-color:#ff55c9!important}
+}
+@media(max-width:600px){
+ #publicMatchTimetable{padding:19px 14px!important;border-radius:16px!important}
+ #publicMatchPosters{padding:20px 13px!important;border-radius:16px!important}
+ #publicTimetableList{grid-template-columns:1fr!important}
+ #publicTimetableList>.card{padding:14px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #publicMatchTimetable:before,#publicMatchPosters:before{animation:none}
+ #publicTimetableList>.card,#publicMatchPosterGallery>.card{transition:none}
+}
+
 </style>
   <link rel="stylesheet" href="/journey-colors.css?v=13">
 </head>
