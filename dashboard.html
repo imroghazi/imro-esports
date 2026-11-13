@@ -142,12 +142,20 @@ dialog{background:#151116;border-color:#8a443b}
 <div id="recentMatchAlerts"></div>
 </section>
 
-<section>
-<h2>Player management</h2>
+<section id="soloRegistrationDesk">
+<h2>🧾 SOLO REGISTRATION DESK</h2>
+<p class="small">Manage this selected solo tournament's registrations. Closing registration stops new entries; it does not delete existing player records or prevent you from reviewing their status.</p>
+<div class="grid">
+ <div><label for="playerStatusFilter">Show player status</label>
+ <select id="playerStatusFilter"><option value="all">All active statuses</option><option value="pending">Pending approval</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="reserve">Reserve</option><option value="eliminated">Eliminated</option><option value="withdrawn">Archived / withdrawn</option></select></div>
+ <div><label for="playerTierFilter">Filter by tier</label>
+ <select id="playerTierFilter"><option value="all">All tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option></select></div>
+</div>
 <label for="playerSearch">Search players</label>
 <input id="playerSearch" type="search" placeholder="Search name, Free Fire UID or contact number">
 <p id="playerSearchCount" class="small" aria-live="polite">Showing all active players.</p>
-<label style="display:flex;align-items:center;gap:8px"><input id="showWithdrawnPlayers" type="checkbox" style="width:auto"> Show archived players (restore available)</label>
+<div class="grid"><button type="button" class="secondary" id="showPendingPlayers">⏳ Pending queue</button><button type="button" class="secondary" id="showAllPlayers">Show all players</button></div>
+<label style="display:flex;align-items:center;gap:8px"><input id="showWithdrawnPlayers" type="checkbox" style="width:auto"> Include archived players (restore available)</label>
 <div id="players"></div>
 </section>
 
@@ -642,9 +650,14 @@ function contactPhone(registration){
 function renderPlayers(){
   const query=($("playerSearch")?.value||"").trim().toLowerCase();
   const showArchived=$("showWithdrawnPlayers")?.checked||false;
+  const statusFilter=$("playerStatusFilter")?.value||"all";
+  const tierFilter=$("playerTierFilter")?.value||"all";
   const filtered=players.filter(p=>{
     const isArchived=Boolean(p.archived_at)||p.status==="withdrawn";
-    if(isArchived&&!showArchived)return false;
+    if(isArchived&&!showArchived&&statusFilter!=="withdrawn")return false;
+    if(statusFilter==="withdrawn"&&!isArchived)return false;
+    if(statusFilter!=="all"&&statusFilter!=="withdrawn"&&p.status!==statusFilter)return false;
+    if(tierFilter!=="all"&&String(p.tier)!==tierFilter)return false;
     const registration=registrations.find(r=>r.id===p.registration_id);
     const contact=String(registration?.contact_number||"");
     return [p.player_name,p.game_uid,contact,registration?.registration_token]
@@ -652,9 +665,8 @@ function renderPlayers(){
   });
   const archivedCount=players.filter(p=>Boolean(p.archived_at)||p.status==="withdrawn").length;
   const activeCount=players.length-archivedCount;
-  $("playerSearchCount").textContent=query
-    ? "Showing "+filtered.length+" matching player(s)."
-    : "Showing "+(showArchived?"active and archived players":"all "+activeCount+" active players")+(archivedCount&&!showArchived?"; "+archivedCount+" archived hidden.":".");
+  const counts={pending:players.filter(p=>p.status==="pending"&&!p.archived_at).length,approved:players.filter(p=>p.status==="approved"&&!p.archived_at).length,rejected:players.filter(p=>p.status==="rejected"&&!p.archived_at).length,reserve:players.filter(p=>p.status==="reserve"&&!p.archived_at).length,eliminated:players.filter(p=>p.status==="eliminated"&&!p.archived_at).length};
+  $("playerSearchCount").textContent="Showing "+filtered.length+" of "+players.length+" player record(s) · Pending "+counts.pending+" · Approved "+counts.approved+" · Rejected "+counts.rejected+" · Reserve "+counts.reserve+" · Eliminated "+counts.eliminated+" · Archived "+archivedCount+".";
 
   $("players").innerHTML=filtered.map(p=>{
     const registration=registrations.find(r=>r.id===p.registration_id);
@@ -1314,6 +1326,10 @@ $("draftDrawSelect").addEventListener("change",()=>{
 $("matchTier").addEventListener("change",renderPlayerSelects);
 $("playerSearch").addEventListener("input",renderPlayers);
 $("showWithdrawnPlayers").addEventListener("change",renderPlayers);
+$("playerStatusFilter").addEventListener("change",()=>{if($("playerStatusFilter").value==="withdrawn")$("showWithdrawnPlayers").checked=true;renderPlayers();});
+$("playerTierFilter").addEventListener("change",renderPlayers);
+$("showPendingPlayers").addEventListener("click",()=>{$("playerStatusFilter").value="pending";$("showWithdrawnPlayers").checked=false;renderPlayers();});
+$("showAllPlayers").addEventListener("click",()=>{$("playerStatusFilter").value="all";$("playerTierFilter").value="all";$("playerSearch").value="";$("showWithdrawnPlayers").checked=false;renderPlayers();});
 $("receiptPlayerSearch").addEventListener("input",renderReceiptPlayerOptions);
 $("toggleRegistration").onclick=toggleRegistration;
 $("refresh").onclick=refreshAdminData;
