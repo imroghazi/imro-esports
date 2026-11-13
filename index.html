@@ -484,6 +484,14 @@ main section .card:after,
 <p class="muted">Official match dates, timings and formats published by IMRO ESPORTS.</p>
 <div id="publicTimetableList" class="grid"><div class="card muted">Loading match timetable…</div></div>
 </section>
+<section id="publicMatchPosters" aria-labelledby="publicMatchPostersTitle" style="margin:22px auto;padding:22px 16px;border:1px solid #8a563e;border-radius:6px;background:radial-gradient(ellipse at 80% 0%,#7b1d2b55,transparent 48%),linear-gradient(145deg,#171016,#090a10 72%);box-shadow:0 18px 42px #0008">
+ <div style="color:#e9bd68;font-size:11px;font-weight:950;letter-spacing:3px">IMRO ESPORTS · OFFICIAL MATCH MEDIA</div>
+ <h2 class="section-title" id="publicMatchPostersTitle" style="margin:8px 0 6px">OFFICIAL MATCH POSTERS</h2>
+ <p class="muted">View match posters published by the IMRO admin team. Each poster appears here after it is published in the admin panel.</p>
+ <div id="publicMatchPosterGallery" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px">
+  <div class="card muted">Loading official match posters…</div>
+ </div>
+</section>
 <section id="prizePool" aria-labelledby="announcementTitle" style="margin:18px auto;padding:22px 16px;text-align:center;background:linear-gradient(135deg,#190909,#321010,#090909);border:1px solid #ed6b55;border-radius:5px;box-shadow:0 0 20px #ed233c33;">
 <div style="color:#edb655;font-weight:900;letter-spacing:4px;">📣 IMRO ESPORTS OFFICIAL</div>
 <h2 id="announcementTitle" style="font-size:clamp(26px,5vw,38px);margin:10px 0;color:#fff;">ANNOUNCEMENTS</h2>
@@ -844,18 +852,33 @@ async function loadPublicPrizePool() {
 }
 
 async function loadPublicMatchTimetable(){
- const target=document.getElementById("publicTimetableList");if(!target)return;
+ const target=document.getElementById("publicTimetableList");
+ const posterTarget=document.getElementById("publicMatchPosterGallery");
+ if(!target)return;
  try{
   const response=await fetch(SUPABASE_URL+"/rest/v1/match_timetable?select=id,match_date,match_time,match_type,poster_url&published=eq.true&order=match_date.asc,match_time.asc",{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY},cache:"no-store"});
-  if(!response.ok)throw new Error("Could not load match timetable");
+  if(!response.ok)throw new Error("Could not load match timetable ("+response.status+")");
   const rows=await response.json();
+  const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const dateFor=row=>new Date(row.match_date+"T00:00:00").toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+  const timeFor=row=>new Date("1970-01-01T"+row.match_time+"Z").toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true,timeZone:"UTC"});
   target.innerHTML=rows.map(row=>{
-   const dateLabel=new Date(row.match_date+"T00:00:00").toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
-   const timeLabel=new Date("1970-01-01T"+row.match_time+"Z").toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true,timeZone:"UTC"});
-   const type=String(row.match_type).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-   return '<article class="card">'+(row.poster_url?'<img src="'+String(row.poster_url).replace(/["<>]/g,'')+'" alt="Match poster for '+type+'" loading="lazy" style="display:block;width:100%;max-height:320px;object-fit:contain;margin:0 auto 14px;border:1px solid #6b493b;background:#090a0f">':'')+'<div class="tier">📅 '+dateLabel+'</div><h3>'+type+'</h3><p class="muted">🕒 '+timeLabel+'</p></article>';
+   const dateLabel=dateFor(row),timeLabel=timeFor(row),type=escapeHtml(row.match_type);
+   const poster=row.poster_url&&/^https?:\/\//i.test(row.poster_url)?'<img src="'+escapeHtml(row.poster_url)+'" alt="Match poster for '+type+'" loading="lazy" style="display:block;width:100%;max-height:320px;object-fit:contain;margin:0 auto 14px;border:1px solid #6b493b;background:#090a0f">':"";
+   return '<article class="card">'+poster+'<div class="tier">📅 '+dateLabel+'</div><h3>'+type+'</h3><p class="muted">🕒 '+timeLabel+'</p></article>';
   }).join("")||'<div class="card muted">No matches have been scheduled yet. Check back for updates.</div>';
- }catch(error){console.error("Match timetable:",error);target.innerHTML='<div class="card muted">Match timetable is temporarily unavailable.</div>';}
+  if(posterTarget){
+   const posterRows=rows.filter(row=>row.poster_url&&/^https?:\/\//i.test(row.poster_url));
+   posterTarget.innerHTML=posterRows.map(row=>{
+    const type=escapeHtml(row.match_type),dateLabel=dateFor(row),timeLabel=timeFor(row);
+    return '<article class="card" style="padding:12px"><img src="'+escapeHtml(row.poster_url)+'" alt="Official poster for '+type+'" loading="lazy" style="display:block;width:100%;max-height:560px;object-fit:contain;background:#08090d;border:1px solid #765044"><div class="tier" style="margin-top:12px">📅 '+dateLabel+'</div><h3 style="margin:7px 0">'+type+'</h3><p class="muted">🕒 '+timeLabel+'</p></article>';
+   }).join("")||'<div class="card muted">Official match posters will appear here after they are published from the admin panel.</div>';
+  }
+ }catch(error){
+  console.error("Match timetable:",error);
+  target.innerHTML='<div class="card muted">Match timetable is temporarily unavailable.</div>';
+  if(posterTarget)posterTarget.innerHTML='<div class="card muted">Official match posters are temporarily unavailable.</div>';
+ }
 }
 
 
